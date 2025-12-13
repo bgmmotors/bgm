@@ -10,12 +10,7 @@
     /* HEADER */
     .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
     .header-left { display:flex; align-items:center; min-width: 160px; }
-    .logo {
-      height:46px;
-      width:auto;
-      display:block;
-      filter:none; /* REMOVE blur */
-    }
+    .logo { height:46px; width:auto; display:block; filter:none; }
 
     .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
     .header-title { font-size:44px; font-weight:900; letter-spacing:1px; }
@@ -236,10 +231,10 @@
 
     function startDateTime() {
       const el = document.getElementById("dateTime");
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       function tick() {
         const now = new Date();
         const d = String(now.getDate()).padStart(2, "0");
-        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
         const m = monthNames[now.getMonth()];
         const y = String(now.getFullYear()).slice(-2);
         const hh = String(now.getHours()).padStart(2,"0");
@@ -299,6 +294,7 @@
       const el = document.getElementById(elId);
       if (!el) return;
 
+      // sem state => sem carinha
       if (!state) {
         el.innerHTML = "";
         el.style.color = "#fff";
@@ -312,11 +308,27 @@
       el.innerHTML = faceSVG(state.face);
     }
 
+    function hasAnyLaunchInSlot(slot) {
+      // Qualquer STOP conta como lançamento
+      const stops = ["st1","st2","st3","st4"].some(k => slot[k] && slot[k] !== "RUN");
+      if (stops) return true;
+
+      // RUN conta se tiver valor lançado (não vazio)
+      const vals = ["line1","line2","line3","line4"].some(k => {
+        const v = slot[k];
+        return v !== "" && v !== null && v !== undefined;
+      });
+      return vals;
+    }
+
     function updateTopKPIs(json) {
       const slots = json.slots || [];
       const ultimo = json.ultimo_slot || null;
-      const considered = calcUpToUltimo(slots, ultimo);
 
+      // Se não teve nenhum lançamento no dia => tudo neutro
+      const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
+
+      const considered = calcUpToUltimo(slots, ultimo);
       const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_effective || 0)), 0);
 
       const acc = {
@@ -329,10 +341,11 @@
       const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
       const totalTarget = targetPerLine * 4;
 
-      document.getElementById("totalProd").textContent = totalTarget > 0 ? totalProd : "-";
+      // Total numbers: se não tem lançamento => "-"
+      document.getElementById("totalProd").textContent = anyLaunchDay ? totalProd : "-";
       document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
 
-      if (!ultimo || totalTarget <= 0) {
+      if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
         setCardBorder("cardTotal", "IDLE");
         setBigFace("faceTotal", null);
       } else {
@@ -354,7 +367,7 @@
         const lastEl = document.getElementById(m.last);
         const accEl = document.getElementById(m.acc);
 
-        if (!ultimo || targetPerLine <= 0) {
+        if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
           lastEl.textContent = "-";
           accEl.textContent = "-";
           setCardBorder(m.card, "IDLE");
@@ -375,15 +388,23 @@
       });
     }
 
-    // TABLE CELL: sem carinhas
-    function tdWithPerf(value, targetEff) {
+    // Tabela: só colore se tiver lançamento naquele período/linha
+    function tdWithPerf(value, targetEff, hasLaunch) {
       const td = document.createElement("td");
+
+      // sem lançamento => vazio e sem cor
+      if (!hasLaunch) {
+        td.textContent = "";
+        return td;
+      }
+
+      // com lançamento
       if (targetEff > 0) {
         const st = perfStatus(value / targetEff);
         td.classList.add(st.cls);
         td.textContent = value;
       } else {
-        td.textContent = value ? String(value) : "";
+        td.textContent = String(value ?? "");
       }
       return td;
     }
@@ -403,6 +424,7 @@
       const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
       shifts.forEach(group => {
+        // linhas do turno
         group.slots.forEach(slot => {
           const tr = document.createElement("tr");
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
@@ -418,6 +440,7 @@
           const targetEff = Number(slot.target_effective || 0);
 
           const tdTarget = document.createElement("td");
+          // target sempre aparece (como você quer), mas sem cor
           tdTarget.textContent = targetEff > 0 ? targetEff : "";
           tr.appendChild(tdTarget);
 
@@ -430,21 +453,31 @@
 
           defs.forEach(d => {
             const stKind = slot[d.st] || "RUN";
+
+            // Se STOP: pinta pelo motivo e mostra texto/motivo
             if (stKind !== "RUN") {
               const td = document.createElement("td");
-              td.textContent = slot[d.disp] || "";
+              td.textContent = slot[d.disp] || ""; // ex: "MAINTENANCE"
               td.classList.add(statusClass(stKind));
               tr.appendChild(td);
-            } else {
-              const v = Number(slot[d.key] || 0);
-              tr.appendChild(tdWithPerf(v, targetEff));
+              return;
             }
+
+            // RUN: só pinta se tiver lançamento (valor não-vazio)
+            const raw = slot[d.key];
+            const hasLaunch = (raw !== "" && raw !== null && raw !== undefined);
+            const v = Number(raw || 0);
+
+            tr.appendChild(tdWithPerf(v, targetEff, hasLaunch));
           });
 
           tbody.appendChild(tr);
         });
 
+        // linha acumulada do turno
         if (group.slots.length > 0) {
+          const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
+
           const sum = {
             target: group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0),
             line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
@@ -468,7 +501,14 @@
           trSum.appendChild(tdT);
 
           ["line1","line2","line3","line4"].forEach(k => {
-            trSum.appendChild(tdWithPerf(sum[k], sum.target));
+            // Se não houve lançamento no turno => deixa vazio e sem cor
+            if (!hasAnyLaunchShift) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              trSum.appendChild(td);
+              return;
+            }
+            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
           });
 
           tbody.appendChild(trSum);
