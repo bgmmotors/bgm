@@ -120,14 +120,20 @@
       const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       function tick(){
         const now = new Date();
-        const d = String(now.getDate()).padStart(2,"0");
+        const d = String(now.getDate()).padStart(2, "0");
         const m = monthNames[now.getMonth()];
         const y = String(now.getFullYear()).slice(-2);
-        const hh = String(now.getHours()).padStart(2,"0");
-        const mm = String(now.getMinutes()).padStart(2,"0");
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
         el.textContent = `${d}-${m}-${y} ${hh}:${mm}`;
       }
       tick(); setInterval(tick, 1000);
+    }
+
+    function setMsg(text, type){
+      const el = document.getElementById("msg");
+      el.className = "msg " + (type || "");
+      el.textContent = text || "";
     }
 
     function buildLineInputs(){
@@ -136,12 +142,12 @@
 
       LINES.forEach(l => {
         const wrap = document.createElement("div");
-
         wrap.innerHTML = `
           <div class="lineLabel">${l.label}</div>
           <div class="lineRow">
             <div>
               <input
+                id="${l.key}"
                 inputmode="decimal"
                 type="text"
                 pattern="[0-9.]*"
@@ -156,7 +162,6 @@
             </label>
           </div>
         `;
-
         grid.appendChild(wrap);
       });
     }
@@ -183,17 +188,13 @@
       });
     }
 
-    function setMsg(text, type){
-      const el = document.getElementById("msg");
-      el.className = "msg " + (type || "");
-      el.textContent = text || "";
-    }
-
     function getPayload(){
       const sel = document.getElementById("slotSel");
       const opt = sel.options[sel.selectedIndex];
 
       const payload = {
+        // OBS: action aqui não é obrigatório, pois vai na URL,
+        // mas não atrapalha deixar (para debug).
         action: "saveProduction",
         data: todayISO(),
         id_slot: opt.value,
@@ -204,9 +205,8 @@
         usuario: "mobile"
       };
 
-      // valores como TEXTO (pode ser ".1", etc.)
       LINES.forEach(l => {
-        payload[l.key] = (document.getElementById(l.key).value || "").trim();
+        payload[l.key]  = (document.getElementById(l.key).value || "").trim();
         payload[l.flag] = document.getElementById(l.flag).checked ? "SIM" : "";
       });
 
@@ -221,13 +221,20 @@
       try {
         const body = getPayload();
 
+        // IMPORTANTE:
+        // - URL com ?action=saveProduction
+        // - SEM "Content-Type: application/json" para evitar preflight (CORS) no Apps Script
         const res = await fetch(`${SCRIPT_URL}?action=saveProduction`, {
           method: "POST",
-          headers: { "Content-Type":"application/json" },
           body: JSON.stringify(body)
         });
 
-        const json = await res.json();
+        // Apps Script às vezes retorna texto, então é mais robusto assim:
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); }
+        catch { throw new Error(text || "Invalid response"); }
+
         if (json.status !== "success") throw new Error(json.message || "Save error");
 
         setMsg("Saved ✅", "ok");
@@ -246,4 +253,3 @@
   </script>
 </body>
 </html>
-
