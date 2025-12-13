@@ -2,80 +2,55 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Performance CLM6 – Andon</title>
+  <title>PERFORMANCE CLM6</title>
   <style>
     html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
-    .wrapper { display:flex; flex-direction:column; height:100vh; padding:16px 24px; box-sizing:border-box; background:#000; }
+    .wrapper { display:flex; flex-direction:column; height:100vh; padding:12px 18px; box-sizing:border-box; background:#000; }
 
     /* HEADER */
-    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:16px; }
-    .header-left { display:flex; align-items:center; gap:14px; min-width: 360px; }
-    .logo { height:48px; width:auto; display:block; }
-    .header-title { font-size:36px; font-weight:bold; line-height:1; }
-
-    .header-center { flex:1; display:flex; justify-content:center; }
-    .clock {
-      font-size:40px;
-      font-weight:800;
-      letter-spacing:1px;
-      color:#fff;
-      background:#111;
-      border:2px solid #333;
-      border-radius:14px;
-      padding:10px 18px;
-      min-width: 220px;
-      text-align:center;
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
+    .header-left { display:flex; align-items:center; min-width: 160px; }
+    .logo {
+      height:46px; width:auto; display:block;
+      filter: drop-shadow(0 0 2px #2f80ff) drop-shadow(0 0 6px #2f80ff);
     }
 
+    .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
+    .header-title { font-size:44px; font-weight:900; letter-spacing:1px; }
+
     .header-right { text-align:right; min-width: 260px; }
-    .header-date { font-size:28px; font-weight:bold; }
-    .header-coverage { font-size:18px; color:#aaa; }
+    .header-date { font-size:28px; font-weight:900; }
 
     /* KPI ROW */
-    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:12px; margin-bottom:16px; }
+    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:10px; margin-bottom:10px; }
 
     .kpi-card {
       background:#111;
       border-radius:14px;
-      padding:12px 16px;
+      padding:10px 14px;
       box-shadow:0 0 10px rgba(0,0,0,0.6);
       border:3px solid #444;
-      min-height: 120px;
+      min-height: 105px;
     }
 
-    /* NEW CARD LAYOUT (texto à esquerda, rosto à direita) */
-    .card-grid {
-      display:grid;
-      grid-template-columns: 1fr 86px;
-      gap:12px;
-      align-items:center;
-    }
+    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
 
-    .kpi-title { font-size:18px; margin-bottom:10px; }
-
-    .kpi-main { font-size:30px; font-weight:900; margin-bottom:8px; }
-    .kpi-sub  { font-size:14px; color:#ccc; }
+    .kpi-title { font-size:17px; margin-bottom:8px; }
+    .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
+    .kpi-sub  { font-size:13px; color:#ccc; }
 
     .metric { margin-top:6px; }
-    .metric-label { font-size:13px; color:#ccc; }
-    .metric-value { font-size:16px; font-weight:800; color:#fff; margin-top:2px; }
+    .metric-label { font-size:12px; color:#ccc; }
+    .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
 
-    .big-face {
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      width:86px;
-      height:86px;
-      /* cor será aplicada via JS (currentColor no SVG) */
-      color:#fff;
-    }
-    .big-face svg { width:70px; height:70px; display:block; }
+    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
+    .big-face svg { width:66px; height:66px; display:block; }
 
     /* TABLE */
-    .table-container { flex:1; overflow-y:auto; border-radius:10px; background:#111; padding:10px; }
-    table { width:100%; border-collapse:collapse; background:#111; color:#fff; font-size:14px; }
-    thead th { position:sticky; top:0; background:#222; padding:8px; border-bottom:2px solid #555; border-right:1px solid #555; }
-    tbody td { padding:6px 8px; text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
+    .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; font-size:13px; }
+    thead th { position:sticky; top:0; background:#222; padding:6px; border-bottom:2px solid #555; border-right:1px solid #555; }
+    tbody td { padding:5px 6px; text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
 
     .row-current { background:#262626; }
 
@@ -91,20 +66,24 @@
     .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
     .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
 
-    /* SHIFT SUMMARY ROW + white full border */
-    .shift-sum td {
-      background:#003366 !important;
-      font-weight:900;
+    /* SHIFT SUMMARY ROW: borda branca no contorno + label/target azul */
+    .shift-sum td{
       border-top:2px solid #fff !important;
       border-bottom:2px solid #fff !important;
     }
     .shift-sum td:first-child { border-left:2px solid #fff !important; }
     .shift-sum td:last-child  { border-right:2px solid #fff !important; }
 
-    .footer-status { margin-top:6px; font-size:14px; color:#ccc; }
+    .shift-sum-label, .shift-sum-target {
+      background:#003366 !important;
+      color:#fff;
+      font-weight:900;
+    }
 
-    /* SVG common (usa currentColor, para seguir cor da borda) */
+    /* SVG common (usa currentColor, para seguir cor da borda do card) */
     .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+    .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
   </style>
 </head>
 <body>
@@ -113,16 +92,14 @@
     <div class="header">
       <div class="header-left">
         <img class="logo" src="assets/BGM.png" alt="BGM Motors">
-        <div class="header-title">Performance CLM6 – Andon</div>
       </div>
 
       <div class="header-center">
-        <div class="clock" id="clock">--:--</div>
+        <div class="header-title">PERFORMANCE CLM6</div>
       </div>
 
       <div class="header-right">
-        <div class="header-date" id="currentDate">--</div>
-        <div class="header-coverage" id="coverageText">No production yet</div>
+        <div class="header-date" id="dateTime">--</div>
       </div>
     </div>
 
@@ -144,12 +121,10 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 1</div>
-
             <div class="metric">
               <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL1">-</div>
             </div>
-
             <div class="metric">
               <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL1">-</div>
@@ -164,12 +139,10 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 2</div>
-
             <div class="metric">
               <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL2">-</div>
             </div>
-
             <div class="metric">
               <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL2">-</div>
@@ -184,12 +157,10 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 3</div>
-
             <div class="metric">
               <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL3">-</div>
             </div>
-
             <div class="metric">
               <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL3">-</div>
@@ -204,12 +175,10 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 4</div>
-
             <div class="metric">
               <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL4">-</div>
             </div>
-
             <div class="metric">
               <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL4">-</div>
@@ -224,13 +193,13 @@
       <table>
         <thead>
           <tr>
-            <th>Shift</th>
-            <th>Time</th>
-            <th>Target</th>
-            <th>Line 1</th>
-            <th>Line 2</th>
-            <th>Line 3</th>
-            <th>Line 4</th>
+            <th style="width:16%;">Shift</th>
+            <th style="width:28%;">Time</th>
+            <th style="width:10%;">Target</th>
+            <th style="width:11%;">Line 1</th>
+            <th style="width:11%;">Line 2</th>
+            <th style="width:11%;">Line 3</th>
+            <th style="width:13%;">Line 4</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -250,33 +219,20 @@
       return `${y}-${m}-${day}`;
     }
 
-    function formatDateHeader() {
-      const now = new Date();
-      const d = String(now.getDate()).padStart(2, "0");
-      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const m = monthNames[now.getMonth()];
-      const y = String(now.getFullYear()).slice(-2);
-      document.getElementById("currentDate").textContent = `${d}-${m}-${y}`;
-    }
-
-    function startClock() {
-      const el = document.getElementById("clock");
+    function startDateTime() {
+      const el = document.getElementById("dateTime");
       function tick() {
         const now = new Date();
+        const d = String(now.getDate()).padStart(2, "0");
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const m = monthNames[now.getMonth()];
+        const y = String(now.getFullYear()).slice(-2);
         const hh = String(now.getHours()).padStart(2,"0");
         const mm = String(now.getMinutes()).padStart(2,"0");
-        el.textContent = `${hh}:${mm}`;
+        el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
       }
       tick();
       setInterval(tick, 1000);
-    }
-
-    function setCoverage(ultimoSlot) {
-      const el = document.getElementById("coverageText");
-      if (!ultimoSlot) { el.textContent = "No production yet (T1 not started)"; return; }
-      if (ultimoSlot.shift === 1) el.textContent = "Shift coverage: T1";
-      else if (ultimoSlot.shift === 2) el.textContent = "Shift coverage: T1 + T2";
-      else el.textContent = "Shift coverage: T1 + T2 + T3";
     }
 
     function setCardBorder(id, status) {
@@ -297,10 +253,7 @@
       return "";
     }
 
-    // --- SVG FACES (outline, cor = currentColor) ---
-    function faceSVG(type, size="big") {
-      const s = (size === "big") ? 70 : 22;
-      const view = "0 0 64 64";
+    function faceSVG(type) {
       const common = `class="face-stroke"`;
       const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
       const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
@@ -308,7 +261,7 @@
       if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
       else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
       else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
-      return `<svg width="${s}" height="${s}" viewBox="${view}" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+      return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
     }
 
     function perfStatus(pct) {
@@ -337,12 +290,11 @@
         return;
       }
 
-      // cor do rosto segue cor da borda / status
       if (state.status === "OK") el.style.color = "#00b050";
       else if (state.status === "MID") el.style.color = "#9acd32";
       else el.style.color = "#c00000";
 
-      el.innerHTML = faceSVG(state.face, "big");
+      el.innerHTML = faceSVG(state.face);
     }
 
     function updateTopKPIs(json) {
@@ -350,7 +302,6 @@
       const ultimo = json.ultimo_slot || null;
       const considered = calcUpToUltimo(slots, ultimo);
 
-      // target por linha (soma target_effective) até o último slot
       const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_effective || 0)), 0);
 
       const acc = {
@@ -363,7 +314,6 @@
       const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
       const totalTarget = targetPerLine * 4;
 
-      // TOTAL card
       document.getElementById("totalProd").textContent = totalTarget > 0 ? totalProd : "-";
       document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
 
@@ -371,13 +321,11 @@
         setCardBorder("cardTotal", "IDLE");
         setBigFace("faceTotal", null);
       } else {
-        const pct = totalProd / totalTarget;
-        const st = perfStatus(pct);
+        const st = perfStatus(totalProd / totalTarget);
         setCardBorder("cardTotal", st.status);
         setBigFace("faceTotal", st);
       }
 
-      // last period = último slot
       const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
 
       const lines = [
@@ -406,19 +354,17 @@
         const accVal = acc[m.key];
         accEl.textContent = `${accVal} / ${targetPerLine}`;
 
-        const pct = accVal / targetPerLine;
-        const st = perfStatus(pct);
+        const st = perfStatus(accVal / targetPerLine);
         setCardBorder(m.card, st.status);
         setBigFace(m.face, st);
       });
     }
 
-    // TABLE CELL: sem carinhas (mais limpo)
+    // TABLE CELL: sem carinhas
     function tdWithPerf(value, targetEff) {
       const td = document.createElement("td");
       if (targetEff > 0) {
-        const pct = value / targetEff;
-        const st = perfStatus(pct);
+        const st = perfStatus(value / targetEff);
         td.classList.add(st.cls);
         td.textContent = value;
       } else {
@@ -479,7 +425,7 @@
           tbody.appendChild(tr);
         });
 
-        // shift summary row
+        // shift summary row (label/target azul; lines coloridas)
         if (group.slots.length > 0) {
           const sum = {
             target: group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0),
@@ -495,10 +441,12 @@
           const td1 = document.createElement("td");
           td1.colSpan = 2;
           td1.textContent = `CUMULATIVE RESULT – SHIFT ${group.shift}`;
+          td1.classList.add("shift-sum-label");
           trSum.appendChild(td1);
 
           const tdT = document.createElement("td");
           tdT.textContent = sum.target > 0 ? sum.target : "";
+          tdT.classList.add("shift-sum-target");
           trSum.appendChild(tdT);
 
           ["line1","line2","line3","line4"].forEach(k => {
@@ -518,11 +466,9 @@
 
         if (json.status !== "success") {
           console.error("API error:", json.message);
-          document.getElementById("coverageText").textContent = "Error loading data";
           return;
         }
 
-        setCoverage(json.ultimo_slot || null);
         updateTopKPIs(json);
         buildTable(json);
 
@@ -530,12 +476,10 @@
           "Last update: " + new Date().toLocaleTimeString();
       } catch (err) {
         console.error(err);
-        document.getElementById("coverageText").textContent = "Error calling API";
       }
     }
 
-    formatDateHeader();
-    startClock();
+    startDateTime();
     refreshDashboard();
     setInterval(refreshDashboard, 30000);
   </script>
