@@ -6,53 +6,131 @@
   <style>
     html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
     .wrapper { display:flex; flex-direction:column; height:100vh; padding:16px 24px; box-sizing:border-box; background:#000; }
-    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-    .header-title { font-size:36px; font-weight:bold; }
-    .header-right { text-align:right; }
+
+    /* HEADER */
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:16px; }
+    .header-left { display:flex; align-items:center; gap:14px; min-width: 360px; }
+    .logo { height:48px; width:auto; display:block; }
+    .header-title { font-size:36px; font-weight:bold; line-height:1; }
+
+    .header-center { flex:1; display:flex; justify-content:center; }
+    .clock {
+      font-size:40px;
+      font-weight:800;
+      letter-spacing:1px;
+      color:#fff;
+      background:#111;
+      border:2px solid #333;
+      border-radius:14px;
+      padding:10px 18px;
+      min-width: 220px;
+      text-align:center;
+    }
+
+    .header-right { text-align:right; min-width: 260px; }
     .header-date { font-size:28px; font-weight:bold; }
     .header-coverage { font-size:18px; color:#aaa; }
 
+    /* KPI ROW */
     .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:12px; margin-bottom:16px; }
-    .kpi-card { background:#111; border-radius:14px; padding:12px 16px; box-shadow:0 0 10px rgba(0,0,0,0.6); display:flex; flex-direction:column; justify-content:space-between; border:3px solid #444; }
-    .kpi-title { font-size:18px; margin-bottom:6px; }
-    .kpi-main { font-size:26px; font-weight:bold; }
+
+    .kpi-card {
+      background:#111;
+      border-radius:14px;
+      padding:12px 16px;
+      box-shadow:0 0 10px rgba(0,0,0,0.6);
+      border:3px solid #444;
+      min-height: 110px;
+    }
+
+    /* NEW CARD LAYOUT (texto à esquerda, rosto à direita) */
+    .card-grid {
+      display:grid;
+      grid-template-columns: 1fr 86px;
+      gap:12px;
+      align-items:center;
+    }
+
+    .kpi-title { font-size:18px; margin-bottom:8px; }
+    .kpi-main { font-size:28px; font-weight:900; margin-bottom:6px; }
     .kpi-sub { font-size:14px; color:#ccc; }
-    .status-pill { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:bold; font-size:14px; margin-bottom:4px; }
 
-    .pill-ok { background:#00b050; color:#000; }
-    .pill-mid { background:#9acd32; color:#000; } /* amarelo-esverdeado */
-    .pill-nok { background:#c00000; color:#fff; }
-    .pill-idle { background:#444; color:#fff; }
+    .big-face {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:86px;
+      height:86px;
+    }
+    .big-face svg { width:70px; height:70px; display:block; }
 
+    /* TABLE */
     .table-container { flex:1; overflow-y:auto; border-radius:10px; background:#111; padding:10px; }
     table { width:100%; border-collapse:collapse; background:#111; color:#fff; font-size:14px; }
     thead th { position:sticky; top:0; background:#222; padding:8px; border-bottom:2px solid #555; border-right:1px solid #555; }
-    tbody td { padding:6px 4px; text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
+    tbody td { padding:6px 8px; text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
 
     .row-current { background:#262626; }
 
     /* Performance cores */
-    .cell-ok { background:#00b050; color:#000; font-weight:bold; }
-    .cell-mid { background:#9acd32; color:#000; font-weight:bold; }
-    .cell-nok { background:#c00000; color:#fff; font-weight:bold; }
+    .cell-ok  { background:#00b050; color:#000; font-weight:900; }
+    .cell-mid { background:#9acd32; color:#000; font-weight:900; }
+    .cell-nok { background:#c00000; color:#fff; font-weight:900; }
 
     /* STOP / status cores fixas */
-    .cell-mnt { background: orange; color:#000; font-weight:bold; }
-    .cell-mat { background: #808080; color:#000; font-weight:bold; }
-    .cell-peo { background: #ff69b4; color:#000; font-weight:bold; }
-    .cell-qual { background: #ffd400; color:#000; font-weight:bold; }
-    .cell-nosched { background: #0070c0; color:#fff; font-weight:bold; }
+    .cell-mnt     { background: orange;   color:#000; font-weight:900; }
+    .cell-mat     { background: #808080;  color:#000; font-weight:900; }
+    .cell-peo     { background: #ff69b4;  color:#000; font-weight:900; }
+    .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
+    .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
 
-    .shift-sum { background:#003366 !important; font-weight:bold; }
-    .shift-sum td { border-top:2px solid #fff; }
+    /* SHIFT SUMMARY ROW + white full border */
+    .shift-sum td {
+      background:#003366 !important;
+      font-weight:900;
+      border-top:2px solid #fff !important;
+      border-bottom:2px solid #fff !important;
+    }
+    .shift-sum td:first-child { border-left:2px solid #fff !important; }
+    .shift-sum td:last-child  { border-right:2px solid #fff !important; }
 
     .footer-status { margin-top:6px; font-size:14px; color:#ccc; }
+
+    /* Cell content with aligned face column */
+    .cell-wrap {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .cell-val { font-weight:900; }
+    .cell-face {
+      width:26px;
+      height:26px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 26px;
+    }
+    .cell-face svg { width:22px; height:22px; display:block; }
+
+    /* SVG common */
+    .face-stroke { stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
   </style>
 </head>
 <body>
   <div class="wrapper">
+
     <div class="header">
-      <div class="header-title">Performance CLM6 – Andon</div>
+      <div class="header-left">
+        <img class="logo" src="assets/BGM.png" alt="BGM Motors">
+        <div class="header-title">Performance CLM6 – Andon</div>
+      </div>
+
+      <div class="header-center">
+        <div class="clock" id="clock">--:--</div>
+      </div>
+
       <div class="header-right">
         <div class="header-date" id="currentDate">--</div>
         <div class="header-coverage" id="coverageText">No production yet</div>
@@ -60,39 +138,64 @@
     </div>
 
     <div class="kpi-row">
+      <!-- TOTAL -->
       <div class="kpi-card" id="cardTotal">
-        <div class="kpi-title">Total Production vs Target</div>
-        <div class="kpi-main" id="totalProd">-</div>
-        <div class="kpi-sub" id="totalTarget">Target: -</div>
-        <div class="footer-status" id="overallStatus">Status: -</div>
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Total Production vs Target</div>
+            <div class="kpi-main" id="totalProd">-</div>
+            <div class="kpi-sub" id="totalTarget">Target: -</div>
+          </div>
+          <div class="big-face" id="faceTotal"></div>
+        </div>
       </div>
 
+      <!-- Line 1 -->
       <div class="kpi-card" id="cardLine1">
-        <div class="kpi-title">Line 1</div>
-        <div id="pillLine1" class="status-pill pill-idle">IDLE</div>
-        <div class="kpi-sub">Last period: <span id="lastL1">-</span></div>
-        <div class="kpi-sub">Accumulated: <span id="accL1">-</span></div>
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 1</div>
+            <div class="kpi-sub">Last period: <span id="lastL1">-</span></div>
+            <div class="kpi-sub">Accumulated: <span id="accL1">-</span></div>
+          </div>
+          <div class="big-face" id="faceL1"></div>
+        </div>
       </div>
 
+      <!-- Line 2 -->
       <div class="kpi-card" id="cardLine2">
-        <div class="kpi-title">Line 2</div>
-        <div id="pillLine2" class="status-pill pill-idle">IDLE</div>
-        <div class="kpi-sub">Last period: <span id="lastL2">-</span></div>
-        <div class="kpi-sub">Accumulated: <span id="accL2">-</span></div>
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 2</div>
+            <div class="kpi-sub">Last period: <span id="lastL2">-</span></div>
+            <div class="kpi-sub">Accumulated: <span id="accL2">-</span></div>
+          </div>
+          <div class="big-face" id="faceL2"></div>
+        </div>
       </div>
 
+      <!-- Line 3 -->
       <div class="kpi-card" id="cardLine3">
-        <div class="kpi-title">Line 3</div>
-        <div id="pillLine3" class="status-pill pill-idle">IDLE</div>
-        <div class="kpi-sub">Last period: <span id="lastL3">-</span></div>
-        <div class="kpi-sub">Accumulated: <span id="accL3">-</span></div>
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 3</div>
+            <div class="kpi-sub">Last period: <span id="lastL3">-</span></div>
+            <div class="kpi-sub">Accumulated: <span id="accL3">-</span></div>
+          </div>
+          <div class="big-face" id="faceL3"></div>
+        </div>
       </div>
 
+      <!-- Line 4 -->
       <div class="kpi-card" id="cardLine4">
-        <div class="kpi-title">Line 4</div>
-        <div id="pillLine4" class="status-pill pill-idle">IDLE</div>
-        <div class="kpi-sub">Last period: <span id="lastL4">-</span></div>
-        <div class="kpi-sub">Accumulated: <span id="accL4">-</span></div>
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 4</div>
+            <div class="kpi-sub">Last period: <span id="lastL4">-</span></div>
+            <div class="kpi-sub">Accumulated: <span id="accL4">-</span></div>
+          </div>
+          <div class="big-face" id="faceL4"></div>
+        </div>
       </div>
     </div>
 
@@ -135,6 +238,18 @@
       document.getElementById("currentDate").textContent = `${d}-${m}-${y}`;
     }
 
+    function startClock() {
+      const el = document.getElementById("clock");
+      function tick() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2,"0");
+        const mm = String(now.getMinutes()).padStart(2,"0");
+        el.textContent = `${hh}:${mm}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
     function setCoverage(ultimoSlot) {
       const el = document.getElementById("coverageText");
       if (!ultimoSlot) { el.textContent = "No production yet (T1 not started)"; return; }
@@ -152,12 +267,6 @@
       else card.style.borderColor = "#666";
     }
 
-    function perfClass(pct) {
-      if (pct >= 1) return { cls: "cell-ok", face:"🙂" };
-      if (pct >= 0.95) return { cls: "cell-mid", face:"😐" };
-      return { cls: "cell-nok", face:"🙁" };
-    }
-
     function statusClass(kind) {
       if (kind === "STOP_MAINT") return "cell-mnt";
       if (kind === "STOP_MAT") return "cell-mat";
@@ -165,6 +274,27 @@
       if (kind === "STOP_QUAL") return "cell-qual";
       if (kind === "NO_SCHEDULE") return "cell-nosched";
       return "";
+    }
+
+    // --- SVG FACES (outline white) ---
+    function faceSVG(type, size="big") {
+      const s = (size === "big") ? 70 : 22;
+      const view = "0 0 64 64";
+      const common = `class="face-stroke"`;
+      const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
+      const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
+      let mouth = "";
+      if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
+      else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
+      else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
+
+      return `<svg width="${s}" height="${s}" viewBox="${view}" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+    }
+
+    function perfStatus(pct) {
+      if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
+      if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
+      return { status:"NOK", cls:"cell-nok", face:"sad" };
     }
 
     function calcUpToUltimo(slots, ultimo) {
@@ -177,13 +307,19 @@
       return out;
     }
 
+    function setBigFace(elId, state) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      if (!state) { el.innerHTML = ""; return; }
+      el.innerHTML = faceSVG(state.face, "big");
+    }
+
     function updateTopKPIs(json) {
       const slots = json.slots || [];
       const ultimo = json.ultimo_slot || null;
-
       const considered = calcUpToUltimo(slots, ultimo);
 
-      // target acumulado por linha = soma target_effective (por período)
+      // target por linha (soma target_effective) até o último slot
       const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_effective || 0)), 0);
 
       const acc = {
@@ -196,72 +332,82 @@
       const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
       const totalTarget = targetPerLine * 4;
 
-      // total
+      // TOTAL card text
       document.getElementById("totalProd").textContent = totalTarget > 0 ? totalProd : "-";
       document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
 
-      let totalStatus = "IDLE";
-      const overallStatus = document.getElementById("overallStatus");
+      // TOTAL face + border
       if (!ultimo || totalTarget <= 0) {
-        overallStatus.textContent = "Status: Waiting for first launch";
-        totalStatus = "IDLE";
+        setCardBorder("cardTotal", "IDLE");
+        setBigFace("faceTotal", null);
       } else {
         const pct = totalProd / totalTarget;
-        const p = perfClass(pct);
-        totalStatus = (pct >= 1) ? "OK" : (pct >= 0.95) ? "MID" : "NOK";
-        overallStatus.textContent = `Status: ${totalStatus} ${p.face}`;
+        const st = perfStatus(pct);
+        setCardBorder("cardTotal", st.status);
+        setBigFace("faceTotal", st);
       }
-      setCardBorder("cardTotal", totalStatus);
 
       // last period = último slot
       const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
 
-      const lineMeta = [
-        { key:"line1", pill:"pillLine1", last:"lastL1", acc:"accL1", card:"cardLine1" },
-        { key:"line2", pill:"pillLine2", last:"lastL2", acc:"accL2", card:"cardLine2" },
-        { key:"line3", pill:"pillLine3", last:"lastL3", acc:"accL3", card:"cardLine3" },
-        { key:"line4", pill:"pillLine4", last:"lastL4", acc:"accL4", card:"cardLine4" }
+      const lines = [
+        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1" },
+        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2" },
+        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3" },
+        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4" }
       ];
 
-      lineMeta.forEach(m => {
-        const pill = document.getElementById(m.pill);
+      lines.forEach(m => {
         const lastSpan = document.getElementById(m.last);
         const accSpan = document.getElementById(m.acc);
 
         if (!ultimo || targetPerLine <= 0) {
-          pill.textContent = "IDLE";
-          pill.className = "status-pill pill-idle";
           lastSpan.textContent = "-";
           accSpan.textContent = "-";
           setCardBorder(m.card, "IDLE");
+          setBigFace(m.face, null);
           return;
         }
 
-        // last period
         const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
         const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
         lastSpan.textContent = `${lastVal} / ${lastTarget}`;
 
-        // accumulated
         const accVal = acc[m.key];
         accSpan.textContent = `${accVal} / ${targetPerLine}`;
 
-        const pct = targetPerLine > 0 ? (accVal / targetPerLine) : 0;
-        const p = perfClass(pct);
-        if (pct >= 1) {
-          pill.textContent = "OK " + p.face;
-          pill.className = "status-pill pill-ok";
-          setCardBorder(m.card, "OK");
-        } else if (pct >= 0.95) {
-          pill.textContent = "MID " + p.face;
-          pill.className = "status-pill pill-mid";
-          setCardBorder(m.card, "MID");
-        } else {
-          pill.textContent = "NOK " + p.face;
-          pill.className = "status-pill pill-nok";
-          setCardBorder(m.card, "NOK");
-        }
+        const pct = accVal / targetPerLine;
+        const st = perfStatus(pct);
+        setCardBorder(m.card, st.status);
+        setBigFace(m.face, st);
       });
+    }
+
+    function tdWithPerf(value, targetEff) {
+      const td = document.createElement("td");
+      if (targetEff > 0) {
+        const pct = value / targetEff;
+        const st = perfStatus(pct);
+        td.classList.add(st.cls);
+
+        const wrap = document.createElement("div");
+        wrap.className = "cell-wrap";
+
+        const vEl = document.createElement("div");
+        vEl.className = "cell-val";
+        vEl.textContent = value;
+
+        const fEl = document.createElement("div");
+        fEl.className = "cell-face";
+        fEl.innerHTML = faceSVG(st.face, "small");
+
+        wrap.appendChild(vEl);
+        wrap.appendChild(fEl);
+        td.appendChild(wrap);
+      } else {
+        td.textContent = value ? String(value) : "";
+      }
+      return td;
     }
 
     function buildTable(json) {
@@ -271,59 +417,52 @@
       const slots = json.slots || [];
       const ultimo = json.ultimo_slot || null;
 
-      // agrupa por shift mantendo ordem
       const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
       shifts.forEach(group => {
-        // linhas normais
+        // period rows
         group.slots.forEach(slot => {
           const tr = document.createElement("tr");
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
 
-          const cShift = document.createElement("td");
-          cShift.textContent = "Shift " + slot.shift;
-          tr.appendChild(cShift);
+          const tdShift = document.createElement("td");
+          tdShift.textContent = "Shift " + slot.shift;
+          tr.appendChild(tdShift);
 
-          const cTime = document.createElement("td");
-          cTime.textContent = slot.label;
-          tr.appendChild(cTime);
+          const tdTime = document.createElement("td");
+          tdTime.textContent = slot.label;
+          tr.appendChild(tdTime);
 
-          const cTarget = document.createElement("td");
-          cTarget.textContent = Number(slot.target_effective || 0) > 0 ? slot.target_effective : "";
-          tr.appendChild(cTarget);
+          const targetEff = Number(slot.target_effective || 0);
 
-          const lineDefs = [
+          const tdTarget = document.createElement("td");
+          tdTarget.textContent = targetEff > 0 ? targetEff : "";
+          tr.appendChild(tdTarget);
+
+          const defs = [
             { key:"line1", disp:"disp1", st:"st1" },
             { key:"line2", disp:"disp2", st:"st2" },
             { key:"line3", disp:"disp3", st:"st3" },
             { key:"line4", disp:"disp4", st:"st4" }
           ];
 
-          lineDefs.forEach(ld => {
-            const td = document.createElement("td");
-            const st = slot[ld.st] || "RUN";
-            const targetEff = Number(slot.target_effective || 0);
-
-            if (st !== "RUN") {
-              td.textContent = slot[ld.disp] || "";
-              td.classList.add(statusClass(st));
+          defs.forEach(d => {
+            const stKind = slot[d.st] || "RUN";
+            if (stKind !== "RUN") {
+              const td = document.createElement("td");
+              td.textContent = slot[d.disp] || "";
+              td.classList.add(statusClass(stKind));
+              tr.appendChild(td);
             } else {
-              const v = Number(slot[ld.key] || 0);
-              td.textContent = (v > 0 || targetEff > 0) ? String(v) : "";
-              if (targetEff > 0) {
-                const pct = v / targetEff;
-                const p = perfClass(pct);
-                td.classList.add(p.cls);
-                td.textContent = `${v} ${p.face}`;
-              }
+              const v = Number(slot[d.key] || 0);
+              tr.appendChild(tdWithPerf(v, targetEff));
             }
-            tr.appendChild(td);
           });
 
           tbody.appendChild(tr);
         });
 
-        // linha acumulada do turno
+        // shift summary row
         if (group.slots.length > 0) {
           const sum = {
             target: group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0),
@@ -346,17 +485,7 @@
           trSum.appendChild(tdT);
 
           ["line1","line2","line3","line4"].forEach(k => {
-            const td = document.createElement("td");
-            const v = sum[k];
-            if (sum.target > 0) {
-              const pct = v / sum.target;
-              const p = perfClass(pct);
-              td.classList.add(p.cls);
-              td.textContent = `${v} ${p.face}`;
-            } else {
-              td.textContent = v ? v : "";
-            }
-            trSum.appendChild(td);
+            trSum.appendChild(tdWithPerf(sum[k], sum.target));
           });
 
           tbody.appendChild(trSum);
@@ -380,7 +509,8 @@
         updateTopKPIs(json);
         buildTable(json);
 
-        document.getElementById("lastUpdate").textContent = "Last update: " + new Date().toLocaleTimeString();
+        document.getElementById("lastUpdate").textContent =
+          "Last update: " + new Date().toLocaleTimeString();
       } catch (err) {
         console.error(err);
         document.getElementById("coverageText").textContent = "Error calling API";
@@ -388,8 +518,9 @@
     }
 
     formatDateHeader();
+    startClock();
     refreshDashboard();
-    setInterval(refreshDashboard, 30000); // pode ajustar (ex: 10s) se quiser
+    setInterval(refreshDashboard, 30000);
   </script>
 </body>
 </html>
