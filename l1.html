@@ -3,99 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CLM6 – Launch Production</title>
+  <title>CLM6 – Production Launch</title>
   <style>
-    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#000; color:#fff; }
-    .wrap { padding:16px; max-width:600px; margin:0 auto; }
-    h1 { font-size:20px; margin:0 0 12px 0; }
-    .card { background:#111; border:1px solid #333; border-radius:12px; padding:14px; margin-bottom:12px; }
-    label { display:block; font-size:13px; color:#ccc; margin-bottom:6px; }
-    select, input { width:100%; padding:12px; border-radius:10px; border:1px solid #333; background:#0b0b0b; color:#fff; font-size:16px; box-sizing:border-box; }
-    .row { display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; margin-top:10px; }
-    .chk { display:flex; align-items:center; gap:8px; white-space:nowrap; font-size:13px; color:#ddd; }
-    .btn { width:100%; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:bold; background:#00b050; color:#000; margin-top:12px; }
-    .hint { font-size:12px; color:#aaa; margin-top:10px; line-height:1.4; }
-    .ok { color:#00b050; font-weight:bold; }
-    .err { color:#ff4d4d; font-weight:bold; }
-    .small { font-size:12px; color:#aaa; margin-top:6px; }
+    html, body { margin:0; padding:0; background:#000; color:#fff; font-family: Arial, Helvetica, sans-serif; }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 14px; }
+
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .title { font-weight: 900; letter-spacing: .6px; font-size: 22px; }
+    .dt { font-weight: 900; font-size: 14px; color:#ddd; }
+
+    .card {
+      background:#111; border:2px solid #2b2b2b; border-radius:14px;
+      padding: 14px; box-shadow: 0 0 10px rgba(0,0,0,.55);
+      margin-bottom: 12px;
+    }
+
+    label { display:block; font-size: 12px; color:#bbb; margin-bottom: 6px; }
+
+    select, input {
+      width:100%;
+      background:#0b0b0b;
+      color:#fff;
+      border:1px solid #333;
+      border-radius: 12px;
+      padding: 14px 12px;
+      font-size: 16px;
+      outline:none;
+      box-sizing:border-box;
+    }
+    select:focus, input:focus { border-color:#777; }
+
+    .grid { display:grid; grid-template-columns: 1fr; gap:12px; margin-top: 12px; }
+
+    .lineRow { display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center; }
+    .lineLabel { font-weight: 900; font-size: 14px; margin-bottom: 6px; color:#fff; }
+
+    .flag {
+      display:flex; align-items:center; gap:8px;
+      user-select:none;
+      font-size: 13px;
+      color:#ddd;
+      white-space: nowrap;
+    }
+    .flag input { width:18px; height:18px; }
+
+    .btn {
+      width:100%;
+      margin-top: 14px;
+      background:#00b050;
+      border:none;
+      color:#000;
+      font-weight: 900;
+      font-size: 18px;
+      padding: 16px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+    }
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+
+    .foot {
+      margin-top: 14px;
+      font-size: 12px;
+      color:#bbb;
+    }
+
+    .msg { margin-top:10px; font-size: 13px; color:#ddd; }
+    .msg.ok { color:#7CFF9B; }
+    .msg.err { color:#ff8080; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>CLM6 – Production Launch</h1>
 
-    <div class="card">
-      <label>Period</label>
-      <select id="slotSelect"></select>
-      <div class="small" id="slotInfo">--</div>
+    <div class="top">
+      <div class="title">CLM6 – Production Launch</div>
+      <div class="dt" id="dt">--</div>
     </div>
 
     <div class="card">
-      <div class="row">
-        <div>
-          <label>Line 1 (number or .1/.2/.3/.4 or 0.5)</label>
-          <input id="line1" placeholder="e.g. 1100 or .2" />
-        </div>
-        <div class="chk">
-          <input type="checkbox" id="chg1" />
-          <label for="chg1" style="margin:0; cursor:pointer;">Changeover</label>
-        </div>
-      </div>
+      <label for="slotSel">Period</label>
+      <select id="slotSel"></select>
 
-      <div class="row">
-        <div>
-          <label>Line 2</label>
-          <input id="line2" placeholder="e.g. 950 or .1" />
-        </div>
-        <div class="chk">
-          <input type="checkbox" id="chg2" />
-          <label for="chg2" style="margin:0; cursor:pointer;">Changeover</label>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Line 3</label>
-          <input id="line3" placeholder="e.g. 600 or 0.5" />
-        </div>
-        <div class="chk">
-          <input type="checkbox" id="chg3" />
-          <label for="chg3" style="margin:0; cursor:pointer;">Changeover</label>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Line 4</label>
-          <input id="line4" placeholder="e.g. 1200 or .4" />
-        </div>
-        <div class="chk">
-          <input type="checkbox" id="chg4" />
-          <label for="chg4" style="margin:0; cursor:pointer;">Changeover</label>
-        </div>
-      </div>
+      <div class="grid" id="linesGrid"></div>
 
       <button class="btn" id="sendBtn">Send</button>
-      <div class="small" id="msg"></div>
 
-      <div class="hint">
-        <div><b>Stops:</b> .1 Maintenance | .2 Material | .3 People | .4 Quality</div>
-        <div><b>No schedule:</b> 0.5 (does not count target)</div>
-        <div><b>Changeover:</b> checked = value is the period result (delta)</div>
+      <div class="foot">
+        Stops: .1 Maintenance | .2 Material | .3 People | .4 Quality | .5 No Schedule
       </div>
+
+      <div class="msg" id="msg"></div>
     </div>
+
   </div>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
 
-    const slotSelect = document.getElementById("slotSelect");
-    const slotInfo = document.getElementById("slotInfo");
-    const msg = document.getElementById("msg");
+    const LINES = [
+      { key:"line1", label:"LINE 1", flag:"chg_line1" },
+      { key:"line2", label:"LINE 2", flag:"chg_line2" },
+      { key:"line3", label:"LINE 3", flag:"chg_line3" },
+      { key:"line4", label:"LINE 4", flag:"chg_line4" }
+    ];
 
-    let slots = [];
-
-    function todayISO() {
+    function todayISO(){
       const d = new Date();
       const y = d.getFullYear();
       const m = String(d.getMonth()+1).padStart(2,"0");
@@ -103,94 +115,134 @@
       return `${y}-${m}-${day}`;
     }
 
-    function clean(v) {
-      return String(v || "").trim();
+    function startDT(){
+      const el = document.getElementById("dt");
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function tick(){
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2,"0");
+        const m = monthNames[now.getMonth()];
+        const y = String(now.getFullYear()).slice(-2);
+        const hh = String(now.getHours()).padStart(2,"0");
+        const mm = String(now.getMinutes()).padStart(2,"0");
+        el.textContent = `${d}-${m}-${y} ${hh}:${mm}`;
+      }
+      tick(); setInterval(tick, 1000);
     }
 
-    async function loadSlots() {
+    function buildLineInputs(){
+      const grid = document.getElementById("linesGrid");
+      grid.innerHTML = "";
+
+      LINES.forEach(l => {
+        const wrap = document.createElement("div");
+
+        wrap.innerHTML = `
+          <div class="lineLabel">${l.label}</div>
+          <div class="lineRow">
+            <div>
+              <input
+                id="${l.key}"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder=""
+              />
+            </div>
+            <label class="flag">
+              <input type="checkbox" id="${l.flag}">
+              Another Code?
+            </label>
+          </div>
+        `;
+
+        grid.appendChild(wrap);
+      });
+    }
+
+    async function loadSlots(){
+      const sel = document.getElementById("slotSel");
+      sel.innerHTML = `<option>Loading...</option>`;
+
       const res = await fetch(`${SCRIPT_URL}?action=configSlots`);
       const json = await res.json();
       if (json.status !== "success") throw new Error(json.message || "configSlots error");
 
-      slots = json.slots || [];
-      slotSelect.innerHTML = "";
-
-      slots.forEach(s => {
+      sel.innerHTML = "";
+      json.slots.forEach(s => {
         const opt = document.createElement("option");
         opt.value = s.id_slot;
-        opt.textContent = `Shift ${s.shift} – ${s.label} (Tgt ${s.target_padrao})`;
-        slotSelect.appendChild(opt);
+        // dropdown: só turno e período (sem target)
+        opt.textContent = `Shift ${s.shift} – ${s.label}`;
+        opt.dataset.shift = String(s.shift);
+        opt.dataset.hi = s.hora_inicio;
+        opt.dataset.hf = s.hora_fim;
+        opt.dataset.target = String(s.target_padrao || 0);
+        sel.appendChild(opt);
       });
-
-      updateSlotInfo();
     }
 
-    function updateSlotInfo() {
-      const id = slotSelect.value;
-      const s = slots.find(x => String(x.id_slot) === String(id));
-      if (!s) { slotInfo.textContent = "--"; return; }
-      slotInfo.textContent = `Shift ${s.shift} | ${s.hora_inicio}–${s.hora_fim} | Target/period: ${s.target_padrao}`;
+    function setMsg(text, type){
+      const el = document.getElementById("msg");
+      el.className = "msg " + (type || "");
+      el.textContent = text || "";
     }
 
-    slotSelect.addEventListener("change", updateSlotInfo);
+    function getPayload(){
+      const sel = document.getElementById("slotSel");
+      const opt = sel.options[sel.selectedIndex];
 
-    async function send() {
-      msg.textContent = "";
-      msg.className = "small";
-
-      const id = slotSelect.value;
-      const s = slots.find(x => String(x.id_slot) === String(id));
-      if (!s) { msg.textContent = "Select a period."; msg.classList.add("err"); return; }
-
-      const body = {
+      const payload = {
+        action: "saveProduction",
         data: todayISO(),
-        id_slot: s.id_slot,
-        shift: s.shift,
-        hora_inicio: s.hora_inicio,
-        hora_fim: s.hora_fim,
-        target_slot: s.target_padrao,
-
-        line1: clean(document.getElementById("line1").value),
-        line2: clean(document.getElementById("line2").value),
-        line3: clean(document.getElementById("line3").value),
-        line4: clean(document.getElementById("line4").value),
-
-        chg_line1: document.getElementById("chg1").checked ? "SIM" : "NAO",
-        chg_line2: document.getElementById("chg2").checked ? "SIM" : "NAO",
-        chg_line3: document.getElementById("chg3").checked ? "SIM" : "NAO",
-        chg_line4: document.getElementById("chg4").checked ? "SIM" : "NAO",
-
+        id_slot: opt.value,
+        shift: Number(opt.dataset.shift || 0),
+        hora_inicio: opt.dataset.hi,
+        hora_fim: opt.dataset.hf,
+        target_slot: Number(opt.dataset.target || 0),
         usuario: "mobile"
       };
 
-      // se vazio, salva como 0 para não poluir com string vazia
-      ["line1","line2","line3","line4"].forEach(k => {
-        if (body[k] === "") body[k] = 0;
+      // valores como TEXTO (pode ser ".1", etc.)
+      LINES.forEach(l => {
+        payload[l.key] = (document.getElementById(l.key).value || "").trim();
+        payload[l.flag] = document.getElementById(l.flag).checked ? "SIM" : "";
       });
 
+      return payload;
+    }
+
+    async function send(){
+      setMsg("");
+      const btn = document.getElementById("sendBtn");
+      btn.disabled = true;
+
       try {
+        const body = getPayload();
+
         const res = await fetch(`${SCRIPT_URL}?action=saveProduction`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type":"application/json" },
           body: JSON.stringify(body)
         });
-        const json = await res.json();
-        if (json.status !== "success") throw new Error(json.message || "saveProduction error");
 
-        msg.textContent = "Saved successfully.";
-        msg.classList.add("ok");
+        const json = await res.json();
+        if (json.status !== "success") throw new Error(json.message || "Save error");
+
+        setMsg("Saved ✅", "ok");
       } catch (e) {
-        msg.textContent = "Error: " + e.message;
-        msg.classList.add("err");
+        setMsg(String(e.message || e), "err");
+      } finally {
+        btn.disabled = false;
       }
     }
 
     document.getElementById("sendBtn").addEventListener("click", send);
 
-    loadSlots().catch(err => {
-      msg.textContent = "Error loading periods: " + err.message;
-      msg.classList.add("err");
-    });
+    startDT();
+    buildLineInputs();
+    loadSlots().catch(err => setMsg(err.message || String(err), "err"));
   </script>
 </body>
 </html>
