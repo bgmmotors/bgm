@@ -1,281 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Production Entry – CLM6</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CLM6 – Launch Production</title>
   <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #111;
-      color: #fff;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      color: #000;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: center;
-    }
-
-    th {
-      background: #e0e0e0;
-    }
-
-    input {
-      width: 80px;
-      padding: 4px;
-      font-size: 14px;
-      text-align: center;
-      border: 1px solid #aaa;
-      border-radius: 3px;
-      outline: none;
-    }
-
-    .btn {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-    }
-
-    .btn-save {
-      background: #00b050;
-      color: #fff;
-    }
-
-    .btn-row {
-      padding: 4px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      border-radius: 4px;
-      border: none;
-      background: #f0ad4e;
-      color: #000;
-    }
-
-    #statusMsg {
-      margin-top: 12px;
-      font-weight: bold;
-      color: #00ff90;
-    }
-
-    .buttons-wrapper {
-      margin-top: 15px;
-    }
+    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#000; color:#fff; }
+    .wrap { padding:16px; max-width:600px; margin:0 auto; }
+    h1 { font-size:20px; margin:0 0 12px 0; }
+    .card { background:#111; border:1px solid #333; border-radius:12px; padding:14px; margin-bottom:12px; }
+    label { display:block; font-size:13px; color:#ccc; margin-bottom:6px; }
+    select, input { width:100%; padding:12px; border-radius:10px; border:1px solid #333; background:#0b0b0b; color:#fff; font-size:16px; box-sizing:border-box; }
+    .row { display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; margin-top:10px; }
+    .chk { display:flex; align-items:center; gap:8px; white-space:nowrap; font-size:13px; color:#ddd; }
+    .btn { width:100%; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:bold; background:#00b050; color:#000; margin-top:12px; }
+    .hint { font-size:12px; color:#aaa; margin-top:10px; line-height:1.4; }
+    .ok { color:#00b050; font-weight:bold; }
+    .err { color:#ff4d4d; font-weight:bold; }
+    .small { font-size:12px; color:#aaa; margin-top:6px; }
   </style>
 </head>
-
 <body>
-  <h1>Production Entry – CLM6</h1>
+  <div class="wrap">
+    <h1>CLM6 – Production Launch</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Shift</th>
-        <th>Time</th>
-        <th>Target</th>
-        <th>Line 1</th>
-        <th>Line 2</th>
-        <th>Line 3</th>
-        <th>Line 4</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="bodyTable"></tbody>
-  </table>
+    <div class="card">
+      <label>Period</label>
+      <select id="slotSelect"></select>
+      <div class="small" id="slotInfo">--</div>
+    </div>
 
-  <div class="buttons-wrapper">
-    <button class="btn btn-save" onclick="saveData()">Save</button>
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Line 1 (number or .1/.2/.3/.4 or 0.5)</label>
+          <input id="line1" placeholder="e.g. 1100 or .2" />
+        </div>
+        <div class="chk">
+          <input type="checkbox" id="chg1" />
+          <label for="chg1" style="margin:0; cursor:pointer;">Changeover</label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Line 2</label>
+          <input id="line2" placeholder="e.g. 950 or .1" />
+        </div>
+        <div class="chk">
+          <input type="checkbox" id="chg2" />
+          <label for="chg2" style="margin:0; cursor:pointer;">Changeover</label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Line 3</label>
+          <input id="line3" placeholder="e.g. 600 or 0.5" />
+        </div>
+        <div class="chk">
+          <input type="checkbox" id="chg3" />
+          <label for="chg3" style="margin:0; cursor:pointer;">Changeover</label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Line 4</label>
+          <input id="line4" placeholder="e.g. 1200 or .4" />
+        </div>
+        <div class="chk">
+          <input type="checkbox" id="chg4" />
+          <label for="chg4" style="margin:0; cursor:pointer;">Changeover</label>
+        </div>
+      </div>
+
+      <button class="btn" id="sendBtn">Send</button>
+      <div class="small" id="msg"></div>
+
+      <div class="hint">
+        <div><b>Stops:</b> .1 Maintenance | .2 Material | .3 People | .4 Quality</div>
+        <div><b>No schedule:</b> 0.5 (does not count target)</div>
+        <div><b>Changeover:</b> checked = value is the period result (delta)</div>
+      </div>
+    </div>
   </div>
 
-  <div id="statusMsg"></div>
-
   <script>
-    // 🔗 SUA URL DO WEB APP (já funcionando)
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
 
-    let slotsConfig = [];
+    const slotSelect = document.getElementById("slotSelect");
+    const slotInfo = document.getElementById("slotInfo");
+    const msg = document.getElementById("msg");
 
-    function showStatus(msg, isError = false) {
-      const el = document.getElementById("statusMsg");
-      el.style.color = isError ? "#ff6060" : "#00ff90";
-      el.textContent = msg;
-    }
+    let slots = [];
 
-    function getTodayISO() {
+    function todayISO() {
       const d = new Date();
       const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
       return `${y}-${m}-${day}`;
     }
 
-    async function loadConfigSlots() {
+    function clean(v) {
+      return String(v || "").trim();
+    }
+
+    async function loadSlots() {
+      const res = await fetch(`${SCRIPT_URL}?action=configSlots`);
+      const json = await res.json();
+      if (json.status !== "success") throw new Error(json.message || "configSlots error");
+
+      slots = json.slots || [];
+      slotSelect.innerHTML = "";
+
+      slots.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id_slot;
+        opt.textContent = `Shift ${s.shift} – ${s.label} (Tgt ${s.target_padrao})`;
+        slotSelect.appendChild(opt);
+      });
+
+      updateSlotInfo();
+    }
+
+    function updateSlotInfo() {
+      const id = slotSelect.value;
+      const s = slots.find(x => String(x.id_slot) === String(id));
+      if (!s) { slotInfo.textContent = "--"; return; }
+      slotInfo.textContent = `Shift ${s.shift} | ${s.hora_inicio}–${s.hora_fim} | Target/period: ${s.target_padrao}`;
+    }
+
+    slotSelect.addEventListener("change", updateSlotInfo);
+
+    async function send() {
+      msg.textContent = "";
+      msg.className = "small";
+
+      const id = slotSelect.value;
+      const s = slots.find(x => String(x.id_slot) === String(id));
+      if (!s) { msg.textContent = "Select a period."; msg.classList.add("err"); return; }
+
+      const body = {
+        data: todayISO(),
+        id_slot: s.id_slot,
+        shift: s.shift,
+        hora_inicio: s.hora_inicio,
+        hora_fim: s.hora_fim,
+        target_slot: s.target_padrao,
+
+        line1: clean(document.getElementById("line1").value),
+        line2: clean(document.getElementById("line2").value),
+        line3: clean(document.getElementById("line3").value),
+        line4: clean(document.getElementById("line4").value),
+
+        chg_line1: document.getElementById("chg1").checked ? "SIM" : "NAO",
+        chg_line2: document.getElementById("chg2").checked ? "SIM" : "NAO",
+        chg_line3: document.getElementById("chg3").checked ? "SIM" : "NAO",
+        chg_line4: document.getElementById("chg4").checked ? "SIM" : "NAO",
+
+        usuario: "mobile"
+      };
+
+      // se vazio, salva como 0 para não poluir com string vazia
+      ["line1","line2","line3","line4"].forEach(k => {
+        if (body[k] === "") body[k] = 0;
+      });
+
       try {
-        showStatus("Loading slots...", false);
-        const res = await fetch(`${SCRIPT_URL}?action=configSlots`);
+        const res = await fetch(`${SCRIPT_URL}?action=saveProduction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
         const json = await res.json();
+        if (json.status !== "success") throw new Error(json.message || "saveProduction error");
 
-        if (json.status !== "success") {
-          showStatus("Error loading slots: " + (json.message || ""), true);
-          return;
-        }
-
-        slotsConfig = json.slots || [];
-        buildInputTable();
-        showStatus("Slots loaded. You can enter production now.");
-      } catch (err) {
-        console.error(err);
-        showStatus("Error calling API (configSlots). Check the URL.", true);
+        msg.textContent = "Saved successfully.";
+        msg.classList.add("ok");
+      } catch (e) {
+        msg.textContent = "Error: " + e.message;
+        msg.classList.add("err");
       }
     }
 
-    function buildInputTable() {
-      const tbody = document.getElementById("bodyTable");
-      tbody.innerHTML = "";
+    document.getElementById("sendBtn").addEventListener("click", send);
 
-      slotsConfig.forEach(slot => {
-        const tr = document.createElement("tr");
-
-        const tdShift = document.createElement("td");
-        tdShift.textContent = "Shift " + slot.shift;
-        tr.appendChild(tdShift);
-
-        const tdTime = document.createElement("td");
-        tdTime.textContent = slot.label;
-        tr.appendChild(tdTime);
-
-        const tdTarget = document.createElement("td");
-        tdTarget.textContent = slot.target_padrao;
-        tr.appendChild(tdTarget);
-
-        ["line1", "line2", "line3", "line4"].forEach(lineKey => {
-          const td = document.createElement("td");
-          const input = document.createElement("input");
-          input.id = `${slot.id_slot}_${lineKey}`;
-          input.type = "number";
-          input.min = "0";
-          td.appendChild(input);
-          tr.appendChild(td);
-        });
-
-        const tdAction = document.createElement("td");
-        const btnRow = document.createElement("button");
-        btnRow.type = "button";
-        btnRow.className = "btn-row";
-        btnRow.textContent = "Clear row";
-        btnRow.onclick = () => clearRowInputs(slot.id_slot, true);
-        tdAction.appendChild(btnRow);
-        tr.appendChild(tdAction);
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function clearRowInputs(slotId, showMsg) {
-      ["line1", "line2", "line3", "line4"].forEach(lineKey => {
-        const inp = document.getElementById(`${slotId}_${lineKey}`);
-        if (inp) inp.value = "";
-      });
-      if (showMsg) {
-        showStatus(`Inputs for ${slotId} cleared (note: saved data in DB is not erased).`);
-      }
-    }
-
-    function clearAllInputs() {
-      slotsConfig.forEach(slot => clearRowInputs(slot.id_slot, false));
-    }
-
-    function collectRowsFromInputs() {
-      const today = getTodayISO();
-      const rows = [];
-
-      slotsConfig.forEach(slot => {
-        const obj = {
-          data: today,
-          id_slot: slot.id_slot,
-          shift: slot.shift,
-          line1: 0,
-          line2: 0,
-          line3: 0,
-          line4: 0,
-          target_slot: slot.target_padrao,
-          hora_inicio: slot.hora_inicio,
-          hora_fim: slot.hora_fim,
-          usuario: "BG_Operator"
-        };
-
-        let hasAnyValue = false;
-
-        ["line1", "line2", "line3", "line4"].forEach(lineKey => {
-          const inp = document.getElementById(`${slot.id_slot}_${lineKey}`);
-          if (!inp) return;
-          const raw = inp.value.trim();
-          if (raw !== "") {
-            const v = Number(raw) || 0;
-            obj[lineKey] = v;
-            hasAnyValue = true;
-          }
-        });
-
-        if (hasAnyValue) {
-          rows.push(obj);
-        }
-      });
-
-      return rows;
-    }
-
-    async function saveData() {
-      try {
-        const rows = collectRowsFromInputs();
-        if (rows.length === 0) {
-          showStatus("No values to save. Please enter production before saving.", true);
-          return;
-        }
-
-        showStatus("Saving data...", false);
-
-        const promises = rows.map(row =>
-          fetch(`${SCRIPT_URL}?action=saveProduction`, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8"
-            },
-            body: JSON.stringify(row)
-          })
-        );
-
-        await Promise.all(promises);
-
-        // limpa inputs após salvar
-        clearAllInputs();
-
-        showStatus(`Saved ${rows.length} time slot(s) successfully.`);
-
-      } catch (err) {
-        console.error(err);
-        showStatus("Error calling API (saveProduction).", true);
-      }
-    }
-
-    window.addEventListener("load", loadConfigSlots);
+    loadSlots().catch(err => {
+      msg.textContent = "Error loading periods: " + err.message;
+      msg.classList.add("err");
+    });
   </script>
 </body>
 </html>
