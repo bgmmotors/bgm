@@ -4,170 +4,53 @@
   <meta charset="UTF-8">
   <title>Performance CLM6 – Andon</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #fff;
-    }
+    html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
+    .wrapper { display:flex; flex-direction:column; height:100vh; padding:16px 24px; box-sizing:border-box; background:#000; }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .header-title { font-size:36px; font-weight:bold; }
+    .header-right { text-align:right; }
+    .header-date { font-size:28px; font-weight:bold; }
+    .header-coverage { font-size:18px; color:#aaa; }
 
-    .wrapper {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      padding: 16px 24px;
-      box-sizing: border-box;
-      background: #000;
-    }
+    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:12px; margin-bottom:16px; }
+    .kpi-card { background:#111; border-radius:14px; padding:12px 16px; box-shadow:0 0 10px rgba(0,0,0,0.6); display:flex; flex-direction:column; justify-content:space-between; border:3px solid #444; }
+    .kpi-title { font-size:18px; margin-bottom:6px; }
+    .kpi-main { font-size:26px; font-weight:bold; }
+    .kpi-sub { font-size:14px; color:#ccc; }
+    .status-pill { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:bold; font-size:14px; margin-bottom:4px; }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
+    .pill-ok { background:#00b050; color:#000; }
+    .pill-mid { background:#9acd32; color:#000; } /* amarelo-esverdeado */
+    .pill-nok { background:#c00000; color:#fff; }
+    .pill-idle { background:#444; color:#fff; }
 
-    .header-title {
-      font-size: 36px;
-      font-weight: bold;
-    }
+    .table-container { flex:1; overflow-y:auto; border-radius:10px; background:#111; padding:10px; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; font-size:14px; }
+    thead th { position:sticky; top:0; background:#222; padding:8px; border-bottom:2px solid #555; border-right:1px solid #555; }
+    tbody td { padding:6px 4px; text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
 
-    .header-right {
-      text-align: right;
-    }
+    .row-current { background:#262626; }
 
-    .header-date {
-      font-size: 28px;
-      font-weight: bold;
-    }
+    /* Performance cores */
+    .cell-ok { background:#00b050; color:#000; font-weight:bold; }
+    .cell-mid { background:#9acd32; color:#000; font-weight:bold; }
+    .cell-nok { background:#c00000; color:#fff; font-weight:bold; }
 
-    .header-coverage {
-      font-size: 18px;
-      color: #aaa;
-    }
+    /* STOP / status cores fixas */
+    .cell-mnt { background: orange; color:#000; font-weight:bold; }
+    .cell-mat { background: #808080; color:#000; font-weight:bold; }
+    .cell-peo { background: #ff69b4; color:#000; font-weight:bold; }
+    .cell-qual { background: #ffd400; color:#000; font-weight:bold; }
+    .cell-nosched { background: #0070c0; color:#fff; font-weight:bold; }
 
-    .kpi-row {
-      display: grid;
-      grid-template-columns: 2fr repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    .shift-sum { background:#003366 !important; font-weight:bold; }
+    .shift-sum td { border-top:2px solid #fff; }
 
-    .kpi-card {
-      background: #111;
-      border-radius: 14px;
-      padding: 12px 16px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border: 3px solid #444;
-    }
-
-    .kpi-title {
-      font-size: 18px;
-      margin-bottom: 6px;
-    }
-
-    .kpi-main {
-      font-size: 26px;
-      font-weight: bold;
-    }
-
-    .kpi-sub {
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .status-pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: bold;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .pill-ok {
-      background: #00b050;
-      color: #000;
-    }
-
-    .pill-nok {
-      background: #c00000;
-      color: #fff;
-    }
-
-    .pill-idle {
-      background: #444;
-      color: #fff;
-    }
-
-    .table-container {
-      flex: 1;
-      overflow-y: auto;
-      border-radius: 10px;
-      background: #111;
-      padding: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #111;
-      color: #fff;
-      font-size: 14px;
-    }
-
-    thead th {
-      position: sticky;
-      top: 0;
-      background: #222;
-      padding: 8px;
-      border-bottom: 2px solid #555;
-      border-right: 1px solid #555;
-    }
-
-    tbody td {
-      padding: 6px 4px;
-      text-align: center;
-      border-bottom: 1px solid #222;
-      border-right: 1px solid #222;
-    }
-
-    .row-current {
-      background: #262626;
-    }
-
-    .cell-ok {
-      background: #00b050;
-    }
-
-    .cell-nok {
-      background: #c00000;
-    }
-
-    .acc-row {
-      background: #003366 !important;
-      font-weight: bold;
-    }
-
-    .acc-row td {
-      border-top: 2px solid #fff;
-    }
-
-    .footer-status {
-      margin-top: 6px;
-      font-size: 14px;
-      color: #ccc;
-    }
+    .footer-status { margin-top:6px; font-size:14px; color:#ccc; }
   </style>
 </head>
 <body>
   <div class="wrapper">
-
     <div class="header">
       <div class="header-title">Performance CLM6 – Andon</div>
       <div class="header-right">
@@ -176,9 +59,7 @@
       </div>
     </div>
 
-    <!-- KPIs -->
     <div class="kpi-row">
-      <!-- Card geral -->
       <div class="kpi-card" id="cardTotal">
         <div class="kpi-title">Total Production vs Target</div>
         <div class="kpi-main" id="totalProd">-</div>
@@ -186,7 +67,6 @@
         <div class="footer-status" id="overallStatus">Status: -</div>
       </div>
 
-      <!-- Line 1 -->
       <div class="kpi-card" id="cardLine1">
         <div class="kpi-title">Line 1</div>
         <div id="pillLine1" class="status-pill pill-idle">IDLE</div>
@@ -194,7 +74,6 @@
         <div class="kpi-sub">Accumulated: <span id="accL1">-</span></div>
       </div>
 
-      <!-- Line 2 -->
       <div class="kpi-card" id="cardLine2">
         <div class="kpi-title">Line 2</div>
         <div id="pillLine2" class="status-pill pill-idle">IDLE</div>
@@ -202,7 +81,6 @@
         <div class="kpi-sub">Accumulated: <span id="accL2">-</span></div>
       </div>
 
-      <!-- Line 3 -->
       <div class="kpi-card" id="cardLine3">
         <div class="kpi-title">Line 3</div>
         <div id="pillLine3" class="status-pill pill-idle">IDLE</div>
@@ -210,7 +88,6 @@
         <div class="kpi-sub">Accumulated: <span id="accL3">-</span></div>
       </div>
 
-      <!-- Line 4 -->
       <div class="kpi-card" id="cardLine4">
         <div class="kpi-title">Line 4</div>
         <div id="pillLine4" class="status-pill pill-idle">IDLE</div>
@@ -219,7 +96,6 @@
       </div>
     </div>
 
-    <!-- Tabela de slots -->
     <div class="table-container">
       <table>
         <thead>
@@ -237,11 +113,9 @@
       </table>
       <div class="footer-status" id="lastUpdate">Last update: --</div>
     </div>
-
   </div>
 
   <script>
-    // URL do Web App (mesma do lançamento)
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
 
     function getTodayISO() {
@@ -263,184 +137,231 @@
 
     function setCoverage(ultimoSlot) {
       const el = document.getElementById("coverageText");
-      if (!ultimoSlot) {
-        el.textContent = "No production yet (T1 not started)";
-        return;
-      }
-
-      if (ultimoSlot.shift === 1) {
-        el.textContent = "Shift coverage: T1";
-      } else if (ultimoSlot.shift === 2) {
-        el.textContent = "Shift coverage: T1 + T2";
-      } else {
-        el.textContent = "Shift coverage: T1 + T2 + T3";
-      }
+      if (!ultimoSlot) { el.textContent = "No production yet (T1 not started)"; return; }
+      if (ultimoSlot.shift === 1) el.textContent = "Shift coverage: T1";
+      else if (ultimoSlot.shift === 2) el.textContent = "Shift coverage: T1 + T2";
+      else el.textContent = "Shift coverage: T1 + T2 + T3";
     }
 
     function setCardBorder(id, status) {
       const card = document.getElementById(id);
       if (!card) return;
       if (status === "OK") card.style.borderColor = "#00b050";
+      else if (status === "MID") card.style.borderColor = "#9acd32";
       else if (status === "NOK") card.style.borderColor = "#c00000";
       else card.style.borderColor = "#666";
     }
 
-    function updateTopKPIs(data) {
-      const acumulado = data.acumulado || { target_total: 0, line1: 0, line2: 0, line3: 0, line4: 0 };
-      const ultimo = data.ultimo_slot || null;
+    function perfClass(pct) {
+      if (pct >= 1) return { cls: "cell-ok", face:"🙂" };
+      if (pct >= 0.95) return { cls: "cell-mid", face:"😐" };
+      return { cls: "cell-nok", face:"🙁" };
+    }
 
-      // target acumulado por linha (T1, T2, T3 conforme regra do Code.gs)
-      const targetPerLine = acumulado.target_total || 0;
-      // target da fábrica = target por linha * 4 linhas
-      const targetFactory = targetPerLine * 4;
+    function statusClass(kind) {
+      if (kind === "STOP_MAINT") return "cell-mnt";
+      if (kind === "STOP_MAT") return "cell-mat";
+      if (kind === "STOP_PEO") return "cell-peo";
+      if (kind === "STOP_QUAL") return "cell-qual";
+      if (kind === "NO_SCHEDULE") return "cell-nosched";
+      return "";
+    }
 
-      const totalLines =
-        (acumulado.line1 || 0) +
-        (acumulado.line2 || 0) +
-        (acumulado.line3 || 0) +
-        (acumulado.line4 || 0);
+    function calcUpToUltimo(slots, ultimo) {
+      if (!ultimo) return slots;
+      const out = [];
+      for (const s of slots) {
+        out.push(s);
+        if (s.id_slot === ultimo.id_slot) break;
+      }
+      return out;
+    }
 
-      const totalProdEl = document.getElementById("totalProd");
-      const totalTargetEl = document.getElementById("totalTarget");
+    function updateTopKPIs(json) {
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+
+      const considered = calcUpToUltimo(slots, ultimo);
+
+      // target acumulado por linha = soma target_effective (por período)
+      const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_effective || 0)), 0);
+
+      const acc = {
+        line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
+        line2: considered.reduce((a,s)=>a + Number(s.line2||0),0),
+        line3: considered.reduce((a,s)=>a + Number(s.line3||0),0),
+        line4: considered.reduce((a,s)=>a + Number(s.line4||0),0)
+      };
+
+      const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
+      const totalTarget = targetPerLine * 4;
+
+      // total
+      document.getElementById("totalProd").textContent = totalTarget > 0 ? totalProd : "-";
+      document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
+
+      let totalStatus = "IDLE";
       const overallStatus = document.getElementById("overallStatus");
-
-      if (targetFactory > 0) {
-        totalProdEl.textContent = totalLines;
-        totalTargetEl.textContent = "Target: " + targetFactory;
-      } else {
-        totalProdEl.textContent = "-";
-        totalTargetEl.textContent = "Target: -";
-      }
-
-      let statusTotal = "IDLE";
-      if (targetFactory <= 0) {
+      if (!ultimo || totalTarget <= 0) {
         overallStatus.textContent = "Status: Waiting for first launch";
-      } else if (totalLines >= targetFactory) {
-        overallStatus.textContent = "Status: OK";
-        statusTotal = "OK";
+        totalStatus = "IDLE";
       } else {
-        overallStatus.textContent = "Status: NOK";
-        statusTotal = "NOK";
+        const pct = totalProd / totalTarget;
+        const p = perfClass(pct);
+        totalStatus = (pct >= 1) ? "OK" : (pct >= 0.95) ? "MID" : "NOK";
+        overallStatus.textContent = `Status: ${totalStatus} ${p.face}`;
       }
-      setCardBorder("cardTotal", statusTotal);
+      setCardBorder("cardTotal", totalStatus);
 
-      const lines = [
-        { key: "line1", pill: "pillLine1", last: "lastL1", acc: "accL1", card: "cardLine1" },
-        { key: "line2", pill: "pillLine2", last: "lastL2", acc: "accL2", card: "cardLine2" },
-        { key: "line3", pill: "pillLine3", last: "lastL3", acc: "accL3", card: "cardLine3" },
-        { key: "line4", pill: "pillLine4", last: "lastL4", acc: "accL4", card: "cardLine4" }
+      // last period = último slot
+      const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
+
+      const lineMeta = [
+        { key:"line1", pill:"pillLine1", last:"lastL1", acc:"accL1", card:"cardLine1" },
+        { key:"line2", pill:"pillLine2", last:"lastL2", acc:"accL2", card:"cardLine2" },
+        { key:"line3", pill:"pillLine3", last:"lastL3", acc:"accL3", card:"cardLine3" },
+        { key:"line4", pill:"pillLine4", last:"lastL4", acc:"accL4", card:"cardLine4" }
       ];
 
-      lines.forEach(l => {
-        const pill = document.getElementById(l.pill);
-        const lastSpan = document.getElementById(l.last);
-        const accSpan = document.getElementById(l.acc);
-
-        const accVal = acumulado[l.key] || 0;
+      lineMeta.forEach(m => {
+        const pill = document.getElementById(m.pill);
+        const lastSpan = document.getElementById(m.last);
+        const accSpan = document.getElementById(m.acc);
 
         if (!ultimo || targetPerLine <= 0) {
           pill.textContent = "IDLE";
           pill.className = "status-pill pill-idle";
           lastSpan.textContent = "-";
           accSpan.textContent = "-";
-          setCardBorder(l.card, "IDLE");
+          setCardBorder(m.card, "IDLE");
           return;
         }
 
-        const lastSlot = data.slots.find(s => s.id_slot === ultimo.id_slot) || null;
-        let lastVal = 0;
-        let lastTarget = 0;
-        if (lastSlot) {
-          lastVal = Number(lastSlot[l.key] || 0);
-          lastTarget = Number(lastSlot.target || 0);
-        }
-
+        // last period
+        const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
+        const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
         lastSpan.textContent = `${lastVal} / ${lastTarget}`;
+
+        // accumulated
+        const accVal = acc[m.key];
         accSpan.textContent = `${accVal} / ${targetPerLine}`;
 
-        let status = "NOK";
-        if (accVal >= targetPerLine) {
-          pill.textContent = "OK";
+        const pct = targetPerLine > 0 ? (accVal / targetPerLine) : 0;
+        const p = perfClass(pct);
+        if (pct >= 1) {
+          pill.textContent = "OK " + p.face;
           pill.className = "status-pill pill-ok";
-          status = "OK";
+          setCardBorder(m.card, "OK");
+        } else if (pct >= 0.95) {
+          pill.textContent = "MID " + p.face;
+          pill.className = "status-pill pill-mid";
+          setCardBorder(m.card, "MID");
         } else {
-          pill.textContent = "NOK";
+          pill.textContent = "NOK " + p.face;
           pill.className = "status-pill pill-nok";
-          status = "NOK";
+          setCardBorder(m.card, "NOK");
         }
-        setCardBorder(l.card, status);
       });
     }
 
-    function buildTable(data) {
+    function buildTable(json) {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = "";
 
-      const slots = data.slots || [];
-      const ultimo = data.ultimo_slot || null;
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
 
-      slots.forEach(slot => {
-        const tr = document.createElement("tr");
+      // agrupa por shift mantendo ordem
+      const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
-        if (ultimo && slot.id_slot === ultimo.id_slot) {
-          tr.classList.add("row-current");
+      shifts.forEach(group => {
+        // linhas normais
+        group.slots.forEach(slot => {
+          const tr = document.createElement("tr");
+          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+
+          const cShift = document.createElement("td");
+          cShift.textContent = "Shift " + slot.shift;
+          tr.appendChild(cShift);
+
+          const cTime = document.createElement("td");
+          cTime.textContent = slot.label;
+          tr.appendChild(cTime);
+
+          const cTarget = document.createElement("td");
+          cTarget.textContent = Number(slot.target_effective || 0) > 0 ? slot.target_effective : "";
+          tr.appendChild(cTarget);
+
+          const lineDefs = [
+            { key:"line1", disp:"disp1", st:"st1" },
+            { key:"line2", disp:"disp2", st:"st2" },
+            { key:"line3", disp:"disp3", st:"st3" },
+            { key:"line4", disp:"disp4", st:"st4" }
+          ];
+
+          lineDefs.forEach(ld => {
+            const td = document.createElement("td");
+            const st = slot[ld.st] || "RUN";
+            const targetEff = Number(slot.target_effective || 0);
+
+            if (st !== "RUN") {
+              td.textContent = slot[ld.disp] || "";
+              td.classList.add(statusClass(st));
+            } else {
+              const v = Number(slot[ld.key] || 0);
+              td.textContent = (v > 0 || targetEff > 0) ? String(v) : "";
+              if (targetEff > 0) {
+                const pct = v / targetEff;
+                const p = perfClass(pct);
+                td.classList.add(p.cls);
+                td.textContent = `${v} ${p.face}`;
+              }
+            }
+            tr.appendChild(td);
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        // linha acumulada do turno
+        if (group.slots.length > 0) {
+          const sum = {
+            target: group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0),
+            line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
+            line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
+            line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
+            line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
+          };
+
+          const trSum = document.createElement("tr");
+          trSum.classList.add("shift-sum");
+
+          const td1 = document.createElement("td");
+          td1.colSpan = 2;
+          td1.textContent = `CUMULATIVE RESULT – SHIFT ${group.shift}`;
+          trSum.appendChild(td1);
+
+          const tdT = document.createElement("td");
+          tdT.textContent = sum.target > 0 ? sum.target : "";
+          trSum.appendChild(tdT);
+
+          ["line1","line2","line3","line4"].forEach(k => {
+            const td = document.createElement("td");
+            const v = sum[k];
+            if (sum.target > 0) {
+              const pct = v / sum.target;
+              const p = perfClass(pct);
+              td.classList.add(p.cls);
+              td.textContent = `${v} ${p.face}`;
+            } else {
+              td.textContent = v ? v : "";
+            }
+            trSum.appendChild(td);
+          });
+
+          tbody.appendChild(trSum);
         }
-
-        const cShift = document.createElement("td");
-        cShift.textContent = "Shift " + slot.shift;
-        tr.appendChild(cShift);
-
-        const cTime = document.createElement("td");
-        cTime.textContent = slot.label;
-        tr.appendChild(cTime);
-
-        const cTarget = document.createElement("td");
-        cTarget.textContent = slot.target;
-        tr.appendChild(cTarget);
-
-        ["line1", "line2", "line3", "line4"].forEach(k => {
-          const td = document.createElement("td");
-          const v = Number(slot[k] || 0);
-          td.textContent = v > 0 ? v : "";
-
-          if (v > 0) {
-            if (v >= slot.target) td.classList.add("cell-ok");
-            else td.classList.add("cell-nok");
-          }
-
-          tr.appendChild(td);
-        });
-
-        tbody.appendChild(tr);
       });
-
-      // linha de acumulados
-      const ac = data.acumulado || { target_total: 0, line1:0, line2:0, line3:0, line4:0 };
-      if (ac.target_total > 0) {
-        const accRow = document.createElement("tr");
-        accRow.classList.add("acc-row");
-
-        const c1 = document.createElement("td");
-        c1.colSpan = 2;
-        c1.textContent = "Accumulated";
-        accRow.appendChild(c1);
-
-        const c2 = document.createElement("td");
-        c2.textContent = ac.target_total; // target por linha
-        accRow.appendChild(c2);
-
-        ["line1", "line2", "line3", "line4"].forEach(k => {
-          const td = document.createElement("td");
-          const v = ac[k] || 0;
-          td.textContent = v;
-          // comparação com target por linha
-          if (v >= ac.target_total) td.classList.add("cell-ok");
-          else td.classList.add("cell-nok");
-          accRow.appendChild(td);
-        });
-
-        tbody.appendChild(accRow);
-      }
     }
 
     async function refreshDashboard() {
@@ -459,29 +380,16 @@
         updateTopKPIs(json);
         buildTable(json);
 
-        const now = new Date();
-        document.getElementById("lastUpdate").textContent =
-          "Last update: " + now.toLocaleTimeString();
-
+        document.getElementById("lastUpdate").textContent = "Last update: " + new Date().toLocaleTimeString();
       } catch (err) {
         console.error(err);
         document.getElementById("coverageText").textContent = "Error calling API";
       }
     }
 
-    // Inicialização
     formatDateHeader();
     refreshDashboard();
-    setInterval(refreshDashboard, 60000);
+    setInterval(refreshDashboard, 30000); // pode ajustar (ex: 10s) se quiser
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
