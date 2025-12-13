@@ -11,14 +11,16 @@
     .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
     .header-left { display:flex; align-items:center; min-width: 160px; }
     .logo {
-      height:46px; width:auto; display:block;
-      filter: drop-shadow(0 0 2px #2f80ff) drop-shadow(0 0 6px #2f80ff);
+      height:46px;
+      width:auto;
+      display:block;
+      filter:none; /* REMOVE blur */
     }
 
     .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
     .header-title { font-size:44px; font-weight:900; letter-spacing:1px; }
 
-    .header-right { text-align:right; min-width: 260px; }
+    .header-right { text-align:right; min-width: 300px; }
     .header-date { font-size:28px; font-weight:900; }
 
     /* KPI ROW */
@@ -48,9 +50,9 @@
 
     /* TABLE */
     .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
-    table { width:100%; border-collapse:collapse; background:#111; color:#fff; font-size:13px; }
-    thead th { position:sticky; top:0; background:#222; padding:6px; border-bottom:2px solid #555; border-right:1px solid #555; }
-    tbody td { padding:5px 6px; text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
+    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
+    tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
 
     .row-current { background:#262626; }
 
@@ -84,6 +86,19 @@
     .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
     .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
+
+    /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
+    body[data-shifts="1"] table { font-size: 15px; }
+    body[data-shifts="1"] thead th { padding: 10px 8px; }
+    body[data-shifts="1"] tbody td { padding: 10px 8px; }
+
+    body[data-shifts="2"] table { font-size: 13px; }
+    body[data-shifts="2"] thead th { padding: 7px 6px; }
+    body[data-shifts="2"] tbody td { padding: 7px 6px; }
+
+    body[data-shifts="3"] table { font-size: 12px; }
+    body[data-shifts="3"] thead th { padding: 5px 5px; }
+    body[data-shifts="3"] tbody td { padding: 5px 5px; }
   </style>
 </head>
 <body>
@@ -373,6 +388,11 @@
       return td;
     }
 
+    function applyShiftDensity(json){
+      const used = [1,2,3].filter(s => (json.slots || []).some(x => Number(x.shift) === s)).length || 1;
+      document.body.dataset.shifts = String(used);
+    }
+
     function buildTable(json) {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = "";
@@ -383,7 +403,6 @@
       const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
       shifts.forEach(group => {
-        // period rows
         group.slots.forEach(slot => {
           const tr = document.createElement("tr");
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
@@ -425,7 +444,6 @@
           tbody.appendChild(tr);
         });
 
-        // shift summary row (label/target azul; lines coloridas)
         if (group.slots.length > 0) {
           const sum = {
             target: group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0),
@@ -464,11 +482,9 @@
         const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
         const json = await res.json();
 
-        if (json.status !== "success") {
-          console.error("API error:", json.message);
-          return;
-        }
+        if (json.status !== "success") return;
 
+        applyShiftDensity(json);
         updateTopKPIs(json);
         buildTable(json);
 
