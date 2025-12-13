@@ -40,7 +40,7 @@
       padding:12px 16px;
       box-shadow:0 0 10px rgba(0,0,0,0.6);
       border:3px solid #444;
-      min-height: 110px;
+      min-height: 120px;
     }
 
     /* NEW CARD LAYOUT (texto à esquerda, rosto à direita) */
@@ -51,9 +51,14 @@
       align-items:center;
     }
 
-    .kpi-title { font-size:18px; margin-bottom:8px; }
-    .kpi-main { font-size:28px; font-weight:900; margin-bottom:6px; }
-    .kpi-sub { font-size:14px; color:#ccc; }
+    .kpi-title { font-size:18px; margin-bottom:10px; }
+
+    .kpi-main { font-size:30px; font-weight:900; margin-bottom:8px; }
+    .kpi-sub  { font-size:14px; color:#ccc; }
+
+    .metric { margin-top:6px; }
+    .metric-label { font-size:13px; color:#ccc; }
+    .metric-value { font-size:16px; font-weight:800; color:#fff; margin-top:2px; }
 
     .big-face {
       display:flex;
@@ -61,6 +66,8 @@
       align-items:center;
       width:86px;
       height:86px;
+      /* cor será aplicada via JS (currentColor no SVG) */
+      color:#fff;
     }
     .big-face svg { width:70px; height:70px; display:block; }
 
@@ -96,26 +103,8 @@
 
     .footer-status { margin-top:6px; font-size:14px; color:#ccc; }
 
-    /* Cell content with aligned face column */
-    .cell-wrap {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-    }
-    .cell-val { font-weight:900; }
-    .cell-face {
-      width:26px;
-      height:26px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex: 0 0 26px;
-    }
-    .cell-face svg { width:22px; height:22px; display:block; }
-
-    /* SVG common */
-    .face-stroke { stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+    /* SVG common (usa currentColor, para seguir cor da borda) */
+    .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
   </style>
 </head>
 <body>
@@ -155,8 +144,16 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 1</div>
-            <div class="kpi-sub">Last period: <span id="lastL1">-</span></div>
-            <div class="kpi-sub">Accumulated: <span id="accL1">-</span></div>
+
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL1">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL1">-</div>
+            </div>
           </div>
           <div class="big-face" id="faceL1"></div>
         </div>
@@ -167,8 +164,16 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 2</div>
-            <div class="kpi-sub">Last period: <span id="lastL2">-</span></div>
-            <div class="kpi-sub">Accumulated: <span id="accL2">-</span></div>
+
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL2">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL2">-</div>
+            </div>
           </div>
           <div class="big-face" id="faceL2"></div>
         </div>
@@ -179,8 +184,16 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 3</div>
-            <div class="kpi-sub">Last period: <span id="lastL3">-</span></div>
-            <div class="kpi-sub">Accumulated: <span id="accL3">-</span></div>
+
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL3">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL3">-</div>
+            </div>
           </div>
           <div class="big-face" id="faceL3"></div>
         </div>
@@ -191,8 +204,16 @@
         <div class="card-grid">
           <div>
             <div class="kpi-title">Line 4</div>
-            <div class="kpi-sub">Last period: <span id="lastL4">-</span></div>
-            <div class="kpi-sub">Accumulated: <span id="accL4">-</span></div>
+
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL4">-</div>
+            </div>
+
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL4">-</div>
+            </div>
           </div>
           <div class="big-face" id="faceL4"></div>
         </div>
@@ -276,7 +297,7 @@
       return "";
     }
 
-    // --- SVG FACES (outline white) ---
+    // --- SVG FACES (outline, cor = currentColor) ---
     function faceSVG(type, size="big") {
       const s = (size === "big") ? 70 : 22;
       const view = "0 0 64 64";
@@ -287,7 +308,6 @@
       if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
       else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
       else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
-
       return `<svg width="${s}" height="${s}" viewBox="${view}" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
     }
 
@@ -310,7 +330,18 @@
     function setBigFace(elId, state) {
       const el = document.getElementById(elId);
       if (!el) return;
-      if (!state) { el.innerHTML = ""; return; }
+
+      if (!state) {
+        el.innerHTML = "";
+        el.style.color = "#fff";
+        return;
+      }
+
+      // cor do rosto segue cor da borda / status
+      if (state.status === "OK") el.style.color = "#00b050";
+      else if (state.status === "MID") el.style.color = "#9acd32";
+      else el.style.color = "#c00000";
+
       el.innerHTML = faceSVG(state.face, "big");
     }
 
@@ -332,11 +363,10 @@
       const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
       const totalTarget = targetPerLine * 4;
 
-      // TOTAL card text
+      // TOTAL card
       document.getElementById("totalProd").textContent = totalTarget > 0 ? totalProd : "-";
       document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
 
-      // TOTAL face + border
       if (!ultimo || totalTarget <= 0) {
         setCardBorder("cardTotal", "IDLE");
         setBigFace("faceTotal", null);
@@ -358,12 +388,12 @@
       ];
 
       lines.forEach(m => {
-        const lastSpan = document.getElementById(m.last);
-        const accSpan = document.getElementById(m.acc);
+        const lastEl = document.getElementById(m.last);
+        const accEl = document.getElementById(m.acc);
 
         if (!ultimo || targetPerLine <= 0) {
-          lastSpan.textContent = "-";
-          accSpan.textContent = "-";
+          lastEl.textContent = "-";
+          accEl.textContent = "-";
           setCardBorder(m.card, "IDLE");
           setBigFace(m.face, null);
           return;
@@ -371,10 +401,10 @@
 
         const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
         const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
-        lastSpan.textContent = `${lastVal} / ${lastTarget}`;
+        lastEl.textContent = `${lastVal} / ${lastTarget}`;
 
         const accVal = acc[m.key];
-        accSpan.textContent = `${accVal} / ${targetPerLine}`;
+        accEl.textContent = `${accVal} / ${targetPerLine}`;
 
         const pct = accVal / targetPerLine;
         const st = perfStatus(pct);
@@ -383,27 +413,14 @@
       });
     }
 
+    // TABLE CELL: sem carinhas (mais limpo)
     function tdWithPerf(value, targetEff) {
       const td = document.createElement("td");
       if (targetEff > 0) {
         const pct = value / targetEff;
         const st = perfStatus(pct);
         td.classList.add(st.cls);
-
-        const wrap = document.createElement("div");
-        wrap.className = "cell-wrap";
-
-        const vEl = document.createElement("div");
-        vEl.className = "cell-val";
-        vEl.textContent = value;
-
-        const fEl = document.createElement("div");
-        fEl.className = "cell-face";
-        fEl.innerHTML = faceSVG(st.face, "small");
-
-        wrap.appendChild(vEl);
-        wrap.appendChild(fEl);
-        td.appendChild(wrap);
+        td.textContent = value;
       } else {
         td.textContent = value ? String(value) : "";
       }
