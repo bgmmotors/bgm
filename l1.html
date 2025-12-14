@@ -70,6 +70,72 @@
     .msg { margin-top:10px; font-size: 13px; color:#ddd; }
     .msg.ok { color:#7CFF9B; }
     .msg.err { color:#ff8080; }
+
+    /* ---------- MODAL (POPUP) ---------- */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.65);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:9999;
+    }
+    .modal{
+      width:min(520px, 100%);
+      background:#111;
+      border:2px solid #2b2b2b;
+      border-radius:16px;
+      box-shadow:0 0 18px rgba(0,0,0,.7);
+      overflow:hidden;
+    }
+    .modal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 14px 10px;
+      border-bottom:1px solid #222;
+    }
+    .badge{
+      font-weight:900;
+      font-size:14px;
+      padding:6px 10px;
+      border-radius:999px;
+      letter-spacing:.4px;
+    }
+    .badge.ok{ background:#00b050; color:#000; }
+    .badge.err{ background:#c00000; color:#fff; }
+
+    .modal-title{
+      font-weight:900;
+      font-size:16px;
+      color:#fff;
+      flex:1;
+    }
+
+    .modal-body{
+      padding:12px 14px 14px;
+      color:#ddd;
+      font-size:14px;
+      line-height:1.35;
+      white-space:pre-wrap;
+    }
+
+    .modal-actions{
+      padding:0 14px 14px;
+    }
+    .modal-btn{
+      width:100%;
+      border:none;
+      border-radius:12px;
+      padding:14px 12px;
+      font-weight:900;
+      font-size:16px;
+      cursor:pointer;
+    }
+    .modal-btn.ok{ background:#00b050; color:#000; }
+    .modal-btn.err{ background:#c00000; color:#fff; }
   </style>
 </head>
 <body>
@@ -95,6 +161,20 @@
       <div class="msg" id="msg"></div>
     </div>
 
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <div class="modal-head">
+        <span class="badge" id="modalBadge">OK</span>
+        <div class="modal-title" id="modalTitle">Saved</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="modal-btn ok" id="modalOkBtn">OK</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -135,6 +215,45 @@
       el.className = "msg " + (type || "");
       el.textContent = text || "";
     }
+
+    /* -------- Modal -------- */
+    function showModal(type, title, message){
+      const backdrop = document.getElementById("modalBackdrop");
+      const badge = document.getElementById("modalBadge");
+      const mTitle = document.getElementById("modalTitle");
+      const mBody = document.getElementById("modalBody");
+      const okBtn = document.getElementById("modalOkBtn");
+
+      const isOk = (type === "ok");
+
+      badge.textContent = isOk ? "OK" : "NOK";
+      badge.className = "badge " + (isOk ? "ok" : "err");
+
+      mTitle.textContent = title || (isOk ? "Saved" : "Error");
+      mBody.textContent = message || "";
+
+      okBtn.className = "modal-btn " + (isOk ? "ok" : "err");
+
+      backdrop.style.display = "flex";
+      backdrop.setAttribute("aria-hidden", "false");
+
+      // foco no botão
+      setTimeout(() => okBtn.focus(), 0);
+    }
+
+    function closeModal(){
+      const backdrop = document.getElementById("modalBackdrop");
+      backdrop.style.display = "none";
+      backdrop.setAttribute("aria-hidden", "true");
+    }
+
+    document.getElementById("modalOkBtn").addEventListener("click", closeModal);
+    document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "modalBackdrop") closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
 
     function buildLineInputs(){
       const grid = document.getElementById("linesGrid");
@@ -178,7 +297,6 @@
       json.slots.forEach(s => {
         const opt = document.createElement("option");
         opt.value = s.id_slot;
-        // dropdown: só turno e período (sem target)
         opt.textContent = `Shift ${s.shift} – ${s.label}`;
         opt.dataset.shift = String(s.shift);
         opt.dataset.hi = s.hora_inicio;
@@ -193,8 +311,6 @@
       const opt = sel.options[sel.selectedIndex];
 
       const payload = {
-        // OBS: action aqui não é obrigatório, pois vai na URL,
-        // mas não atrapalha deixar (para debug).
         action: "saveProduction",
         data: todayISO(),
         id_slot: opt.value,
@@ -213,23 +329,44 @@
       return payload;
     }
 
+    function validateRequired(){
+      const missing = [];
+      LINES.forEach(l => {
+        const v = (document.getElementById(l.key).value || "").trim();
+        if (v === "") missing.push(l.label);
+      });
+      return missing;
+    }
+
+    function clearForm(){
+      LINES.forEach(l => {
+        document.getElementById(l.key).value = "";
+        document.getElementById(l.flag).checked = false;
+      });
+    }
+
     async function send(){
       setMsg("");
+
+      // validação front (antes de chamar backend)
+      const missing = validateRequired();
+      if (missing.length) {
+        showModal("err", "Missing fields", "Fill all fields:\n" + missing.join("\n"));
+        return;
+      }
+
       const btn = document.getElementById("sendBtn");
       btn.disabled = true;
 
       try {
         const body = getPayload();
 
-        // IMPORTANTE:
-        // - URL com ?action=saveProduction
-        // - SEM "Content-Type: application/json" para evitar preflight (CORS) no Apps Script
         const res = await fetch(`${SCRIPT_URL}?action=saveProduction`, {
           method: "POST",
+          // sem Content-Type para evitar preflight
           body: JSON.stringify(body)
         });
 
-        // Apps Script às vezes retorna texto, então é mais robusto assim:
         const text = await res.text();
         let json;
         try { json = JSON.parse(text); }
@@ -238,13 +375,11 @@
         if (json.status !== "success") throw new Error(json.message || "Save error");
 
         setMsg("Saved ✅", "ok");
-        // limpa inputs e flags após salvar
-        LINES.forEach(l => {
-          document.getElementById(l.key).value = "";
-          document.getElementById(l.flag).checked = false;
-        });
+        showModal("ok", "OK", "Saved successfully.");
+        clearForm();
       } catch (e) {
         setMsg(String(e.message || e), "err");
+        showModal("err", "NOK", String(e.message || e));
       } finally {
         btn.disabled = false;
       }
@@ -254,8 +389,10 @@
 
     startDT();
     buildLineInputs();
-    loadSlots().catch(err => setMsg(err.message || String(err), "err"));
+    loadSlots().catch(err => {
+      setMsg(err.message || String(err), "err");
+      showModal("err", "NOK", err.message || String(err));
+    });
   </script>
 </body>
 </html>
-
