@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PERFORMANCE CLM6 – TV65</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
+    .wrapper { display:flex; flex-direction:column; height:100vh; padding:18px 26px; box-sizing:border-box; background:#000; }
+
+    /* HEADER */
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:14px; }
+    .header-left { display:flex; align-items:center; min-width: 200px; }
+    .logo { height:58px; width:auto; display:block; filter:none; }
+
+    .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
+    .header-title { font-size:56px; font-weight:900; letter-spacing:1px; }
+
+    .header-right { text-align:right; min-width: 360px; }
+    .header-date { font-size:34px; font-weight:900; }
+    .header-lang { margin-top:6px; font-size:18px; color:#bbb; font-weight:900; letter-spacing:.5px; }
+
+    /* KPI ROW */
+    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:14px; margin-bottom:14px; }
+
+    .kpi-card {
+      background:#111;
+      border-radius:18px;
+      padding:14px 18px;
+      box-shadow:0 0 14px rgba(0,0,0,0.6);
+      border:4px solid #444;
+      min-height: 128px;
+    }
+
+    .card-grid { display:grid; grid-template-columns: 1fr 110px; gap:14px; align-items:center; }
+
+    .kpi-title { font-size:22px; margin-bottom:10px; }
+    .kpi-main { font-size:40px; font-weight:900; margin-bottom:8px; }
+    .kpi-sub  { font-size:16px; color:#ccc; font-weight:700; }
+
+    .metric { margin-top:10px; }
+    .metric-label { font-size:15px; color:#ccc; }
+    .metric-value { font-size:20px; font-weight:900; color:#fff; margin-top:4px; }
+
+    .big-face { display:flex; justify-content:center; align-items:center; width:110px; height:110px; color:#fff; }
+    .big-face svg { width:86px; height:86px; display:block; }
+
+    /* TABLE */
+    .table-container { flex:1; overflow:hidden; border-radius:14px; background:#111; padding:10px; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; table-layout:fixed; }
+    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
+    tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
+
+    thead th { font-size:18px; padding:12px 10px; }
+    tbody td { font-size:18px; padding:12px 10px; }
+
+    .row-current { background:#262626; }
+
+    /* Performance cores */
+    .cell-ok  { background:#00b050; color:#000; font-weight:900; }
+    .cell-mid { background:#9acd32; color:#000; font-weight:900; }
+    .cell-nok { background:#c00000; color:#fff; font-weight:900; }
+
+    /* STOP / status cores fixas */
+    .cell-mnt     { background: orange;   color:#000; font-weight:900; }
+    .cell-mat     { background: #808080;  color:#000; font-weight:900; }
+    .cell-peo     { background: #ff69b4;  color:#000; font-weight:900; }
+    .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
+    .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
+
+    /* SHIFT SUMMARY ROW */
+    .shift-sum td{
+      border-top:2px solid #fff !important;
+      border-bottom:2px solid #fff !important;
+    }
+    .shift-sum td:first-child { border-left:2px solid #fff !important; }
+    .shift-sum td:last-child  { border-right:2px solid #fff !important; }
+
+    .shift-sum-label, .shift-sum-target {
+      background:#003366 !important;
+      color:#fff;
+      font-weight:900;
+    }
+
+    /* SVG (usa currentColor) */
+    .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+    .footer-status { margin-top:10px; font-size:16px; color:#bbb; font-weight:700; }
+
+    /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
+    body[data-shifts="1"] thead th { font-size:20px; padding:14px 12px; }
+    body[data-shifts="1"] tbody td { font-size:20px; padding:14px 12px; }
+
+    body[data-shifts="2"] thead th { font-size:18px; padding:12px 10px; }
+    body[data-shifts="2"] tbody td { font-size:18px; padding:12px 10px; }
+
+    body[data-shifts="3"] thead th { font-size:16px; padding:10px 8px; }
+    body[data-shifts="3"] tbody td { font-size:16px; padding:10px 8px; }
+
+    /* TV safe */
+    @media (max-width: 1200px) {
+      .header-title{ font-size:46px; }
+      .kpi-row{ gap:10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="header-left">
+        <img class="logo" src="assets/BGM.png" alt="BGM Motors">
+      </div>
+
+      <div class="header-center">
+        <div class="header-title" id="ttl">PERFORMANCE CLM6</div>
+      </div>
+
+      <div class="header-right">
+        <div class="header-date" id="dateTime">--</div>
+        <div class="header-lang" id="langTag">EN</div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <!-- TOTAL -->
+      <div class="kpi-card" id="cardTotal">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title" id="kpiTotalTitle">Total Production vs Target</div>
+            <div class="kpi-main" id="totalProd">-</div>
+            <div class="kpi-sub" id="totalTarget">Target: -</div>
+          </div>
+          <div class="big-face" id="faceTotal"></div>
+        </div>
+      </div>
+
+      <!-- Lines -->
+      <div class="kpi-card" id="cardLine1">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title" id="tLine1">Line 1</div>
+            <div class="metric">
+              <div class="metric-label" id="lblLast1">Last period</div>
+              <div class="metric-value" id="lastL1">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label" id="lblAcc1">Accumulated</div>
+              <div class="metric-value" id="accL1">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL1"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card" id="cardLine2">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title" id="tLine2">Line 2</div>
+            <div class="metric">
+              <div class="metric-label" id="lblLast2">Last period</div>
+              <div class="metric-value" id="lastL2">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label" id="lblAcc2">Accumulated</div>
+              <div class="metric-value" id="accL2">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL2"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card" id="cardLine3">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title" id="tLine3">Line 3</div>
+            <div class="metric">
+              <div class="metric-label" id="lblLast3">Last period</div>
+              <div class="metric-value" id="lastL3">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label" id="lblAcc3">Accumulated</div>
+              <div class="metric-value" id="accL3">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL3"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card" id="cardLine4">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title" id="tLine4">Line 4</div>
+            <div class="metric">
+              <div class="metric-label" id="lblLast4">Last period</div>
+              <div class="metric-value" id="lastL4">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label" id="lblAcc4">Accumulated</div>
+              <div class="metric-value" id="accL4">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:14%;" id="thShift">Shift</th>
+            <th style="width:30%;" id="thTime">Time</th>
+            <th style="width:10%;" id="thTarget">Target</th>
+            <th style="width:11%;" id="thL1">Line 1</th>
+            <th style="width:11%;" id="thL2">Line 2</th>
+            <th style="width:11%;" id="thL3">Line 3</th>
+            <th style="width:13%;" id="thL4">Line 4</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="footer-status" id="lastUpdate">Last update: --</div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
+
+    // ====== TV65: alterna EN <-> BG a cada 30s ======
+    const ROTATE_LANG = true;
+    const ROTATE_MS = 30000;
+    let LANG = "EN"; // "EN" | "BG"
+
+    const I18N = {
+      EN: {
+        langTag: "EN",
+        totalTitle: "Total Production vs Target",
+        targetPrefix: "Target:",
+        lastPeriod: "Last period",
+        accumulated: "Accumulated",
+        thShift: "Shift",
+        thTime: "Time",
+        thTarget: "Target",
+        line: (n)=>`Line ${n}`,
+        cumShift: (s)=>`CUMULATIVE RESULT – SHIFT ${s}`,
+        // status text
+        STOP_MAINT: "STOP – MAINTENANCE",
+        STOP_MAT:   "STOP – MATERIAL",
+        STOP_PEO:   "STOP – PEOPLE",
+        STOP_QUAL:  "STOP – QUALITY",
+        NO_SCHEDULE:"NO SCHEDULE"
+      },
+      BG: {
+        langTag: "BG",
+        totalTitle: "ОБЩО ПРОИЗВОДСТВО / ЦЕЛ",
+        targetPrefix: "Цел:",
+        lastPeriod: "Последен период",
+        accumulated: "Натрупано",
+        thShift: "Смяна",
+        thTime: "Период",
+        thTarget: "Цел",
+        line: (n)=>`Линия ${n}`,
+        cumShift: (s)=>`НАТРУПАН РЕЗУЛТАТ – СМЯНА ${s}`,
+        // status text (BG)
+        STOP_MAINT: "СПИРАНЕ – ПОДДРЪЖКА",
+        STOP_MAT:   "СПИРАНЕ – МАТЕРИАЛ",
+        STOP_PEO:   "СПИРАНЕ – ПЕРСОНАЛ",
+        STOP_QUAL:  "СПИРАНЕ – КАЧЕСТВО",
+        NO_SCHEDULE:"БЕЗ ПЛАН"
+      }
+    };
+
+    function applyLangUI(){
+      const t = I18N[LANG];
+      document.getElementById("langTag").textContent = t.langTag;
+
+      document.getElementById("kpiTotalTitle").textContent = t.totalTitle;
+
+      // labels
+      document.getElementById("lblLast1").textContent = t.lastPeriod;
+      document.getElementById("lblAcc1").textContent  = t.accumulated;
+      document.getElementById("lblLast2").textContent = t.lastPeriod;
+      document.getElementById("lblAcc2").textContent  = t.accumulated;
+      document.getElementById("lblLast3").textContent = t.lastPeriod;
+      document.getElementById("lblAcc3").textContent  = t.accumulated;
+      document.getElementById("lblLast4").textContent = t.lastPeriod;
+      document.getElementById("lblAcc4").textContent  = t.accumulated;
+
+      // line titles
+      document.getElementById("tLine1").textContent = t.line(1);
+      document.getElementById("tLine2").textContent = t.line(2);
+      document.getElementById("tLine3").textContent = t.line(3);
+      document.getElementById("tLine4").textContent = t.line(4);
+
+      // table headers
+      document.getElementById("thShift").textContent  = t.thShift;
+      document.getElementById("thTime").textContent   = t.thTime;
+      document.getElementById("thTarget").textContent = t.thTarget;
+      document.getElementById("thL1").textContent = t.line(1);
+      document.getElementById("thL2").textContent = t.line(2);
+      document.getElementById("thL3").textContent = t.line(3);
+      document.getElementById("thL4").textContent = t.line(4);
+    }
+
+    function getTodayISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function startDateTime() {
+      const el = document.getElementById("dateTime");
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function tick() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, "0");
+        const m = monthNames[now.getMonth()];
+        const y = String(now.getFullYear()).slice(-2);
+        const hh = String(now.getHours()).padStart(2,"0");
+        const mm = String(now.getMinutes()).padStart(2,"0");
+        el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function setCardBorder(id, status) {
+      const card = document.getElementById(id);
+      if (!card) return;
+      if (status === "OK") card.style.borderColor = "#00b050";
+      else if (status === "MID") card.style.borderColor = "#9acd32";
+      else if (status === "NOK") card.style.borderColor = "#c00000";
+      else card.style.borderColor = "#666";
+    }
+
+    function statusClass(kind) {
+      if (kind === "STOP_MAINT") return "cell-mnt";
+      if (kind === "STOP_MAT") return "cell-mat";
+      if (kind === "STOP_PEO") return "cell-peo";
+      if (kind === "STOP_QUAL") return "cell-qual";
+      if (kind === "NO_SCHEDULE") return "cell-nosched";
+      return "";
+    }
+
+    function statusText(kind){
+      const t = I18N[LANG];
+      return t[kind] || ""; // se não achar, vazio
+    }
+
+    function faceSVG(type) {
+      const common = `class="face-stroke"`;
+      const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
+      const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
+      let mouth = "";
+      if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
+      else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
+      else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
+      return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+    }
+
+    function perfStatus(pct) {
+      if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
+      if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
+      return { status:"NOK", cls:"cell-nok", face:"sad" };
+    }
+
+    function calcUpToUltimo(slots, ultimo) {
+      if (!ultimo) return slots;
+      const out = [];
+      for (const s of slots) {
+        out.push(s);
+        if (s.id_slot === ultimo.id_slot) break;
+      }
+      return out;
+    }
+
+    function setBigFace(elId, state) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+
+      if (!state) {
+        el.innerHTML = "";
+        el.style.color = "#fff";
+        return;
+      }
+
+      if (state.status === "OK") el.style.color = "#00b050";
+      else if (state.status === "MID") el.style.color = "#9acd32";
+      else el.style.color = "#c00000";
+
+      el.innerHTML = faceSVG(state.face);
+    }
+
+    function hasAnyLaunchInSlot(slot) {
+      return slot && slot.has_launch === true;
+    }
+
+    function updateTopKPIs(json) {
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+
+      const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
+      const considered = calcUpToUltimo(slots, ultimo);
+
+      // target_per_line: usa target_counted se existir (front-only: se não vier, cai no target_effective)
+      const targetPerLine = considered.reduce((acc, s) => {
+        const v = (s && s.target_counted !== undefined) ? Number(s.target_counted || 0) : Number(s.target_effective || 0);
+        return acc + v;
+      }, 0);
+
+      const acc = {
+        line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
+        line2: considered.reduce((a,s)=>a + Number(s.line2||0),0),
+        line3: considered.reduce((a,s)=>a + Number(s.line3||0),0),
+        line4: considered.reduce((a,s)=>a + Number(s.line4||0),0)
+      };
+
+      const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
+      const totalTarget = targetPerLine * 4;
+
+      const t = I18N[LANG];
+      document.getElementById("totalProd").textContent = anyLaunchDay ? totalProd : "-";
+      document.getElementById("totalTarget").textContent = `${t.targetPrefix} ` + (totalTarget > 0 ? totalTarget : "-");
+
+      if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
+        setCardBorder("cardTotal", "IDLE");
+        setBigFace("faceTotal", null);
+      } else {
+        const st = perfStatus(totalProd / totalTarget);
+        setCardBorder("cardTotal", st.status);
+        setBigFace("faceTotal", st);
+      }
+
+      const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
+
+      const lines = [
+        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1" },
+        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2" },
+        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3" },
+        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4" }
+      ];
+
+      lines.forEach(m => {
+        const lastEl = document.getElementById(m.last);
+        const accEl  = document.getElementById(m.acc);
+
+        if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
+          lastEl.textContent = "-";
+          accEl.textContent  = "-";
+          setCardBorder(m.card, "IDLE");
+          setBigFace(m.face, null);
+          return;
+        }
+
+        const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
+        const lastTarget = lastSlot
+          ? Number((lastSlot.target_counted !== undefined ? lastSlot.target_counted : (lastSlot.target_effective || lastSlot.target || 0)) || 0)
+          : 0;
+
+        lastEl.textContent = `${lastVal} / ${lastTarget}`;
+        const accVal = acc[m.key];
+        accEl.textContent  = `${accVal} / ${targetPerLine}`;
+
+        const st = perfStatus(accVal / targetPerLine);
+        setCardBorder(m.card, st.status);
+        setBigFace(m.face, st);
+      });
+    }
+
+    function tdWithPerf(value, targetEff, hasLaunch) {
+      const td = document.createElement("td");
+      if (!hasLaunch) { td.textContent = ""; return td; }
+
+      if (targetEff > 0) {
+        const st = perfStatus(value / targetEff);
+        td.classList.add(st.cls);
+        td.textContent = value;
+      } else {
+        td.textContent = String(value ?? "");
+      }
+      return td;
+    }
+
+    function applyShiftDensity(json){
+      const used = [1,2,3].filter(s => (json.slots || []).some(x => Number(x.shift) === s)).length || 1;
+      document.body.dataset.shifts = String(used);
+    }
+
+    function buildTable(json) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+
+      const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
+
+      shifts.forEach(group => {
+        group.slots.forEach(slot => {
+          const tr = document.createElement("tr");
+          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+
+          const tdShift = document.createElement("td");
+          tdShift.textContent = (LANG === "BG") ? `Смяна ${slot.shift}` : `Shift ${slot.shift}`;
+          tr.appendChild(tdShift);
+
+          const tdTime = document.createElement("td");
+          tdTime.textContent = slot.label;
+          tr.appendChild(tdTime);
+
+          const targetEff = Number(slot.target_effective || 0);
+          const tdTarget = document.createElement("td");
+          tdTarget.textContent = targetEff > 0 ? targetEff : "";
+          tr.appendChild(tdTarget);
+
+          const defs = [
+            { key:"line1", st:"st1" },
+            { key:"line2", st:"st2" },
+            { key:"line3", st:"st3" },
+            { key:"line4", st:"st4" }
+          ];
+
+          defs.forEach(d => {
+            const stKind = slot[d.st] || "RUN";
+
+            // STOP/NO_SCHEDULE: traduz pelo status code (front-only)
+            if (stKind !== "RUN") {
+              const td = document.createElement("td");
+              td.textContent = statusText(stKind); // <<<<<< aqui troca EN/BG
+              td.classList.add(statusClass(stKind));
+              tr.appendChild(td);
+              return;
+            }
+
+            // RUN: só mostra se houve lançamento
+            const hasLaunch = (slot && slot.has_launch === true);
+            if (!hasLaunch) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              tr.appendChild(td);
+              return;
+            }
+
+            const raw = slot[d.key];
+            const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
+            tr.appendChild(tdWithPerf(v, targetEff, true));
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        // shift sum
+        if (group.slots.length > 0) {
+          const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
+
+          const sumTarget = group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0);
+          const sum = {
+            target: sumTarget,
+            line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
+            line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
+            line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
+            line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
+          };
+
+          const trSum = document.createElement("tr");
+          trSum.classList.add("shift-sum");
+
+          const td1 = document.createElement("td");
+          td1.colSpan = 2;
+          td1.textContent = I18N[LANG].cumShift(group.shift);
+          td1.classList.add("shift-sum-label");
+          trSum.appendChild(td1);
+
+          const tdT = document.createElement("td");
+          tdT.textContent = sum.target > 0 ? sum.target : "";
+          tdT.classList.add("shift-sum-target");
+          trSum.appendChild(tdT);
+
+          ["line1","line2","line3","line4"].forEach(k => {
+            if (!hasAnyLaunchShift) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              trSum.appendChild(td);
+              return;
+            }
+            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
+          });
+
+          tbody.appendChild(trSum);
+        }
+      });
+    }
+
+    async function refreshDashboard() {
+      try {
+        const today = getTodayISO();
+        const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
+        const json = await res.json();
+        if (json.status !== "success") return;
+
+        applyShiftDensity(json);
+        applyLangUI();            // garante textos ok
+        updateTopKPIs(json);
+        buildTable(json);
+
+        document.getElementById("lastUpdate").textContent =
+          (LANG === "BG")
+            ? ("Последно обновяване: " + new Date().toLocaleTimeString())
+            : ("Last update: " + new Date().toLocaleTimeString());
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function rotateLang(){
+      LANG = (LANG === "EN") ? "BG" : "EN";
+      applyLangUI();
+      refreshDashboard();
+    }
+
+    startDateTime();
+    applyLangUI();
+    refreshDashboard();
+    setInterval(refreshDashboard, 30000);
+
+    if (ROTATE_LANG) {
+      setInterval(rotateLang, ROTATE_MS);
+    }
+  </script>
+</body>
+</html>
