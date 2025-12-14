@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PERFORMANCE CLM6 – TV</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
+    .wrapper { display:flex; flex-direction:column; height:100vh; padding:12px 18px; box-sizing:border-box; background:#000; }
+
+    /* HEADER */
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
+    .header-left { display:flex; align-items:center; min-width: 160px; }
+    .logo { height:46px; width:auto; display:block; filter:none; }
+
+    .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
+    .header-title { font-size:44px; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+
+    .header-right { text-align:right; min-width: 320px; }
+    .header-date { font-size:28px; font-weight:900; line-height:1.1; }
+    .header-lang { font-size:12px; color:#bbb; margin-top:4px; letter-spacing:0.8px; }
+
+    /* KPI ROW */
+    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:10px; margin-bottom:10px; }
+
+    .kpi-card {
+      background:#111;
+      border-radius:14px;
+      padding:10px 14px;
+      box-shadow:0 0 10px rgba(0,0,0,0.6);
+      border:3px solid #444;
+      min-height: 105px;
+    }
+
+    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
+
+    .kpi-title { font-size:17px; margin-bottom:8px; }
+    .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
+    .kpi-sub  { font-size:13px; color:#ccc; }
+
+    .metric { margin-top:6px; }
+    .metric-label { font-size:12px; color:#ccc; }
+    .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
+
+    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
+    .big-face svg { width:66px; height:66px; display:block; }
+
+    /* TABLE */
+    .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
+    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
+    tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
+
+    .row-current { background:#262626; }
+
+    /* Performance cores */
+    .cell-ok  { background:#00b050; color:#000; font-weight:900; }
+    .cell-mid { background:#9acd32; color:#000; font-weight:900; }
+    .cell-nok { background:#c00000; color:#fff; font-weight:900; }
+
+    /* STOP / status cores fixas */
+    .cell-mnt     { background: orange;   color:#000; font-weight:900; }
+    .cell-mat     { background: #808080;  color:#000; font-weight:900; }
+    .cell-peo     { background: #ff69b4;  color:#000; font-weight:900; }
+    .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
+    .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
+
+    /* SHIFT SUMMARY ROW */
+    .shift-sum td{
+      border-top:2px solid #fff !important;
+      border-bottom:2px solid #fff !important;
+    }
+    .shift-sum td:first-child { border-left:2px solid #fff !important; }
+    .shift-sum td:last-child  { border-right:2px solid #fff !important; }
+
+    .shift-sum-label, .shift-sum-target {
+      background:#003366 !important;
+      color:#fff;
+      font-weight:900;
+    }
+
+    /* SVG common (usa currentColor, para seguir cor da borda do card) */
+    .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+    .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
+
+    /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
+    body[data-shifts="1"] table { font-size: 15px; }
+    body[data-shifts="1"] thead th { padding: 10px 8px; }
+    body[data-shifts="1"] tbody td { padding: 10px 8px; }
+
+    body[data-shifts="2"] table { font-size: 13px; }
+    body[data-shifts="2"] thead th { padding: 7px 6px; }
+    body[data-shifts="2"] tbody td { padding: 7px 6px; }
+
+    body[data-shifts="3"] table { font-size: 12px; }
+    body[data-shifts="3"] thead th { padding: 5px 5px; }
+    body[data-shifts="3"] tbody td { padding: 5px 5px; }
+
+    /* ---- TV WALL PAGES ---- */
+    .pages { position:relative; flex:1; display:block; }
+    .page {
+      position:absolute; inset:0;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 550ms ease;
+    }
+    .page.active {
+      opacity:1;
+      pointer-events:auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="header-left">
+        <img class="logo" src="assets/BGM.png" alt="BGM Motors">
+      </div>
+
+      <div class="header-center">
+        <div class="header-title" id="titleMain">PERFORMANCE CLM6</div>
+      </div>
+
+      <div class="header-right">
+        <div class="header-date" id="dateTime">--</div>
+        <div class="header-lang" id="langLabel">--</div>
+      </div>
+    </div>
+
+    <div class="pages">
+      <!-- PAGE EN -->
+      <div class="page active" id="pageEN" data-lang="en">
+        <div class="kpi-row">
+          <div class="kpi-card" id="cardTotal_en">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="kpiTotalTitle_en">Total Production vs Target</div>
+                <div class="kpi-main" id="totalProd_en">-</div>
+                <div class="kpi-sub" id="totalTarget_en">Target: -</div>
+              </div>
+              <div class="big-face" id="faceTotal_en"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine1_en">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line1Title_en">Line 1</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel_en">Last period</div>
+                  <div class="metric-value" id="lastL1_en">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel_en">Accumulated</div>
+                  <div class="metric-value" id="accL1_en">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL1_en"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine2_en">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line2Title_en">Line 2</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel2_en">Last period</div>
+                  <div class="metric-value" id="lastL2_en">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel2_en">Accumulated</div>
+                  <div class="metric-value" id="accL2_en">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL2_en"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine3_en">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line3Title_en">Line 3</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel3_en">Last period</div>
+                  <div class="metric-value" id="lastL3_en">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel3_en">Accumulated</div>
+                  <div class="metric-value" id="accL3_en">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL3_en"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine4_en">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line4Title_en">Line 4</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel4_en">Last period</div>
+                  <div class="metric-value" id="lastL4_en">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel4_en">Accumulated</div>
+                  <div class="metric-value" id="accL4_en">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL4_en"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:16%;" id="thShift_en">Shift</th>
+                <th style="width:28%;" id="thTime_en">Time</th>
+                <th style="width:10%;" id="thTarget_en">Target</th>
+                <th style="width:11%;" id="thL1_en">Line 1</th>
+                <th style="width:11%;" id="thL2_en">Line 2</th>
+                <th style="width:11%;" id="thL3_en">Line 3</th>
+                <th style="width:13%;" id="thL4_en">Line 4</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody_en"></tbody>
+          </table>
+          <div class="footer-status" id="lastUpdate_en">Last update: --</div>
+        </div>
+      </div>
+
+      <!-- PAGE BG -->
+      <div class="page" id="pageBG" data-lang="bg">
+        <div class="kpi-row">
+          <div class="kpi-card" id="cardTotal_bg">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="kpiTotalTitle_bg">Общо производство спрямо цел</div>
+                <div class="kpi-main" id="totalProd_bg">-</div>
+                <div class="kpi-sub" id="totalTarget_bg">Цел: -</div>
+              </div>
+              <div class="big-face" id="faceTotal_bg"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine1_bg">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line1Title_bg">Линия 1</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel_bg">Последен период</div>
+                  <div class="metric-value" id="lastL1_bg">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel_bg">Натрупано</div>
+                  <div class="metric-value" id="accL1_bg">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL1_bg"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine2_bg">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line2Title_bg">Линия 2</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel2_bg">Последен период</div>
+                  <div class="metric-value" id="lastL2_bg">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel2_bg">Натрупано</div>
+                  <div class="metric-value" id="accL2_bg">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL2_bg"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine3_bg">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line3Title_bg">Линия 3</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel3_bg">Последен период</div>
+                  <div class="metric-value" id="lastL3_bg">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel3_bg">Натрупано</div>
+                  <div class="metric-value" id="accL3_bg">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL3_bg"></div>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="cardLine4_bg">
+            <div class="card-grid">
+              <div>
+                <div class="kpi-title" id="line4Title_bg">Линия 4</div>
+                <div class="metric">
+                  <div class="metric-label" id="lastLabel4_bg">Последен период</div>
+                  <div class="metric-value" id="lastL4_bg">-</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label" id="accLabel4_bg">Натрупано</div>
+                  <div class="metric-value" id="accL4_bg">-</div>
+                </div>
+              </div>
+              <div class="big-face" id="faceL4_bg"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:16%;" id="thShift_bg">Смяна</th>
+                <th style="width:28%;" id="thTime_bg">Период</th>
+                <th style="width:10%;" id="thTarget_bg">Цел</th>
+                <th style="width:11%;" id="thL1_bg">Линия 1</th>
+                <th style="width:11%;" id="thL2_bg">Линия 2</th>
+                <th style="width:11%;" id="thL3_bg">Линия 3</th>
+                <th style="width:13%;" id="thL4_bg">Линия 4</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody_bg"></tbody>
+          </table>
+          <div class="footer-status" id="lastUpdate_bg">Обновено: --</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIG ===
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
+    const ROTATE_MS = 30000;
+
+    // === Utils ===
+    function qs(name){
+      const u = new URL(window.location.href);
+      return (u.searchParams.get(name) || "").trim().toLowerCase();
+    }
+
+    function getTodayISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function startDateTime() {
+      const el = document.getElementById("dateTime");
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function tick() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, "0");
+        const m = monthNames[now.getMonth()];
+        const y = String(now.getFullYear()).slice(-2);
+        const hh = String(now.getHours()).padStart(2,"0");
+        const mm = String(now.getMinutes()).padStart(2,"0");
+        el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function setCardBorder(id, status) {
+      const card = document.getElementById(id);
+      if (!card) return;
+      if (status === "OK") card.style.borderColor = "#00b050";
+      else if (status === "MID") card.style.borderColor = "#9acd32";
+      else if (status === "NOK") card.style.borderColor = "#c00000";
+      else card.style.borderColor = "#666";
+    }
+
+    function statusClass(kind) {
+      if (kind === "STOP_MAINT") return "cell-mnt";
+      if (kind === "STOP_MAT") return "cell-mat";
+      if (kind === "STOP_PEO") return "cell-peo";
+      if (kind === "STOP_QUAL") return "cell-qual";
+      if (kind === "NO_SCHEDULE") return "cell-nosched";
+      return "";
+    }
+
+    function faceSVG(type) {
+      const common = `class="face-stroke"`;
+      const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
+      const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
+      let mouth = "";
+      if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
+      else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
+      else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
+      return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+    }
+
+    function perfStatus(pct) {
+      if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
+      if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
+      return { status:"NOK", cls:"cell-nok", face:"sad" };
+    }
+
+    function applyShiftDensity(slots){
+      const used = [1,2,3].filter(s => (slots || []).some(x => Number(x.shift) === s)).length || 1;
+      document.body.dataset.shifts = String(used);
+    }
+
+    // backend flag
+    function hasAnyLaunchInSlot(slot) {
+      return slot && slot.has_launch === true;
+    }
+
+    function calcUpToUltimo(slots, ultimo) {
+      if (!ultimo) return slots;
+      const out = [];
+      for (const s of slots) { out.push(s); if (s.id_slot === ultimo.id_slot) break; }
+      return out;
+    }
+
+    function setBigFace(elId, state) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      if (!state) { el.innerHTML = ""; el.style.color = "#fff"; return; }
+
+      if (state.status === "OK") el.style.color = "#00b050";
+      else if (state.status === "MID") el.style.color = "#9acd32";
+      else el.style.color = "#c00000";
+
+      el.innerHTML = faceSVG(state.face);
+    }
+
+    function tdWithPerf(value, targetEff, hasLaunch) {
+      const td = document.createElement("td");
+      if (!hasLaunch) { td.textContent = ""; return td; }
+
+      if (targetEff > 0) {
+        const st = perfStatus(value / targetEff);
+        td.classList.add(st.cls);
+        td.textContent = value;
+      } else {
+        td.textContent = String(value ?? "");
+      }
+      return td;
+    }
+
+    function updateTopKPIsFor(lang, json){
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+      const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
+
+      const considered = calcUpToUltimo(slots, ultimo);
+      const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_counted ?? 0)), 0); // <<<<<< key (counts only launched)
+      const acc = {
+        line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
+        line2: considered.reduce((a,s)=>a + Number(s.line2||0),0),
+        line3: considered.reduce((a,s)=>a + Number(s.line3||0),0),
+        line4: considered.reduce((a,s)=>a + Number(s.line4||0),0)
+      };
+
+      const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
+      const totalTarget = targetPerLine * 4;
+
+      const id = (x)=>`${x}_${lang}`;
+
+      document.getElementById(id("totalProd")).textContent = anyLaunchDay ? totalProd : "-";
+      const targetPrefix = (lang === "bg") ? "Цел: " : "Target: ";
+      document.getElementById(id("totalTarget")).textContent = targetPrefix + (totalTarget > 0 ? totalTarget : "-");
+
+      if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
+        setCardBorder(id("cardTotal"), "IDLE");
+        setBigFace(id("faceTotal"), null);
+      } else {
+        const st = perfStatus(totalProd / totalTarget);
+        setCardBorder(id("cardTotal"), st.status);
+        setBigFace(id("faceTotal"), st);
+      }
+
+      const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
+
+      const lines = [
+        { key:"line1", last:id("lastL1"), acc:id("accL1"), card:id("cardLine1"), face:id("faceL1") },
+        { key:"line2", last:id("lastL2"), acc:id("accL2"), card:id("cardLine2"), face:id("faceL2") },
+        { key:"line3", last:id("lastL3"), acc:id("accL3"), card:id("cardLine3"), face:id("faceL3") },
+        { key:"line4", last:id("lastL4"), acc:id("accL4"), card:id("cardLine4"), face:id("faceL4") }
+      ];
+
+      lines.forEach(m => {
+        const lastEl = document.getElementById(m.last);
+        const accEl  = document.getElementById(m.acc);
+
+        if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
+          lastEl.textContent = "-";
+          accEl.textContent = "-";
+          setCardBorder(m.card, "IDLE");
+          setBigFace(m.face, null);
+          return;
+        }
+
+        const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
+        const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
+        lastEl.textContent = `${lastVal} / ${lastTarget}`;
+
+        const accVal = acc[m.key];
+        accEl.textContent = `${accVal} / ${targetPerLine}`;
+
+        const st = perfStatus(accVal / targetPerLine);
+        setCardBorder(m.card, st.status);
+        setBigFace(m.face, st);
+      });
+    }
+
+    function buildTableFor(lang, json){
+      const tbody = document.getElementById(`tableBody_${lang}`);
+      tbody.innerHTML = "";
+
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+
+      const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
+
+      shifts.forEach(group => {
+        group.slots.forEach(slot => {
+          const tr = document.createElement("tr");
+          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+
+          const tdShift = document.createElement("td");
+          tdShift.textContent = (lang === "bg") ? ("Смяна " + slot.shift) : ("Shift " + slot.shift);
+          tr.appendChild(tdShift);
+
+          const tdTime = document.createElement("td");
+          tdTime.textContent = slot.label;
+          tr.appendChild(tdTime);
+
+          const targetEff = Number(slot.target_effective || 0);
+
+          const tdTarget = document.createElement("td");
+          tdTarget.textContent = targetEff > 0 ? targetEff : "";
+          tr.appendChild(tdTarget);
+
+          const defs = [
+            { key:"line1", disp:"disp1", st:"st1" },
+            { key:"line2", disp:"disp2", st:"st2" },
+            { key:"line3", disp:"disp3", st:"st3" },
+            { key:"line4", disp:"disp4", st:"st4" }
+          ];
+
+          defs.forEach(d => {
+            const stKind = slot[d.st] || "RUN";
+
+            if (stKind !== "RUN") {
+              const td = document.createElement("td");
+              td.textContent = slot[d.disp] || "";
+              td.classList.add(statusClass(stKind));
+              tr.appendChild(td);
+              return;
+            }
+
+            const hasLaunch = (slot && slot.has_launch === true);
+            if (!hasLaunch) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              tr.appendChild(td);
+              return;
+            }
+
+            const raw = slot[d.key];
+            const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
+            tr.appendChild(tdWithPerf(v, targetEff, true));
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        if (group.slots.length > 0) {
+          const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
+
+          const sum = {
+            target: group.slots.reduce((a,s)=>a + Number(s.target_counted ?? 0),0), // counts only launched
+            line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
+            line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
+            line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
+            line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
+          };
+
+          const trSum = document.createElement("tr");
+          trSum.classList.add("shift-sum");
+
+          const td1 = document.createElement("td");
+          td1.colSpan = 2;
+          td1.textContent = (lang === "bg")
+            ? `НАТРУПАНО – СМЯНА ${group.shift}`
+            : `CUMULATIVE RESULT – SHIFT ${group.shift}`;
+          td1.classList.add("shift-sum-label");
+          trSum.appendChild(td1);
+
+          const tdT = document.createElement("td");
+          tdT.textContent = sum.target > 0 ? sum.target : "";
+          tdT.classList.add("shift-sum-target");
+          trSum.appendChild(tdT);
+
+          ["line1","line2","line3","line4"].forEach(k => {
+            if (!hasAnyLaunchShift) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              trSum.appendChild(td);
+              return;
+            }
+            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
+          });
+
+          tbody.appendChild(trSum);
+        }
+      });
+
+      const lu = document.getElementById(`lastUpdate_${lang}`);
+      lu.textContent = (lang === "bg")
+        ? ("Обновено: " + new Date().toLocaleTimeString())
+        : ("Last update: " + new Date().toLocaleTimeString());
+    }
+
+    async function refresh(){
+      const today = getTodayISO();
+      const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
+      const json = await res.json();
+      if (json.status !== "success") return;
+
+      applyShiftDensity(json.slots || []);
+      updateTopKPIsFor("en", json);
+      updateTopKPIsFor("bg", json);
+      buildTableFor("en", json);
+      buildTableFor("bg", json);
+    }
+
+    // === Rotation ===
+    const pageEN = document.getElementById("pageEN");
+    const pageBG = document.getElementById("pageBG");
+    const langLabel = document.getElementById("langLabel");
+
+    function show(lang){
+      const isEN = (lang === "en");
+      pageEN.classList.toggle("active", isEN);
+      pageBG.classList.toggle("active", !isEN);
+      langLabel.textContent = isEN ? "LANG: ENGLISH" : "ЕЗИК: БЪЛГАРСКИ";
+    }
+
+    function startRotation(){
+      const forced = qs("lang"); // en | bg | auto
+      if (forced === "en") { show("en"); return; }
+      if (forced === "bg") { show("bg"); return; }
+
+      // default: rotate
+      let cur = "en";
+      show(cur);
+      setInterval(() => {
+        cur = (cur === "en") ? "bg" : "en";
+        show(cur);
+      }, ROTATE_MS);
+    }
+
+    startDateTime();
+    refresh();
+    setInterval(refresh, 30000);
+    startRotation();
+  </script>
+</body>
+</html>
