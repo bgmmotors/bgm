@@ -1,58 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>PERFORMANCE CLM6 – TV65</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PERFORMANCE CLM6</title>
   <style>
     html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
-    .wrapper { display:flex; flex-direction:column; height:100vh; padding:18px 26px; box-sizing:border-box; background:#000; }
+    .wrapper { display:flex; flex-direction:column; height:100vh; padding:12px 18px; box-sizing:border-box; background:#000; }
 
     /* HEADER */
-    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:14px; }
-    .header-left { display:flex; align-items:center; min-width: 200px; }
-    .logo { height:58px; width:auto; display:block; filter:none; }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
+    .header-left { display:flex; align-items:center; min-width: 160px; }
+    .logo { height:46px; width:auto; display:block; filter:none; }
 
     .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
-    .header-title { font-size:56px; font-weight:900; letter-spacing:1px; }
+    .header-title { font-size:44px; font-weight:900; letter-spacing:1px; }
 
-    .header-right { text-align:right; min-width: 360px; }
-    .header-date { font-size:34px; font-weight:900; }
-    .header-lang { margin-top:6px; font-size:18px; color:#bbb; font-weight:900; letter-spacing:.5px; }
+    .header-right { text-align:right; min-width: 300px; }
+    .header-date { font-size:28px; font-weight:900; }
 
     /* KPI ROW */
-    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:14px; margin-bottom:14px; }
+    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:10px; margin-bottom:10px; }
 
     .kpi-card {
       background:#111;
-      border-radius:18px;
-      padding:14px 18px;
-      box-shadow:0 0 14px rgba(0,0,0,0.6);
-      border:4px solid #444;
-      min-height: 128px;
+      border-radius:14px;
+      padding:10px 14px;
+      box-shadow:0 0 10px rgba(0,0,0,0.6);
+      border:3px solid #444;
+      min-height: 105px;
     }
 
-    .card-grid { display:grid; grid-template-columns: 1fr 110px; gap:14px; align-items:center; }
+    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
 
-    .kpi-title { font-size:22px; margin-bottom:10px; }
-    .kpi-main { font-size:40px; font-weight:900; margin-bottom:8px; }
-    .kpi-sub  { font-size:16px; color:#ccc; font-weight:700; }
+    .kpi-title { font-size:17px; margin-bottom:8px; }
+    .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
+    .kpi-sub  { font-size:13px; color:#ccc; }
 
-    .metric { margin-top:10px; }
-    .metric-label { font-size:15px; color:#ccc; }
-    .metric-value { font-size:20px; font-weight:900; color:#fff; margin-top:4px; }
+    .metric { margin-top:6px; }
+    .metric-label { font-size:12px; color:#ccc; }
+    .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
 
-    .big-face { display:flex; justify-content:center; align-items:center; width:110px; height:110px; color:#fff; }
-    .big-face svg { width:86px; height:86px; display:block; }
+    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
+    .big-face svg { width:66px; height:66px; display:block; }
 
     /* TABLE */
-    .table-container { flex:1; overflow:hidden; border-radius:14px; background:#111; padding:10px; }
-    table { width:100%; border-collapse:collapse; background:#111; color:#fff; table-layout:fixed; }
+    .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
     thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
     tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
-
-    thead th { font-size:18px; padding:12px 10px; }
-    tbody td { font-size:18px; padding:12px 10px; }
 
     .row-current { background:#262626; }
 
@@ -68,7 +63,7 @@
     .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
     .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
 
-    /* SHIFT SUMMARY ROW */
+    /* SHIFT SUMMARY ROW: borda branca no contorno + label/target azul */
     .shift-sum td{
       border-top:2px solid #fff !important;
       border-bottom:2px solid #fff !important;
@@ -82,26 +77,23 @@
       font-weight:900;
     }
 
-    /* SVG (usa currentColor) */
+    /* SVG common (usa currentColor, para seguir cor da borda do card) */
     .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
-    .footer-status { margin-top:10px; font-size:16px; color:#bbb; font-weight:700; }
+    .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
 
     /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
-    body[data-shifts="1"] thead th { font-size:20px; padding:14px 12px; }
-    body[data-shifts="1"] tbody td { font-size:20px; padding:14px 12px; }
+    body[data-shifts="1"] table { font-size: 15px; }
+    body[data-shifts="1"] thead th { padding: 10px 8px; }
+    body[data-shifts="1"] tbody td { padding: 10px 8px; }
 
-    body[data-shifts="2"] thead th { font-size:18px; padding:12px 10px; }
-    body[data-shifts="2"] tbody td { font-size:18px; padding:12px 10px; }
+    body[data-shifts="2"] table { font-size: 13px; }
+    body[data-shifts="2"] thead th { padding: 7px 6px; }
+    body[data-shifts="2"] tbody td { padding: 7px 6px; }
 
-    body[data-shifts="3"] thead th { font-size:16px; padding:10px 8px; }
-    body[data-shifts="3"] tbody td { font-size:16px; padding:10px 8px; }
-
-    /* TV safe */
-    @media (max-width: 1200px) {
-      .header-title{ font-size:46px; }
-      .kpi-row{ gap:10px; }
-    }
+    body[data-shifts="3"] table { font-size: 12px; }
+    body[data-shifts="3"] thead th { padding: 5px 5px; }
+    body[data-shifts="3"] tbody td { padding: 5px 5px; }
   </style>
 </head>
 <body>
@@ -113,12 +105,11 @@
       </div>
 
       <div class="header-center">
-        <div class="header-title" id="ttl">PERFORMANCE CLM6</div>
+        <div class="header-title">PERFORMANCE CLM6</div>
       </div>
 
       <div class="header-right">
         <div class="header-date" id="dateTime">--</div>
-        <div class="header-lang" id="langTag">EN</div>
       </div>
     </div>
 
@@ -127,7 +118,7 @@
       <div class="kpi-card" id="cardTotal">
         <div class="card-grid">
           <div>
-            <div class="kpi-title" id="kpiTotalTitle">Total Production vs Target</div>
+            <div class="kpi-title">Total Production vs Target</div>
             <div class="kpi-main" id="totalProd">-</div>
             <div class="kpi-sub" id="totalTarget">Target: -</div>
           </div>
@@ -135,17 +126,17 @@
         </div>
       </div>
 
-      <!-- Lines -->
+      <!-- Line 1 -->
       <div class="kpi-card" id="cardLine1">
         <div class="card-grid">
           <div>
-            <div class="kpi-title" id="tLine1">Line 1</div>
+            <div class="kpi-title">Line 1</div>
             <div class="metric">
-              <div class="metric-label" id="lblLast1">Last period</div>
+              <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL1">-</div>
             </div>
             <div class="metric">
-              <div class="metric-label" id="lblAcc1">Accumulated</div>
+              <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL1">-</div>
             </div>
           </div>
@@ -153,16 +144,17 @@
         </div>
       </div>
 
+      <!-- Line 2 -->
       <div class="kpi-card" id="cardLine2">
         <div class="card-grid">
           <div>
-            <div class="kpi-title" id="tLine2">Line 2</div>
+            <div class="kpi-title">Line 2</div>
             <div class="metric">
-              <div class="metric-label" id="lblLast2">Last period</div>
+              <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL2">-</div>
             </div>
             <div class="metric">
-              <div class="metric-label" id="lblAcc2">Accumulated</div>
+              <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL2">-</div>
             </div>
           </div>
@@ -170,16 +162,17 @@
         </div>
       </div>
 
+      <!-- Line 3 -->
       <div class="kpi-card" id="cardLine3">
         <div class="card-grid">
           <div>
-            <div class="kpi-title" id="tLine3">Line 3</div>
+            <div class="kpi-title">Line 3</div>
             <div class="metric">
-              <div class="metric-label" id="lblLast3">Last period</div>
+              <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL3">-</div>
             </div>
             <div class="metric">
-              <div class="metric-label" id="lblAcc3">Accumulated</div>
+              <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL3">-</div>
             </div>
           </div>
@@ -187,16 +180,17 @@
         </div>
       </div>
 
+      <!-- Line 4 -->
       <div class="kpi-card" id="cardLine4">
         <div class="card-grid">
           <div>
-            <div class="kpi-title" id="tLine4">Line 4</div>
+            <div class="kpi-title">Line 4</div>
             <div class="metric">
-              <div class="metric-label" id="lblLast4">Last period</div>
+              <div class="metric-label">Last period</div>
               <div class="metric-value" id="lastL4">-</div>
             </div>
             <div class="metric">
-              <div class="metric-label" id="lblAcc4">Accumulated</div>
+              <div class="metric-label">Accumulated</div>
               <div class="metric-value" id="accL4">-</div>
             </div>
           </div>
@@ -209,13 +203,13 @@
       <table>
         <thead>
           <tr>
-            <th style="width:14%;" id="thShift">Shift</th>
-            <th style="width:30%;" id="thTime">Time</th>
-            <th style="width:10%;" id="thTarget">Target</th>
-            <th style="width:11%;" id="thL1">Line 1</th>
-            <th style="width:11%;" id="thL2">Line 2</th>
-            <th style="width:11%;" id="thL3">Line 3</th>
-            <th style="width:13%;" id="thL4">Line 4</th>
+            <th style="width:16%;">Shift</th>
+            <th style="width:28%;">Time</th>
+            <th style="width:10%;">Target</th>
+            <th style="width:11%;">Line 1</th>
+            <th style="width:11%;">Line 2</th>
+            <th style="width:11%;">Line 3</th>
+            <th style="width:13%;">Line 4</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -227,80 +221,30 @@
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
 
-    // ====== TV65: alterna EN <-> BG a cada 30s ======
-    const ROTATE_LANG = true;
-    const ROTATE_MS = 30000;
-    let LANG = "EN"; // "EN" | "BG"
+    // ✅ Troque para "bg" para búlgaro
+    const LANG = "en";
 
-    const I18N = {
-      EN: {
-        langTag: "EN",
-        totalTitle: "Total Production vs Target",
-        targetPrefix: "Target:",
-        lastPeriod: "Last period",
-        accumulated: "Accumulated",
-        thShift: "Shift",
-        thTime: "Time",
-        thTarget: "Target",
-        line: (n)=>`Line ${n}`,
-        cumShift: (s)=>`CUMULATIVE RESULT – SHIFT ${s}`,
-        // status text
+    // ✅ Tradução das paradas (só no front)
+    const STOP_LABELS = {
+      en: {
         STOP_MAINT: "STOP – MAINTENANCE",
-        STOP_MAT:   "STOP – MATERIAL",
-        STOP_PEO:   "STOP – PEOPLE",
-        STOP_QUAL:  "STOP – QUALITY",
-        NO_SCHEDULE:"NO SCHEDULE"
+        STOP_MAT: "STOP – MATERIAL",
+        STOP_PEO: "STOP – PEOPLE",
+        STOP_QUAL: "STOP – QUALITY",
+        NO_SCHEDULE: "NO SCHEDULE"
       },
-      BG: {
-        langTag: "BG",
-        totalTitle: "ОБЩО ПРОИЗВОДСТВО / ЦЕЛ",
-        targetPrefix: "Цел:",
-        lastPeriod: "Последен период",
-        accumulated: "Натрупано",
-        thShift: "Смяна",
-        thTime: "Период",
-        thTarget: "Цел",
-        line: (n)=>`Линия ${n}`,
-        cumShift: (s)=>`НАТРУПАН РЕЗУЛТАТ – СМЯНА ${s}`,
-        // status text (BG)
-        STOP_MAINT: "СПИРАНЕ – ПОДДРЪЖКА",
-        STOP_MAT:   "СПИРАНЕ – МАТЕРИАЛ",
-        STOP_PEO:   "СПИРАНЕ – ПЕРСОНАЛ",
-        STOP_QUAL:  "СПИРАНЕ – КАЧЕСТВО",
-        NO_SCHEDULE:"БЕЗ ПЛАН"
+      bg: {
+        STOP_MAINT: "СТОП – ПОДДРЪЖКА",
+        STOP_MAT: "СТОП – МАТЕРИАЛ",
+        STOP_PEO: "СТОП – ПЕРСОНАЛ",
+        STOP_QUAL: "СТОП – КАЧЕСТВО",
+        NO_SCHEDULE: "БЕЗ ПРОГРАМА"
       }
     };
 
-    function applyLangUI(){
-      const t = I18N[LANG];
-      document.getElementById("langTag").textContent = t.langTag;
-
-      document.getElementById("kpiTotalTitle").textContent = t.totalTitle;
-
-      // labels
-      document.getElementById("lblLast1").textContent = t.lastPeriod;
-      document.getElementById("lblAcc1").textContent  = t.accumulated;
-      document.getElementById("lblLast2").textContent = t.lastPeriod;
-      document.getElementById("lblAcc2").textContent  = t.accumulated;
-      document.getElementById("lblLast3").textContent = t.lastPeriod;
-      document.getElementById("lblAcc3").textContent  = t.accumulated;
-      document.getElementById("lblLast4").textContent = t.lastPeriod;
-      document.getElementById("lblAcc4").textContent  = t.accumulated;
-
-      // line titles
-      document.getElementById("tLine1").textContent = t.line(1);
-      document.getElementById("tLine2").textContent = t.line(2);
-      document.getElementById("tLine3").textContent = t.line(3);
-      document.getElementById("tLine4").textContent = t.line(4);
-
-      // table headers
-      document.getElementById("thShift").textContent  = t.thShift;
-      document.getElementById("thTime").textContent   = t.thTime;
-      document.getElementById("thTarget").textContent = t.thTarget;
-      document.getElementById("thL1").textContent = t.line(1);
-      document.getElementById("thL2").textContent = t.line(2);
-      document.getElementById("thL3").textContent = t.line(3);
-      document.getElementById("thL4").textContent = t.line(4);
+    function stopLabel(kind){
+      const dict = STOP_LABELS[LANG] || STOP_LABELS.en;
+      return dict[kind] || "";
     }
 
     function getTodayISO() {
@@ -343,11 +287,6 @@
       if (kind === "STOP_QUAL") return "cell-qual";
       if (kind === "NO_SCHEDULE") return "cell-nosched";
       return "";
-    }
-
-    function statusText(kind){
-      const t = I18N[LANG];
-      return t[kind] || ""; // se não achar, vazio
     }
 
     function faceSVG(type) {
@@ -394,6 +333,7 @@
       el.innerHTML = faceSVG(state.face);
     }
 
+    // usa flag do backend
     function hasAnyLaunchInSlot(slot) {
       return slot && slot.has_launch === true;
     }
@@ -403,13 +343,9 @@
       const ultimo = json.ultimo_slot || null;
 
       const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
-      const considered = calcUpToUltimo(slots, ultimo);
 
-      // target_per_line: usa target_counted se existir (front-only: se não vier, cai no target_effective)
-      const targetPerLine = considered.reduce((acc, s) => {
-        const v = (s && s.target_counted !== undefined) ? Number(s.target_counted || 0) : Number(s.target_effective || 0);
-        return acc + v;
-      }, 0);
+      const considered = calcUpToUltimo(slots, ultimo);
+      const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_effective || 0)), 0);
 
       const acc = {
         line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
@@ -421,9 +357,8 @@
       const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
       const totalTarget = targetPerLine * 4;
 
-      const t = I18N[LANG];
       document.getElementById("totalProd").textContent = anyLaunchDay ? totalProd : "-";
-      document.getElementById("totalTarget").textContent = `${t.targetPrefix} ` + (totalTarget > 0 ? totalTarget : "-");
+      document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
 
       if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
         setCardBorder("cardTotal", "IDLE");
@@ -445,24 +380,22 @@
 
       lines.forEach(m => {
         const lastEl = document.getElementById(m.last);
-        const accEl  = document.getElementById(m.acc);
+        const accEl = document.getElementById(m.acc);
 
         if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
           lastEl.textContent = "-";
-          accEl.textContent  = "-";
+          accEl.textContent = "-";
           setCardBorder(m.card, "IDLE");
           setBigFace(m.face, null);
           return;
         }
 
         const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
-        const lastTarget = lastSlot
-          ? Number((lastSlot.target_counted !== undefined ? lastSlot.target_counted : (lastSlot.target_effective || lastSlot.target || 0)) || 0)
-          : 0;
-
+        const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
         lastEl.textContent = `${lastVal} / ${lastTarget}`;
+
         const accVal = acc[m.key];
-        accEl.textContent  = `${accVal} / ${targetPerLine}`;
+        accEl.textContent = `${accVal} / ${targetPerLine}`;
 
         const st = perfStatus(accVal / targetPerLine);
         setCardBorder(m.card, st.status);
@@ -472,8 +405,10 @@
 
     function tdWithPerf(value, targetEff, hasLaunch) {
       const td = document.createElement("td");
-      if (!hasLaunch) { td.textContent = ""; return td; }
-
+      if (!hasLaunch) {
+        td.textContent = "";
+        return td;
+      }
       if (targetEff > 0) {
         const st = perfStatus(value / targetEff);
         td.classList.add(st.cls);
@@ -504,7 +439,7 @@
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
 
           const tdShift = document.createElement("td");
-          tdShift.textContent = (LANG === "BG") ? `Смяна ${slot.shift}` : `Shift ${slot.shift}`;
+          tdShift.textContent = "Shift " + slot.shift;
           tr.appendChild(tdShift);
 
           const tdTime = document.createElement("td");
@@ -512,6 +447,7 @@
           tr.appendChild(tdTime);
 
           const targetEff = Number(slot.target_effective || 0);
+
           const tdTarget = document.createElement("td");
           tdTarget.textContent = targetEff > 0 ? targetEff : "";
           tr.appendChild(tdTarget);
@@ -526,16 +462,16 @@
           defs.forEach(d => {
             const stKind = slot[d.st] || "RUN";
 
-            // STOP/NO_SCHEDULE: traduz pelo status code (front-only)
+            // ✅ STOP: pinta e mostra traduzido pelo status
             if (stKind !== "RUN") {
               const td = document.createElement("td");
-              td.textContent = statusText(stKind); // <<<<<< aqui troca EN/BG
+              td.textContent = stopLabel(stKind);
               td.classList.add(statusClass(stKind));
               tr.appendChild(td);
               return;
             }
 
-            // RUN: só mostra se houve lançamento
+            // RUN: só pinta se houver lançamento no slot
             const hasLaunch = (slot && slot.has_launch === true);
             if (!hasLaunch) {
               const td = document.createElement("td");
@@ -552,13 +488,12 @@
           tbody.appendChild(tr);
         });
 
-        // shift sum
+        // linha acumulada do turno (mantida igual)
         if (group.slots.length > 0) {
           const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
 
-          const sumTarget = group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0);
           const sum = {
-            target: sumTarget,
+            target: group.slots.reduce((a,s)=>a + Number(s.target_effective||0),0),
             line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
             line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
             line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
@@ -570,7 +505,7 @@
 
           const td1 = document.createElement("td");
           td1.colSpan = 2;
-          td1.textContent = I18N[LANG].cumShift(group.shift);
+          td1.textContent = `CUMULATIVE RESULT – SHIFT ${group.shift}`;
           td1.classList.add("shift-sum-label");
           trSum.appendChild(td1);
 
@@ -602,33 +537,19 @@
         if (json.status !== "success") return;
 
         applyShiftDensity(json);
-        applyLangUI();            // garante textos ok
         updateTopKPIs(json);
         buildTable(json);
 
         document.getElementById("lastUpdate").textContent =
-          (LANG === "BG")
-            ? ("Последно обновяване: " + new Date().toLocaleTimeString())
-            : ("Last update: " + new Date().toLocaleTimeString());
+          "Last update: " + new Date().toLocaleTimeString();
       } catch (err) {
         console.error(err);
       }
     }
 
-    function rotateLang(){
-      LANG = (LANG === "EN") ? "BG" : "EN";
-      applyLangUI();
-      refreshDashboard();
-    }
-
     startDateTime();
-    applyLangUI();
     refreshDashboard();
     setInterval(refreshDashboard, 30000);
-
-    if (ROTATE_LANG) {
-      setInterval(rotateLang, ROTATE_MS);
-    }
   </script>
 </body>
 </html>
