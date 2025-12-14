@@ -53,7 +53,7 @@
 
     /* Performance cores */
     .cell-ok  { background:#00b050; color:#000; font-weight:900; }
-    .cell-mid { background:#e8ff19; color:#000; font-weight:900; }
+    .cell-mid { background:#d1ff19; color:#000; font-weight:900; }
     .cell-nok { background:#c00000; color:#fff; font-weight:900; }
 
     /* STOP / status cores fixas */
@@ -249,7 +249,7 @@
       const card = document.getElementById(id);
       if (!card) return;
       if (status === "OK") card.style.borderColor = "#00b050";
-      else if (status === "MID") card.style.borderColor = "#e8ff19";
+      else if (status === "MID") card.style.borderColor = "#d1ff19";
       else if (status === "NOK") card.style.borderColor = "#c00000";
       else card.style.borderColor = "#666";
     }
@@ -301,7 +301,7 @@
       }
 
       if (state.status === "OK") el.style.color = "#00b050";
-      else if (state.status === "MID") el.style.color = "#e8ff19";
+      else if (state.status === "MID") el.style.color = "#d1ff19";
       else el.style.color = "#c00000";
 
       el.innerHTML = faceSVG(state.face);
@@ -540,6 +540,7 @@
   </script>
 </body>
 </html>
+
 
 
 
