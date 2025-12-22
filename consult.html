@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PERFORMANCE CLM6 – Pesquisa</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
+    .wrapper { display:flex; flex-direction:column; height:100vh; padding:12px 18px; box-sizing:border-box; background:#000; }
+
+    /* HEADER */
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; flex-wrap:wrap; }
+    .header-left { display:flex; align-items:center; min-width: 160px; }
+    .logo { height:46px; width:auto; display:block; filter:none; }
+
+    .header-center { flex:1; display:flex; justify-content:center; align-items:center; min-width: 240px; }
+    .header-title { font-size:40px; font-weight:900; letter-spacing:1px; }
+
+    .header-right { text-align:right; min-width: 320px; }
+    .header-date { font-size:26px; font-weight:900; line-height:1.1; }
+    .header-sub  { font-size:12px; color:#bbb; margin-top:4px; letter-spacing:0.6px; }
+
+    /* SEARCH BAR */
+    .searchbar{
+      display:flex; gap:10px; align-items:flex-end;
+      background:#111; border:2px solid #2b2b2b; border-radius:14px;
+      padding:10px 12px; margin-bottom:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.55);
+      flex-wrap:wrap;
+    }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label{ font-size:12px; color:#bbb; }
+    .field input{
+      background:#0b0b0b; color:#fff;
+      border:1px solid #333; border-radius:12px;
+      padding:10px 12px; font-size:14px; outline:none;
+      min-width: 180px;
+    }
+    .field input:focus{ border-color:#777; }
+    .btn{
+      background:#00b050; color:#000; border:none; border-radius:12px;
+      padding:10px 14px; font-size:14px; font-weight:900; cursor:pointer;
+      height: 40px;
+    }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .msg { font-size:12px; color:#bbb; margin-left:auto; }
+    .msg.ok{ color:#7CFF9B; }
+    .msg.err{ color:#ff8080; }
+
+    /* KPI ROW */
+    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:10px; margin-bottom:10px; }
+
+    .kpi-card {
+      background:#111;
+      border-radius:14px;
+      padding:10px 14px;
+      box-shadow:0 0 10px rgba(0,0,0,0.6);
+      border:3px solid #444;
+      min-height: 105px;
+    }
+
+    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
+
+    .kpi-title { font-size:17px; margin-bottom:8px; }
+    .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
+    .kpi-sub  { font-size:13px; color:#ccc; }
+
+    .metric { margin-top:6px; }
+    .metric-label { font-size:12px; color:#ccc; }
+    .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
+
+    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
+    .big-face svg { width:66px; height:66px; display:block; }
+
+    /* TABLE */
+    .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
+    table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
+    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
+    tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
+
+    .row-current { background:#262626; }
+
+    /* Performance cores */
+    .cell-ok  { background:#00b050; color:#000; font-weight:900; }
+    .cell-mid { background:#FFFF00; color:#000; font-weight:900; }
+    .cell-nok { background:#c00000; color:#fff; font-weight:900; }
+
+    /* STOP / status cores fixas */
+    .cell-mnt     { background: orange;   color:#000; font-weight:900; }
+    .cell-mat     { background: #808080;  color:#000; font-weight:900; }
+    .cell-peo     { background: #ff69b4;  color:#000; font-weight:900; }
+    .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
+    .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
+
+    /* SHIFT SUMMARY ROW: borda branca no contorno + label/target azul */
+    .shift-sum td{
+      border-top:2px solid #fff !important;
+      border-bottom:2px solid #fff !important;
+    }
+    .shift-sum td:first-child { border-left:2px solid #fff !important; }
+    .shift-sum td:last-child  { border-right:2px solid #fff !important; }
+
+    .shift-sum-label, .shift-sum-target {
+      background:#003366 !important;
+      color:#fff;
+      font-weight:900;
+    }
+
+    /* SVG common */
+    .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+    .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
+
+    /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
+    body[data-shifts="1"] table { font-size: 15px; }
+    body[data-shifts="1"] thead th { padding: 10px 8px; }
+    body[data-shifts="1"] tbody td { padding: 10px 8px; }
+
+    body[data-shifts="2"] table { font-size: 13px; }
+    body[data-shifts="2"] thead th { padding: 7px 6px; }
+    body[data-shifts="2"] tbody td { padding: 7px 6px; }
+
+    body[data-shifts="3"] table { font-size: 12px; }
+    body[data-shifts="3"] thead th { padding: 5px 5px; }
+    body[data-shifts="3"] tbody td { padding: 5px 5px; }
+
+    @media (max-width: 980px){
+      .header-title{ font-size:28px; }
+      .kpi-row{ grid-template-columns: 1fr; }
+      .header-right{ min-width:auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="header-left">
+        <img class="logo" src="assets/BGM.png" alt="BGM Motors">
+      </div>
+
+      <div class="header-center">
+        <div class="header-title">PERFORMANCE CLM6</div>
+      </div>
+
+      <div class="header-right">
+        <div class="header-date" id="dateTime">--</div>
+        <div class="header-sub" id="selectedInfo">Selected date: --</div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="searchbar">
+      <div class="field">
+        <label for="datePick">Select date (YYYY-MM-DD)</label>
+        <input id="datePick" type="date" />
+      </div>
+      <button class="btn" id="btnLoad">Load</button>
+      <div class="msg" id="msg"></div>
+    </div>
+
+    <div class="kpi-row">
+      <!-- TOTAL -->
+      <div class="kpi-card" id="cardTotal">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Total Production vs Target</div>
+            <div class="kpi-main" id="totalProd">-</div>
+            <div class="kpi-sub" id="totalTarget">Target: -</div>
+          </div>
+          <div class="big-face" id="faceTotal"></div>
+        </div>
+      </div>
+
+      <!-- Line 1 -->
+      <div class="kpi-card" id="cardLine1">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 1</div>
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL1">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL1">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL1"></div>
+        </div>
+      </div>
+
+      <!-- Line 2 -->
+      <div class="kpi-card" id="cardLine2">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 2</div>
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL2">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL2">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL2"></div>
+        </div>
+      </div>
+
+      <!-- Line 3 -->
+      <div class="kpi-card" id="cardLine3">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 3</div>
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL3">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL3">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL3"></div>
+        </div>
+      </div>
+
+      <!-- Line 4 -->
+      <div class="kpi-card" id="cardLine4">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 4</div>
+            <div class="metric">
+              <div class="metric-label">Last period</div>
+              <div class="metric-value" id="lastL4">-</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Accumulated</div>
+              <div class="metric-value" id="accL4">-</div>
+            </div>
+          </div>
+          <div class="big-face" id="faceL4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:16%;">Shift</th>
+            <th style="width:28%;">Time</th>
+            <th style="width:10%;">Target</th>
+            <th style="width:11%;">Line 1</th>
+            <th style="width:11%;">Line 2</th>
+            <th style="width:11%;">Line 3</th>
+            <th style="width:13%;">Line 4</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="footer-status" id="lastUpdate">Last update: --</div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
+
+    function qs(name){
+      const u = new URL(window.location.href);
+      return (u.searchParams.get(name) || "").trim();
+    }
+    function setQS(name, value){
+      const u = new URL(window.location.href);
+      if (!value) u.searchParams.delete(name);
+      else u.searchParams.set(name, value);
+      history.replaceState(null, "", u.toString());
+    }
+
+    function todayISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function startDateTime() {
+      const el = document.getElementById("dateTime");
+      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function tick() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, "0");
+        const m = monthNames[now.getMonth()];
+        const y = String(now.getFullYear()).slice(-2);
+        const hh = String(now.getHours()).padStart(2,"0");
+        const mm = String(now.getMinutes()).padStart(2,"0");
+        el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function setMsg(text, type){
+      const el = document.getElementById("msg");
+      el.className = "msg " + (type || "");
+      el.textContent = text || "";
+    }
+
+    function setCardBorder(id, status) {
+      const card = document.getElementById(id);
+      if (!card) return;
+      if (status === "OK") card.style.borderColor = "#00b050";
+      else if (status === "MID") card.style.borderColor = "#FFFF00";
+      else if (status === "NOK") card.style.borderColor = "#c00000";
+      else card.style.borderColor = "#666";
+    }
+
+    function statusClass(kind) {
+      if (kind === "STOP_MAINT") return "cell-mnt";
+      if (kind === "STOP_MAT") return "cell-mat";
+      if (kind === "STOP_PEO") return "cell-peo";
+      if (kind === "STOP_QUAL") return "cell-qual";
+      if (kind === "NO_SCHEDULE") return "cell-nosched";
+      return "";
+    }
+
+    function faceSVG(type) {
+      const common = `class="face-stroke"`;
+      const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
+      const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
+      let mouth = "";
+      if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
+      else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
+      else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
+      return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+    }
+
+    function perfStatus(pct) {
+      if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
+      if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
+      return { status:"NOK", cls:"cell-nok", face:"sad" };
+    }
+
+    function calcUpToUltimo(slots, ultimo) {
+      if (!ultimo) return slots;
+      const out = [];
+      for (const s of slots) { out.push(s); if (s.id_slot === ultimo.id_slot) break; }
+      return out;
+    }
+
+    function setBigFace(elId, state) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+
+      if (!state) { el.innerHTML = ""; el.style.color = "#fff"; return; }
+
+      if (state.status === "OK") el.style.color = "#00b050";
+      else if (state.status === "MID") el.style.color = "#FFFF00";
+      else el.style.color = "#c00000";
+
+      el.innerHTML = faceSVG(state.face);
+    }
+
+    function hasAnyLaunchInSlot(slot) {
+      return slot && slot.has_launch === true;
+    }
+
+    function countedTarget(slot){
+      // usa target_counted se existir; caso não exista (compat), cai no target do slot
+      if (!slot) return 0;
+      const tc = Number(slot.target_counted ?? 0);
+      if (tc > 0) return tc;
+      return Number(slot.target_effective ?? slot.target ?? 0);
+    }
+
+    function updateTopKPIs(json) {
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+
+      const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
+      const considered = calcUpToUltimo(slots, ultimo);
+
+      const targetPerLine = considered.reduce((acc, s) => acc + countedTarget(s), 0);
+
+      const acc = {
+        line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
+        line2: considered.reduce((a,s)=>a + Number(s.line2||0),0),
+        line3: considered.reduce((a,s)=>a + Number(s.line3||0),0),
+        line4: considered.reduce((a,s)=>a + Number(s.line4||0),0)
+      };
+
+      const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
+      const totalTarget = targetPerLine * 4;
+
+      document.getElementById("totalProd").textContent = anyLaunchDay ? totalProd : "-";
+      document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
+
+      if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
+        setCardBorder("cardTotal", "IDLE");
+        setBigFace("faceTotal", null);
+      } else {
+        const st = perfStatus(totalProd / totalTarget);
+        setCardBorder("cardTotal", st.status);
+        setBigFace("faceTotal", st);
+      }
+
+      const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
+
+      const lines = [
+        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1" },
+        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2" },
+        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3" },
+        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4" }
+      ];
+
+      lines.forEach(m => {
+        const lastEl = document.getElementById(m.last);
+        const accEl = document.getElementById(m.acc);
+
+        if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
+          lastEl.textContent = "-";
+          accEl.textContent = "-";
+          setCardBorder(m.card, "IDLE");
+          setBigFace(m.face, null);
+          return;
+        }
+
+        const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
+        const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
+        lastEl.textContent = `${lastVal} / ${lastTarget}`;
+
+        const accVal = acc[m.key];
+        accEl.textContent = `${accVal} / ${targetPerLine}`;
+
+        const st = perfStatus(accVal / targetPerLine);
+        setCardBorder(m.card, st.status);
+        setBigFace(m.face, st);
+      });
+    }
+
+    function tdWithPerf(value, targetEff, hasLaunch) {
+      const td = document.createElement("td");
+      if (!hasLaunch) { td.textContent = ""; return td; }
+
+      if (targetEff > 0) {
+        const st = perfStatus(value / targetEff);
+        td.classList.add(st.cls);
+        td.textContent = value;
+      } else {
+        td.textContent = String(value ?? "");
+      }
+      return td;
+    }
+
+    function applyShiftDensity(slots){
+      const used = [1,2,3].filter(s => (slots || []).some(x => Number(x.shift) === s)).length || 1;
+      document.body.dataset.shifts = String(used);
+    }
+
+    function buildTable(json) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      const slots = json.slots || [];
+      const ultimo = json.ultimo_slot || null;
+
+      const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
+
+      shifts.forEach(group => {
+        group.slots.forEach(slot => {
+          const tr = document.createElement("tr");
+          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+
+          const tdShift = document.createElement("td");
+          tdShift.textContent = "Shift " + slot.shift;
+          tr.appendChild(tdShift);
+
+          const tdTime = document.createElement("td");
+          tdTime.textContent = slot.label;
+          tr.appendChild(tdTime);
+
+          const targetEff = Number(slot.target_effective || 0);
+
+          const tdTarget = document.createElement("td");
+          tdTarget.textContent = (targetEff > 0) ? targetEff : "";
+          tr.appendChild(tdTarget);
+
+          const defs = [
+            { key:"line1", disp:"disp1", st:"st1" },
+            { key:"line2", disp:"disp2", st:"st2" },
+            { key:"line3", disp:"disp3", st:"st3" },
+            { key:"line4", disp:"disp4", st:"st4" }
+          ];
+
+          defs.forEach(d => {
+            const stKind = slot[d.st] || "RUN";
+
+            if (stKind !== "RUN") {
+              const td = document.createElement("td");
+              td.textContent = slot[d.disp] || "";
+              td.classList.add(statusClass(stKind));
+              tr.appendChild(td);
+              return;
+            }
+
+            const hasLaunch = hasAnyLaunchInSlot(slot);
+            if (!hasLaunch) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              tr.appendChild(td);
+              return;
+            }
+
+            const raw = slot[d.key];
+            const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
+            tr.appendChild(tdWithPerf(v, targetEff, true));
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        if (group.slots.length > 0) {
+          const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
+
+          const sumTarget = group.slots.reduce((a,s)=>a + countedTarget(s), 0);
+
+          const sum = {
+            target: sumTarget,
+            line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
+            line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
+            line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
+            line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
+          };
+
+          const trSum = document.createElement("tr");
+          trSum.classList.add("shift-sum");
+
+          const td1 = document.createElement("td");
+          td1.colSpan = 2;
+          td1.textContent = `CUMULATIVE RESULT – SHIFT ${group.shift}`;
+          td1.classList.add("shift-sum-label");
+          trSum.appendChild(td1);
+
+          const tdT = document.createElement("td");
+          tdT.textContent = sum.target > 0 ? sum.target : "";
+          tdT.classList.add("shift-sum-target");
+          trSum.appendChild(tdT);
+
+          ["line1","line2","line3","line4"].forEach(k => {
+            if (!hasAnyLaunchShift || sum.target <= 0) {
+              const td = document.createElement("td");
+              td.textContent = "";
+              trSum.appendChild(td);
+              return;
+            }
+            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
+          });
+
+          tbody.appendChild(trSum);
+        }
+      });
+    }
+
+    async function loadForDate(dateStr) {
+      const btn = document.getElementById("btnLoad");
+      btn.disabled = true;
+      setMsg("Loading...", "");
+
+      try{
+        const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${encodeURIComponent(dateStr)}`);
+        const json = await res.json();
+        if (json.status !== "success") throw new Error(json.message || "dailyProduction error");
+
+        applyShiftDensity(json.slots || []);
+        updateTopKPIs(json);
+        buildTable(json);
+
+        document.getElementById("lastUpdate").textContent =
+          "Last update: " + new Date().toLocaleTimeString();
+
+        document.getElementById("selectedInfo").textContent =
+          "Selected date: " + dateStr;
+
+        setMsg("OK", "ok");
+      } catch(e){
+        setMsg(String(e.message || e), "err");
+      } finally{
+        btn.disabled = false;
+      }
+    }
+
+    function initSearch(){
+      const datePick = document.getElementById("datePick");
+      const fromQS = qs("date");
+      const initial = (fromQS && /^\d{4}-\d{2}-\d{2}$/.test(fromQS)) ? fromQS : todayISO();
+      datePick.value = initial;
+      setQS("date", initial);
+
+      document.getElementById("btnLoad").addEventListener("click", () => {
+        const d = (datePick.value || "").trim();
+        if (!d) return;
+        setQS("date", d);
+        loadForDate(d);
+      });
+
+      datePick.addEventListener("change", () => {
+        const d = (datePick.value || "").trim();
+        if (!d) return;
+        setQS("date", d);
+      });
+
+      // carrega ao abrir
+      loadForDate(initial);
+    }
+
+    startDateTime();
+    initSearch();
+  </script>
+</body>
+</html>
