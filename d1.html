@@ -2,69 +2,72 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>PERFORMANCE CLM6 - ANDON TV</title>
+  <title>PERFORMANCE CLM6 - ANDON TV FINAL</title>
   <style>
-    /* CONFIGURAÇÃO PARA TV (SEM SCROLL GERAL)
-       Usa vh (viewport height) e Flexbox para garantir que tudo caiba na tela.
+    /* LAYOUT HÍBRIDO:
+      - Cards com tamanho fixo e legível (não encolhem).
+      - Tabela flexível (ocupa o espaço que sobrar).
+      - Sem barra de rolagem na página inteira (apenas na tabela se necessário).
     */
     html, body { 
       margin: 0; padding: 0; 
-      height: 100vh; /* Altura total da tela */
+      height: 100vh; 
       width: 100vw;
       background: #000; 
       font-family: Arial, Helvetica, sans-serif; 
       color: #fff; 
-      overflow: hidden; /* Bloqueia rolagem da página */
+      overflow: hidden; /* Bloqueia rolagem geral */
     }
 
     .wrapper { 
       display: flex; 
       flex-direction: column; 
       height: 100%; 
-      padding: 8px 12px; /* Margem externa reduzida */
+      padding: 10px 16px; /* Margens confortáveis */
       box-sizing: border-box; 
     }
 
-    /* 1. HEADER (Compacto) */
+    /* 1. HEADER */
     .header { 
-      flex: 0 0 auto; /* Não encolhe nem cresce */
+      flex: 0 0 auto; 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 5px; 
-      height: 40px;
+      margin-bottom: 8px; 
+      height: 44px;
     }
-    .logo { height: 32px; width: auto; display: block; } /* Logo menor */
-    .header-title { font-size: 28px; font-weight: 900; letter-spacing: 1px; } /* Titulo menor */
-    .header-date { font-size: 20px; font-weight: 900; color: #ddd; }
+    .logo { height: 38px; width: auto; display: block; }
+    .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
+    .header-date { font-size: 24px; font-weight: 900; color: #ddd; }
 
     /* LABELS */
     .section-label {
       flex: 0 0 auto;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 900;
-      color: #666;
-      margin: 2px 0 2px 0;
+      color: #777;
+      margin: 4px 0;
       text-transform: uppercase;
-      border-bottom: 1px solid #222;
+      border-bottom: 1px solid #333;
+      padding-bottom: 2px;
     }
 
-    /* 2. KPI CARDS (Altura Fixa e Reduzida) */
+    /* 2. KPI CARDS (Altura Restaurada) */
     .kpi-row { 
-      flex: 0 0 auto; /* Altura fixa baseada no conteúdo */
+      flex: 0 0 auto; /* Não permite que os cards sejam esmagados */
       display: grid; 
       grid-template-columns: 2fr repeat(4, 1fr); 
-      gap: 6px; 
-      margin-bottom: 5px;
+      gap: 10px; /* Espaçamento melhor */
+      margin-bottom: 8px;
     }
 
     .kpi-card {
       background: #111;
-      border-radius: 8px; /* Bordas menos arredondadas */
-      padding: 6px 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.6);
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
       border: 2px solid #444; 
-      height: 75px; /* Altura fixa compacta */
+      height: 96px; /* Altura ideal: nem gigante, nem achatada */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -73,19 +76,19 @@
     .card-grid { 
       display: grid; 
       grid-template-columns: 1fr auto; 
-      gap: 4px; 
+      gap: 8px; 
       align-items: center; 
       height: 100%;
     }
 
-    /* Tipografia Card Otimizada */
-    .kpi-title { font-size: 13px; margin-bottom: 2px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .kpi-main { font-size: 24px; font-weight: 900; line-height: 1; color:#fff; }
-    .kpi-sub  { font-size: 11px; color: #888; }
+    /* Tipografia Card (Maior e mais legível) */
+    .kpi-title { font-size: 15px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 30px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-sub  { font-size: 12px; color: #999; }
 
-    .metric { margin-top: 2px; }
-    .metric-label { font-size: 10px; color: #888; }
-    .metric-value { font-size: 13px; font-weight: 900; color: #fff; }
+    .metric { margin-top: 4px; }
+    .metric-label { font-size: 11px; color: #999; }
+    .metric-value { font-size: 15px; font-weight: 900; color: #fff; }
 
     /* Face + % */
     .right-col {
@@ -93,25 +96,25 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 50px; /* Mais estreito */
+      width: 60px; 
     }
-    .big-face svg { width: 32px; height: 32px; display: block; }
-    .face-pct { font-size: 14px; font-weight: 900; color: #fff; margin-top: 2px; }
+    .big-face svg { width: 42px; height: 42px; display: block; }
+    .face-pct { font-size: 17px; font-weight: 900; color: #fff; margin-top: 3px; }
 
-    /* 3. TABLE CONTAINER (Flexível - Ocupa o resto da tela) */
+    /* 3. TABLE CONTAINER (Flexível) */
     .table-container { 
-      flex: 1 1 auto; /* Cresce e encolhe para caber */
+      flex: 1 1 auto; /* Ocupa todo o espaço restante */
       background: #111; 
-      border-radius: 8px; 
+      border-radius: 10px; 
       padding: 0;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       border: 1px solid #333;
-      overflow: hidden; /* Esconde rolagem se passar um pouco, ou use 'auto' para rolagem interna */
+      overflow-y: auto; /* Permite rolagem interna se necessário, mas tenta evitar */
       display: flex;
       flex-direction: column;
     }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; } /* Fonte base menor */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
     
     thead th { 
       position: sticky; top: 0; 
@@ -119,15 +122,15 @@
       border-bottom: 2px solid #555; 
       border-right: 1px solid #555; 
       z-index: 10;
-      padding: 6px 4px;
-      font-size: 12px;
+      padding: 8px 6px;
+      font-size: 13px;
     }
     tbody td { 
       text-align: center; 
       border-bottom: 1px solid #222; 
       border-right: 1px solid #222; 
-      padding: 5px 2px; /* Células bem compactas */
-      height: 24px; /* Altura forçada da linha */
+      padding: 6px 4px; 
+      height: 28px;
     }
 
     .row-current { background: #262626; }
@@ -136,8 +139,9 @@
     .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
     .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
     .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
+    
     .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
-      font-weight: 900; font-size: 11px; color:#000; 
+      font-weight: 900; font-size: 12px; color:#000; 
     }
     .cell-mnt { background: orange; }
     .cell-mat { background: #808080; }
@@ -145,21 +149,20 @@
     .cell-qual{ background: #ffd400; }
     .cell-nosched { background: #0070c0; color:#fff; }
 
-    /* Resumo Azul */
+    /* Resumo Azul (Cores sobrepõem) */
     .shift-sum td {
       background: #003366; 
-      color: #fff; font-weight: 900; font-size: 14px;
-      padding: 8px 2px !important;
+      color: #fff; font-weight: 900; font-size: 15px;
+      padding: 10px 4px !important;
     }
-    /* Cores sobrepõem o azul */
     .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
     .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
     .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
 
-    .face-stroke { stroke: currentColor; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Ajuste fino dependendo da qtd de turnos (opcional) */
-    body[data-shifts="1"] table { font-size: 14px; }
+    /* Ajuste de fonte para telas menores */
+    body[data-shifts="1"] table { font-size: 15px; }
     
   </style>
 </head>
