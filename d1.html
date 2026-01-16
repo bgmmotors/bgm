@@ -2,169 +2,165 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>PERFORMANCE CLM6 - ANDON</title>
+  <title>PERFORMANCE CLM6 - ANDON TV</title>
   <style>
-    /* RESET & BASE */
+    /* CONFIGURAÇÃO PARA TV (SEM SCROLL GERAL)
+       Usa vh (viewport height) e Flexbox para garantir que tudo caiba na tela.
+    */
     html, body { 
       margin: 0; padding: 0; 
-      height: 100%; 
+      height: 100vh; /* Altura total da tela */
+      width: 100vw;
       background: #000; 
       font-family: Arial, Helvetica, sans-serif; 
       color: #fff; 
+      overflow: hidden; /* Bloqueia rolagem da página */
     }
 
     .wrapper { 
       display: flex; 
       flex-direction: column; 
-      min-height: 100vh; 
-      padding: 12px 18px; 
+      height: 100%; 
+      padding: 8px 12px; /* Margem externa reduzida */
       box-sizing: border-box; 
     }
 
-    /* HEADER */
+    /* 1. HEADER (Compacto) */
     .header { 
+      flex: 0 0 auto; /* Não encolhe nem cresce */
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 15px; 
+      margin-bottom: 5px; 
+      height: 40px;
     }
-    .header-left { display:flex; align-items:center; min-width: 160px; }
-    .logo { height: 46px; width: auto; display: block; }
+    .logo { height: 32px; width: auto; display: block; } /* Logo menor */
+    .header-title { font-size: 28px; font-weight: 900; letter-spacing: 1px; } /* Titulo menor */
+    .header-date { font-size: 20px; font-weight: 900; color: #ddd; }
 
-    .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
-    .header-title { font-size: 44px; font-weight: 900; letter-spacing: 1px; }
-
-    .header-right { text-align:right; min-width: 300px; }
-    .header-date { font-size: 28px; font-weight: 900; color: #ddd; }
-
-    /* SECTION LABELS */
+    /* LABELS */
     .section-label {
-      font-size: 16px;
+      flex: 0 0 auto;
+      font-size: 13px;
       font-weight: 900;
-      color: #888;
-      margin: 10px 0 5px 0;
+      color: #666;
+      margin: 2px 0 2px 0;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid #333;
-      padding-bottom: 2px;
+      border-bottom: 1px solid #222;
     }
 
-    /* KPI CARDS (Layout Original Restaurado) */
+    /* 2. KPI CARDS (Altura Fixa e Reduzida) */
     .kpi-row { 
+      flex: 0 0 auto; /* Altura fixa baseada no conteúdo */
       display: grid; 
       grid-template-columns: 2fr repeat(4, 1fr); 
-      gap: 10px; 
-      margin-bottom: 15px;
+      gap: 6px; 
+      margin-bottom: 5px;
     }
 
     .kpi-card {
       background: #111;
-      border-radius: 14px;
-      padding: 10px 14px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
-      border: 3px solid #444; 
-      min-height: 105px;
+      border-radius: 8px; /* Bordas menos arredondadas */
+      padding: 6px 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.6);
+      border: 2px solid #444; 
+      height: 75px; /* Altura fixa compacta */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .card-grid { 
       display: grid; 
-      grid-template-columns: 1fr 86px; 
-      gap: 10px; 
+      grid-template-columns: 1fr auto; 
+      gap: 4px; 
       align-items: center; 
       height: 100%;
     }
 
-    /* Tipografia Card Original */
-    .kpi-title { font-size: 17px; margin-bottom: 8px; color: #fff; }
-    .kpi-main { font-size: 34px; font-weight: 900; margin-bottom: 6px; line-height: 1; }
-    .kpi-sub  { font-size: 13px; color: #ccc; }
+    /* Tipografia Card Otimizada */
+    .kpi-title { font-size: 13px; margin-bottom: 2px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 24px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-sub  { font-size: 11px; color: #888; }
 
-    .metric { margin-top: 6px; }
-    .metric-label { font-size: 12px; color: #ccc; }
-    .metric-value { font-size: 16px; font-weight: 900; color: #fff; margin-top: 2px; }
+    .metric { margin-top: 2px; }
+    .metric-label { font-size: 10px; color: #888; }
+    .metric-value { font-size: 13px; font-weight: 900; color: #fff; }
 
-    /* Lado Direito (Face + %) */
+    /* Face + % */
     .right-col {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 86px;
+      width: 50px; /* Mais estreito */
     }
-    .big-face { display: flex; justify-content: center; align-items: center; width: 86px; height: 66px; color: #fff; }
-    .big-face svg { width: 60px; height: 60px; display: block; }
-    .face-pct { font-size: 20px; font-weight: 900; color: #fff; margin-top: 4px; text-align: center; }
+    .big-face svg { width: 32px; height: 32px; display: block; }
+    .face-pct { font-size: 14px; font-weight: 900; color: #fff; margin-top: 2px; }
 
-    /* TABLE */
+    /* 3. TABLE CONTAINER (Flexível - Ocupa o resto da tela) */
     .table-container { 
-      flex: 1; /* Ocupa espaço disponível mas não força footer */
+      flex: 1 1 auto; /* Cresce e encolhe para caber */
       background: #111; 
-      border-radius: 10px; 
-      padding: 8px;
-      margin-bottom: 15px;
+      border-radius: 8px; 
+      padding: 0;
+      margin-bottom: 5px;
+      border: 1px solid #333;
+      overflow: hidden; /* Esconde rolagem se passar um pouco, ou use 'auto' para rolagem interna */
+      display: flex;
+      flex-direction: column;
     }
 
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; } /* Fonte base menor */
+    
     thead th { 
       position: sticky; top: 0; 
       background: #222; 
       border-bottom: 2px solid #555; 
       border-right: 1px solid #555; 
       z-index: 10;
-      padding: 10px 8px;
+      padding: 6px 4px;
+      font-size: 12px;
     }
     tbody td { 
       text-align: center; 
       border-bottom: 1px solid #222; 
       border-right: 1px solid #222; 
-      padding: 10px 8px;
+      padding: 5px 2px; /* Células bem compactas */
+      height: 24px; /* Altura forçada da linha */
     }
 
     .row-current { background: #262626; }
 
-    /* Performance Colors */
+    /* Cores */
     .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
     .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
     .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
+    .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
+      font-weight: 900; font-size: 11px; color:#000; 
+    }
+    .cell-mnt { background: orange; }
+    .cell-mat { background: #808080; }
+    .cell-peo { background: #ff69b4; }
+    .cell-qual{ background: #ffd400; }
+    .cell-nosched { background: #0070c0; color:#fff; }
 
-    /* Stop Colors */
-    .cell-mnt     { background: orange;   color: #000; font-weight: 900; }
-    .cell-mat     { background: #808080;  color: #000; font-weight: 900; }
-    .cell-peo     { background: #ff69b4;  color: #000; font-weight: 900; }
-    .cell-qual    { background: #ffd400;  color: #000; font-weight: 900; }
-    .cell-nosched { background: #0070c0;  color: #fff; font-weight: 900; }
-
-    /* SHIFT SUMMARY ROW FIX */
+    /* Resumo Azul */
     .shift-sum td {
-      border-top: 2px solid #fff !important;
-      border-bottom: 2px solid #fff !important;
-      background: #003366; /* Azul padrão */
-      color: #fff;
-      font-weight: 900;
-      font-size: 1.1em;
-      padding-top: 12px !important;
-      padding-bottom: 12px !important;
+      background: #003366; 
+      color: #fff; font-weight: 900; font-size: 14px;
+      padding: 8px 2px !important;
     }
-    .shift-sum td:first-child { border-left: 2px solid #fff !important; }
-    .shift-sum td:last-child  { border-right: 2px solid #fff !important; }
-
-    .shift-sum-label, .shift-sum-target {
-      background: #003366 !important; /* Força azul no label e target */
-    }
-
-    /* IMPORTANTE: Cores de performance sobrescrevem o azul da linha de soma */
+    /* Cores sobrepõem o azul */
     .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
     .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
     .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
 
-    /* SVG */
-    .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .face-stroke { stroke: currentColor; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Density */
-    body[data-shifts="1"] table { font-size: 16px; }
-    body[data-shifts="2"] table { font-size: 14px; }
-    body[data-shifts="3"] table { font-size: 13px; }
-
+    /* Ajuste fino dependendo da qtd de turnos (opcional) */
+    body[data-shifts="1"] table { font-size: 14px; }
+    
   </style>
 </head>
 <body>
@@ -173,7 +169,7 @@
 
   <div class="header">
     <div class="header-left">
-      <img class="logo" src="assets/BGM.png" alt="BGM Motors">
+      <img class="logo" src="assets/BGM.png" alt="BGM">
     </div>
     <div class="header-center">
       <div class="header-title">PERFORMANCE CLM6</div>
@@ -183,14 +179,14 @@
     </div>
   </div>
 
-  <div class="section-label">GLOBAL RESULTS (ACCUMULATED)</div>
+  <div class="section-label">GLOBAL RESULTS</div>
   <div class="kpi-row" id="rowGlobal">
     <div class="kpi-card" id="cardTotal">
       <div class="card-grid">
         <div>
-          <div class="kpi-title">Total Production vs Target</div>
+          <div class="kpi-title">Total vs Target</div>
           <div class="kpi-main" id="totalProd">-</div>
-          <div class="kpi-sub" id="totalTarget">Target: -</div>
+          <div class="kpi-sub" id="totalTarget">Tgt: -</div>
         </div>
         <div class="right-col">
           <div class="big-face" id="faceTotal"></div>
@@ -202,76 +198,40 @@
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 1</div>
-          <div class="metric">
-             <div class="metric-label">Last period</div>
-             <div class="metric-value" id="lastL1">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="accL1">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL1">-</div></div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL1">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL1"></div>
-          <div class="face-pct" id="pctL1"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL1"></div><div class="face-pct" id="pctL1"></div></div>
       </div>
     </div>
     <div class="kpi-card" id="cardLine2">
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 2</div>
-          <div class="metric">
-             <div class="metric-label">Last period</div>
-             <div class="metric-value" id="lastL2">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="accL2">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL2">-</div></div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL2">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL2"></div>
-          <div class="face-pct" id="pctL2"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL2"></div><div class="face-pct" id="pctL2"></div></div>
       </div>
     </div>
     <div class="kpi-card" id="cardLine3">
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 3</div>
-          <div class="metric">
-             <div class="metric-label">Last period</div>
-             <div class="metric-value" id="lastL3">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="accL3">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL3">-</div></div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL3">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL3"></div>
-          <div class="face-pct" id="pctL3"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL3"></div><div class="face-pct" id="pctL3"></div></div>
       </div>
     </div>
     <div class="kpi-card" id="cardLine4">
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 4</div>
-          <div class="metric">
-             <div class="metric-label">Last period</div>
-             <div class="metric-value" id="lastL4">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="accL4">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL4">-</div></div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL4">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL4"></div>
-          <div class="face-pct" id="pctL4"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL4"></div><div class="face-pct" id="pctL4"></div></div>
       </div>
     </div>
   </div>
@@ -294,14 +254,13 @@
   </div>
 
   <div class="section-label">CURRENT SHIFT RESULTS</div>
-  
-  <div class="kpi-row" id="rowShift">
+  <div class="kpi-row" id="rowShift" style="margin-bottom:0;">
     <div class="kpi-card" id="cardTotal_Shift">
       <div class="card-grid">
         <div>
-          <div class="kpi-title">Shift Total vs Target</div>
+          <div class="kpi-title">Shift Total</div>
           <div class="kpi-main" id="totalProd_Shift">-</div>
-          <div class="kpi-sub" id="totalTarget_Shift">Target: -</div>
+          <div class="kpi-sub" id="totalTarget_Shift">Tgt: -</div>
         </div>
         <div class="right-col">
           <div class="big-face" id="faceTotal_Shift"></div>
@@ -313,76 +272,40 @@
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 1 (Shift)</div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="valL1_Shift">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Target</div>
-             <div class="metric-value" id="tgtL1_Shift">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL1_Shift">-</div></div>
+          <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Shift">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL1_Shift"></div>
-          <div class="face-pct" id="pctL1_Shift"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL1_Shift"></div><div class="face-pct" id="pctL1_Shift"></div></div>
       </div>
     </div>
     <div class="kpi-card" id="cardLine2_Shift">
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 2 (Shift)</div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="valL2_Shift">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Target</div>
-             <div class="metric-value" id="tgtL2_Shift">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL2_Shift">-</div></div>
+          <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Shift">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL2_Shift"></div>
-          <div class="face-pct" id="pctL2_Shift"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL2_Shift"></div><div class="face-pct" id="pctL2_Shift"></div></div>
       </div>
     </div>
     <div class="kpi-card" id="cardLine3_Shift">
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 3 (Shift)</div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="valL3_Shift">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Target</div>
-             <div class="metric-value" id="tgtL3_Shift">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL3_Shift">-</div></div>
+          <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Shift">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL3_Shift"></div>
-          <div class="face-pct" id="pctL3_Shift"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL3_Shift"></div><div class="face-pct" id="pctL3_Shift"></div></div>
       </div>
     </div>
     <div class="kpi-card" id="cardLine4_Shift">
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 4 (Shift)</div>
-          <div class="metric">
-             <div class="metric-label">Accumulated</div>
-             <div class="metric-value" id="valL4_Shift">-</div>
-          </div>
-          <div class="metric">
-             <div class="metric-label">Target</div>
-             <div class="metric-value" id="tgtL4_Shift">-</div>
-          </div>
+          <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL4_Shift">-</div></div>
+          <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Shift">-</div></div>
         </div>
-        <div class="right-col">
-          <div class="big-face" id="faceL4_Shift"></div>
-          <div class="face-pct" id="pctL4_Shift"></div>
-        </div>
+        <div class="right-col"><div class="big-face" id="faceL4_Shift"></div><div class="face-pct" id="pctL4_Shift"></div></div>
       </div>
     </div>
   </div>
@@ -442,7 +365,6 @@
     return "";
   }
 
-  // Update UI Card
   function updateCardUI(cardId, faceId, pctId, statusObj, percentage) {
     const card = document.getElementById(cardId);
     const face = document.getElementById(faceId);
@@ -456,26 +378,17 @@
       return;
     }
 
-    // Border Color
     if (statusObj.status === "OK") card.style.borderColor = "#00b050";
     else if (statusObj.status === "MID") card.style.borderColor = "#FFFF00";
     else card.style.borderColor = "#c00000";
 
-    // Face
     face.style.color = (statusObj.status === "NOK") ? "#c00000" : (statusObj.status === "MID" ? "#FFFF00" : "#00b050");
     face.innerHTML = faceSVG(statusObj.face);
-
-    // Percentage
     pct.textContent = Math.round(percentage) + "%";
   }
 
-  function hasAnyLaunchInSlot(slot) {
-    return slot && slot.has_launch === true;
-  }
-  function countedTarget(slot){
-    return Number(slot && slot.target_counted ? slot.target_counted : 0);
-  }
-
+  function hasAnyLaunchInSlot(slot) { return slot && slot.has_launch === true; }
+  function countedTarget(slot){ return Number(slot && slot.target_counted ? slot.target_counted : 0); }
   function calcUpToUltimo(slots, ultimo) {
     if (!ultimo) return slots; 
     const out = [];
@@ -487,7 +400,6 @@
   }
 
   /* ---------------- LOGIC ---------------- */
-
   function updateAllKPIs(json, activeShift) {
     const allSlots = json.slots || [];
     const ultimo = json.ultimo_slot || null;
@@ -496,7 +408,6 @@
     // --- GLOBAL ---
     const globalConsidered = calcUpToUltimo(allSlots, ultimo);
     const globalTargetPerLine = globalConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
-    
     const globalProd = {
       line1: globalConsidered.reduce((a,s)=>a + Number(s.line1||0),0),
       line2: globalConsidered.reduce((a,s)=>a + Number(s.line2||0),0),
@@ -505,25 +416,23 @@
     };
     const globalTotalProd = globalProd.line1 + globalProd.line2 + globalProd.line3 + globalProd.line4;
     const globalTotalTarget = globalTargetPerLine * 4;
-
-    // Last period info for Global Cards
     const lastSlot = ultimo ? allSlots.find(s => s.id_slot === ultimo.id_slot) : null;
 
-    // Render Global Total
+    // Global Total
     const elTotalProd = document.getElementById("totalProd");
     const elTotalTarget = document.getElementById("totalTarget");
     if (!anyLaunchDay || globalTotalTarget <= 0) {
        elTotalProd.textContent = "-";
-       elTotalTarget.textContent = "Target: -";
+       elTotalTarget.textContent = "Tgt: -";
        updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
     } else {
        elTotalProd.textContent = globalTotalProd;
-       elTotalTarget.textContent = "Target: " + globalTotalTarget;
+       elTotalTarget.textContent = "Tgt: " + globalTotalTarget;
        const p = globalTotalProd / globalTotalTarget;
        updateCardUI("cardTotal", "faceTotal", "pctTotal", perfStatus(p), p*100);
     }
 
-    // Render Global Lines
+    // Global Lines
     const globalLines = [
       { key:"line1", lastId:"lastL1", accId:"accL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
       { key:"line2", lastId:"lastL2", accId:"accL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
@@ -533,9 +442,8 @@
     globalLines.forEach(m => {
       const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
       const lastTgt = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
-      
-      document.getElementById(m.lastId).textContent = lastSlot ? `${lastVal} / ${lastTgt}` : "-";
-      document.getElementById(m.accId).textContent = anyLaunchDay ? `${globalProd[m.key]} / ${globalTargetPerLine}` : "-";
+      document.getElementById(m.lastId).textContent = lastSlot ? `${lastVal}/${lastTgt}` : "-";
+      document.getElementById(m.accId).textContent = anyLaunchDay ? `${globalProd[m.key]}/${globalTargetPerLine}` : "-";
       
       if (!anyLaunchDay || globalTotalTarget <= 0) {
         updateCardUI(m.card, m.face, m.pct, null, null);
@@ -549,7 +457,6 @@
     const shiftSlotsAll = allSlots.filter(s => Number(s.shift) === activeShift);
     const shiftConsidered = calcUpToUltimo(shiftSlotsAll, ultimo);
     const anyLaunchShift = shiftConsidered.some(s => hasAnyLaunchInSlot(s));
-
     const shiftTargetPerLine = shiftConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
     const shiftProd = {
       line1: shiftConsidered.reduce((a,s)=>a + Number(s.line1||0),0),
@@ -560,21 +467,21 @@
     const shiftTotalProd = shiftProd.line1 + shiftProd.line2 + shiftProd.line3 + shiftProd.line4;
     const shiftTotalTarget = shiftTargetPerLine * 4;
 
-    // Render Shift Total
+    // Shift Total
     const elShiftTotal = document.getElementById("totalProd_Shift");
     const elShiftTarget = document.getElementById("totalTarget_Shift");
     if (!anyLaunchShift || shiftTotalTarget <= 0) {
        elShiftTotal.textContent = "-";
-       elShiftTarget.textContent = "Target: -";
+       elShiftTarget.textContent = "Tgt: -";
        updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
     } else {
        elShiftTotal.textContent = shiftTotalProd;
-       elShiftTarget.textContent = "Target: " + shiftTotalTarget;
+       elShiftTarget.textContent = "Tgt: " + shiftTotalTarget;
        const p = shiftTotalProd / shiftTotalTarget;
        updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", perfStatus(p), p*100);
     }
 
-    // Render Shift Lines
+    // Shift Lines
     const shiftLines = [
       { key:"line1", valId:"valL1_Shift", tgtId:"tgtL1_Shift", card:"cardLine1_Shift", face:"faceL1_Shift", pct:"pctL1_Shift" },
       { key:"line2", valId:"valL2_Shift", tgtId:"tgtL2_Shift", card:"cardLine2_Shift", face:"faceL2_Shift", pct:"pctL2_Shift" },
@@ -584,7 +491,6 @@
     shiftLines.forEach(m => {
       document.getElementById(m.tgtId).textContent = shiftTargetPerLine > 0 ? shiftTargetPerLine : "-";
       document.getElementById(m.valId).textContent = anyLaunchShift ? shiftProd[m.key] : "-";
-      
       if (!anyLaunchShift || shiftTotalTarget <= 0) {
         updateCardUI(m.card, m.face, m.pct, null, null);
       } else {
@@ -609,15 +515,12 @@
 
   function tdSummaryWithPerf(value, targetEff) {
     const td = document.createElement("td");
-    if (targetEff <= 0) {
-      td.textContent = (value > 0) ? value : "";
-      return td;
-    }
+    if (targetEff <= 0) { td.textContent = (value > 0) ? value : ""; return td; }
     const ratio = value / targetEff;
     const st = perfStatus(ratio);
-    td.classList.add(st.cls); // CSS com !important vai garantir a cor correta
+    td.classList.add(st.cls);
     const pct = Math.round(ratio * 100);
-    td.innerHTML = `${value} <span style="font-size:0.8em">(${pct}%)</span>`;
+    td.innerHTML = `${value} <span style="font-size:0.9em">(${pct}%)</span>`;
     return td;
   }
 
@@ -629,36 +532,24 @@
   function buildTable(json, activeShift) {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
-
     const slots = json.slots || [];
     const ultimo = json.ultimo_slot || null;
-    
     const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
     shifts.forEach(group => {
-      // Future -> hide
       if (group.shift > activeShift) return; 
-
       const isCurrentShift = (group.shift === activeShift);
 
-      // Detailed rows only if current
       if (isCurrentShift) {
         group.slots.forEach(slot => {
           const tr = document.createElement("tr");
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
-
-          const tdShift = document.createElement("td");
-          tdShift.textContent = "Shift " + slot.shift;
-          tr.appendChild(tdShift);
-
-          const tdTime = document.createElement("td");
-          tdTime.textContent = slot.label;
-          tr.appendChild(tdTime);
-
+          
+          const tdShift = document.createElement("td"); tdShift.textContent = "Shift " + slot.shift; tr.appendChild(tdShift);
+          const tdTime = document.createElement("td"); tdTime.textContent = slot.label; tr.appendChild(tdTime);
+          
           const targetEff = Number(slot.target_effective || 0);
-          const tdTarget = document.createElement("td");
-          tdTarget.textContent = targetEff > 0 ? targetEff : "";
-          tr.appendChild(tdTarget);
+          const tdTarget = document.createElement("td"); tdTarget.textContent = targetEff > 0 ? targetEff : ""; tr.appendChild(tdTarget);
 
           const defs = [
             { key:"line1", disp:"disp1", st:"st1" },
@@ -669,17 +560,10 @@
           defs.forEach(d => {
             const stKind = slot[d.st] || "RUN";
             if (stKind !== "RUN") {
-              const td = document.createElement("td");
-              td.textContent = slot[d.disp] || "";
-              td.classList.add(statusClass(stKind));
-              tr.appendChild(td);
-              return;
+              const td = document.createElement("td"); td.textContent = slot[d.disp] || ""; td.classList.add(statusClass(stKind)); tr.appendChild(td); return;
             }
             if (!hasAnyLaunchInSlot(slot)) {
-              const td = document.createElement("td");
-              td.textContent = "";
-              tr.appendChild(td);
-              return;
+              const td = document.createElement("td"); td.textContent = ""; tr.appendChild(td); return;
             }
             const raw = slot[d.key];
             const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
@@ -689,7 +573,6 @@
         });
       }
 
-      // Summary Row
       if (group.slots.length > 0) {
         const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
         const sumTargetCounted = group.slots.reduce((a,s)=>a + countedTarget(s), 0);
@@ -700,31 +583,16 @@
           line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
           line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
         };
-
-        const trSum = document.createElement("tr");
-        trSum.classList.add("shift-sum");
-
-        const td1 = document.createElement("td");
-        td1.colSpan = 2;
-        td1.innerHTML = `CUMULATIVE RESULT &ndash; SHIFT ${group.shift}`;
-        td1.classList.add("shift-sum-label");
-        trSum.appendChild(td1);
-
-        const tdT = document.createElement("td");
-        tdT.textContent = sum.target > 0 ? sum.target : "";
-        tdT.classList.add("shift-sum-target");
-        trSum.appendChild(tdT);
+        const trSum = document.createElement("tr"); trSum.classList.add("shift-sum");
+        const td1 = document.createElement("td"); td1.colSpan = 2; td1.innerHTML = `SHIFT ${group.shift} RESULT`; trSum.appendChild(td1);
+        const tdT = document.createElement("td"); tdT.textContent = sum.target > 0 ? sum.target : ""; trSum.appendChild(tdT);
 
         ["line1","line2","line3","line4"].forEach(k => {
           if (!hasAnyLaunchShift || sum.target <= 0) {
-            const td = document.createElement("td");
-            td.textContent = "";
-            trSum.appendChild(td);
-            return;
+            const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td); return;
           }
           trSum.appendChild(tdSummaryWithPerf(sum[k], sum.target));
         });
-
         tbody.appendChild(trSum);
       }
     });
@@ -735,21 +603,15 @@
       const today = getTodayISO();
       const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
       const json = await res.json();
-
       if (json.status !== "success") return;
-
+      
       let activeShift = 1;
-      if (json.ultimo_slot) {
-        activeShift = Number(json.ultimo_slot.shift);
-      }
+      if (json.ultimo_slot) activeShift = Number(json.ultimo_slot.shift);
 
       applyShiftDensity(json);
       buildTable(json, activeShift);
       updateAllKPIs(json, activeShift);
-
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   }
 
   startDateTime();
