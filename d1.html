@@ -11,157 +11,159 @@
       background: #000; 
       font-family: Arial, Helvetica, sans-serif; 
       color: #fff; 
-      overflow: hidden; /* Evita barra de rolagem geral se possível */
     }
 
     .wrapper { 
       display: flex; 
       flex-direction: column; 
-      height: 100vh; 
-      padding: 10px 14px; 
+      min-height: 100vh; 
+      padding: 12px 18px; 
       box-sizing: border-box; 
     }
 
-    /* HEADER (Fixo) */
+    /* HEADER */
     .header { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 8px; 
-      height: 50px; 
-      flex-shrink: 0;
+      margin-bottom: 15px; 
     }
-    .logo { height: 40px; width: auto; display: block; }
-    .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; color: #fff; }
-    .header-date { font-size: 24px; font-weight: 900; color: #ddd; }
+    .header-left { display:flex; align-items:center; min-width: 160px; }
+    .logo { height: 46px; width: auto; display: block; }
 
-    /* SECTIONS LABEL */
+    .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
+    .header-title { font-size: 44px; font-weight: 900; letter-spacing: 1px; }
+
+    .header-right { text-align:right; min-width: 300px; }
+    .header-date { font-size: 28px; font-weight: 900; color: #ddd; }
+
+    /* SECTION LABELS */
     .section-label {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 900;
       color: #888;
-      margin-bottom: 4px;
+      margin: 10px 0 5px 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      border-bottom: 1px solid #333;
+      padding-bottom: 2px;
     }
-    .section-label span.highlight { color: #00b050; }
 
-    /* CARDS ROW (KPIs) - Altura fixa para não "dançar" */
+    /* KPI CARDS (Layout Original Restaurado) */
     .kpi-row { 
       display: grid; 
       grid-template-columns: 2fr repeat(4, 1fr); 
-      gap: 8px; 
-      margin-bottom: 8px;
-      flex-shrink: 0; /* Não encolhe */
+      gap: 10px; 
+      margin-bottom: 15px;
     }
 
     .kpi-card {
       background: #111;
-      border-radius: 12px;
-      padding: 8px 12px;
+      border-radius: 14px;
+      padding: 10px 14px;
       box-shadow: 0 0 10px rgba(0,0,0,0.6);
-      border: 3px solid #444; /* Default border */
-      height: 90px; /* Altura compacta */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      border: 3px solid #444; 
+      min-height: 105px;
     }
 
     .card-grid { 
       display: grid; 
-      grid-template-columns: 1fr auto; 
-      gap: 6px; 
+      grid-template-columns: 1fr 86px; 
+      gap: 10px; 
       align-items: center; 
       height: 100%;
     }
 
-    /* Typography inside cards */
-    .kpi-title { font-size: 14px; color:#ccc; margin-bottom: 2px; white-space: nowrap; }
-    .kpi-main { font-size: 26px; font-weight: 900; line-height: 1.1; }
-    .kpi-sub  { font-size: 12px; color: #999; }
+    /* Tipografia Card Original */
+    .kpi-title { font-size: 17px; margin-bottom: 8px; color: #fff; }
+    .kpi-main { font-size: 34px; font-weight: 900; margin-bottom: 6px; line-height: 1; }
+    .kpi-sub  { font-size: 13px; color: #ccc; }
 
-    .metric-row { display: flex; justify-content: space-between; align-items: baseline; }
-    .metric-val { font-size: 18px; font-weight: 900; }
-    .metric-lbl { font-size: 11px; color: #888; }
+    .metric { margin-top: 6px; }
+    .metric-label { font-size: 12px; color: #ccc; }
+    .metric-value { font-size: 16px; font-weight: 900; color: #fff; margin-top: 2px; }
 
-    /* Right Col (Face + %) */
+    /* Lado Direito (Face + %) */
     .right-col {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 70px;
+      width: 86px;
     }
-    .big-face svg { width: 45px; height: 45px; display: block; }
-    .face-pct { font-size: 18px; font-weight: 900; color: #fff; margin-top: 2px; }
+    .big-face { display: flex; justify-content: center; align-items: center; width: 86px; height: 66px; color: #fff; }
+    .big-face svg { width: 60px; height: 60px; display: block; }
+    .face-pct { font-size: 20px; font-weight: 900; color: #fff; margin-top: 4px; text-align: center; }
 
-    /* TABLE CONTAINER (Flexível - ocupa o meio) */
+    /* TABLE */
     .table-container { 
-      flex: 1; /* Ocupa o espaço que sobra */
-      overflow-y: auto; 
+      flex: 1; /* Ocupa espaço disponível mas não força footer */
       background: #111; 
       border-radius: 10px; 
-      padding: 4px;
-      margin-bottom: 8px;
-      border: 1px solid #333;
+      padding: 8px;
+      margin-bottom: 15px;
     }
 
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; }
     thead th { 
       position: sticky; top: 0; 
       background: #222; 
-      color: #eee;
-      padding: 8px 4px; 
+      border-bottom: 2px solid #555; 
+      border-right: 1px solid #555; 
       z-index: 10;
-      border-bottom: 2px solid #555;
+      padding: 10px 8px;
     }
     tbody td { 
-      padding: 6px 4px; 
       text-align: center; 
       border-bottom: 1px solid #222; 
       border-right: 1px solid #222; 
-      color: #fff;
+      padding: 10px 8px;
     }
-    tbody tr:last-child td { border-bottom: none; }
-    
-    .row-current { background: #2a2a2a; }
 
-    /* COLORS */
+    .row-current { background: #262626; }
+
+    /* Performance Colors */
     .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
     .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
     .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
 
-    /* Status Codes */
-    .cell-mnt { background: orange; color: #000; font-weight: 900; font-size: 12px; }
-    .cell-mat { background: #808080; color: #000; font-weight: 900; font-size: 12px; }
-    .cell-peo { background: #ff69b4; color: #000; font-weight: 900; font-size: 12px; }
-    .cell-qual{ background: #ffd400; color: #000; font-weight: 900; font-size: 12px; }
-    .cell-nosched { background: #0070c0; color: #fff; font-weight: 900; font-size: 12px; }
+    /* Stop Colors */
+    .cell-mnt     { background: orange;   color: #000; font-weight: 900; }
+    .cell-mat     { background: #808080;  color: #000; font-weight: 900; }
+    .cell-peo     { background: #ff69b4;  color: #000; font-weight: 900; }
+    .cell-qual    { background: #ffd400;  color: #000; font-weight: 900; }
+    .cell-nosched { background: #0070c0;  color: #fff; font-weight: 900; }
 
-    /* SHIFT SUMMARY ROW (Blue line) */
+    /* SHIFT SUMMARY ROW FIX */
     .shift-sum td {
       border-top: 2px solid #fff !important;
       border-bottom: 2px solid #fff !important;
-      background: #003366; 
+      background: #003366; /* Azul padrão */
+      color: #fff;
       font-weight: 900;
-      font-size: 15px;
-      padding-top: 10px !important;
-      padding-bottom: 10px !important;
+      font-size: 1.1em;
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+    }
+    .shift-sum td:first-child { border-left: 2px solid #fff !important; }
+    .shift-sum td:last-child  { border-right: 2px solid #fff !important; }
+
+    .shift-sum-label, .shift-sum-target {
+      background: #003366 !important; /* Força azul no label e target */
     }
 
-    /* SVG Stroke */
+    /* IMPORTANTE: Cores de performance sobrescrevem o azul da linha de soma */
+    .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
+    .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
+    .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
+
+    /* SVG */
     .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* DENSITY ADJUSTMENTS */
+    /* Density */
     body[data-shifts="1"] table { font-size: 16px; }
-    body[data-shifts="1"] tbody td { padding: 10px 4px; }
-    
-    /* Footer Row specific styling (Optional distinction) */
-    .footer-row .kpi-card { border-color: #004488; } /* Borda azulada para diferenciar */
-    .footer-title { color: #8cbaff; } /* Título azulado */
+    body[data-shifts="2"] table { font-size: 14px; }
+    body[data-shifts="3"] table { font-size: 13px; }
 
   </style>
 </head>
@@ -186,7 +188,7 @@
     <div class="kpi-card" id="cardTotal">
       <div class="card-grid">
         <div>
-          <div class="kpi-title">Total vs Target</div>
+          <div class="kpi-title">Total Production vs Target</div>
           <div class="kpi-main" id="totalProd">-</div>
           <div class="kpi-sub" id="totalTarget">Target: -</div>
         </div>
@@ -200,11 +202,14 @@
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 1</div>
-          <div class="metric-row">
-             <div class="metric-val" id="accL1">-</div>
-             <div class="metric-lbl">/ <span id="tgtL1">-</span></div>
+          <div class="metric">
+             <div class="metric-label">Last period</div>
+             <div class="metric-value" id="lastL1">-</div>
           </div>
-          <div class="kpi-sub">Accumulated</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="accL1">-</div>
+          </div>
         </div>
         <div class="right-col">
           <div class="big-face" id="faceL1"></div>
@@ -216,11 +221,14 @@
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 2</div>
-          <div class="metric-row">
-             <div class="metric-val" id="accL2">-</div>
-             <div class="metric-lbl">/ <span id="tgtL2">-</span></div>
+          <div class="metric">
+             <div class="metric-label">Last period</div>
+             <div class="metric-value" id="lastL2">-</div>
           </div>
-          <div class="kpi-sub">Accumulated</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="accL2">-</div>
+          </div>
         </div>
         <div class="right-col">
           <div class="big-face" id="faceL2"></div>
@@ -232,11 +240,14 @@
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 3</div>
-          <div class="metric-row">
-             <div class="metric-val" id="accL3">-</div>
-             <div class="metric-lbl">/ <span id="tgtL3">-</span></div>
+          <div class="metric">
+             <div class="metric-label">Last period</div>
+             <div class="metric-value" id="lastL3">-</div>
           </div>
-          <div class="kpi-sub">Accumulated</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="accL3">-</div>
+          </div>
         </div>
         <div class="right-col">
           <div class="big-face" id="faceL3"></div>
@@ -248,11 +259,14 @@
       <div class="card-grid">
         <div>
           <div class="kpi-title">Line 4</div>
-          <div class="metric-row">
-             <div class="metric-val" id="accL4">-</div>
-             <div class="metric-lbl">/ <span id="tgtL4">-</span></div>
+          <div class="metric">
+             <div class="metric-label">Last period</div>
+             <div class="metric-value" id="lastL4">-</div>
           </div>
-          <div class="kpi-sub">Accumulated</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="accL4">-</div>
+          </div>
         </div>
         <div class="right-col">
           <div class="big-face" id="faceL4"></div>
@@ -279,16 +293,13 @@
     </table>
   </div>
 
-  <div class="section-label">
-    CURRENT SHIFT RESULTS (<span id="lblActiveShift">SHIFT -</span>)
-    <span style="font-size:11px; font-weight:normal; text-transform:none; color:#555">BGM Andon System v2.0</span>
-  </div>
+  <div class="section-label">CURRENT SHIFT RESULTS</div>
   
-  <div class="kpi-row footer-row" id="rowShift">
+  <div class="kpi-row" id="rowShift">
     <div class="kpi-card" id="cardTotal_Shift">
       <div class="card-grid">
         <div>
-          <div class="kpi-title footer-title">Shift Total vs Target</div>
+          <div class="kpi-title">Shift Total vs Target</div>
           <div class="kpi-main" id="totalProd_Shift">-</div>
           <div class="kpi-sub" id="totalTarget_Shift">Target: -</div>
         </div>
@@ -301,10 +312,14 @@
     <div class="kpi-card" id="cardLine1_Shift">
       <div class="card-grid">
         <div>
-          <div class="kpi-title footer-title">Line 1 (Shift)</div>
-          <div class="metric-row">
-             <div class="metric-val" id="valL1_Shift">-</div>
-             <div class="metric-lbl">/ <span id="tgtL1_Shift">-</span></div>
+          <div class="kpi-title">Line 1 (Shift)</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="valL1_Shift">-</div>
+          </div>
+          <div class="metric">
+             <div class="metric-label">Target</div>
+             <div class="metric-value" id="tgtL1_Shift">-</div>
           </div>
         </div>
         <div class="right-col">
@@ -316,10 +331,14 @@
     <div class="kpi-card" id="cardLine2_Shift">
       <div class="card-grid">
         <div>
-          <div class="kpi-title footer-title">Line 2 (Shift)</div>
-          <div class="metric-row">
-             <div class="metric-val" id="valL2_Shift">-</div>
-             <div class="metric-lbl">/ <span id="tgtL2_Shift">-</span></div>
+          <div class="kpi-title">Line 2 (Shift)</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="valL2_Shift">-</div>
+          </div>
+          <div class="metric">
+             <div class="metric-label">Target</div>
+             <div class="metric-value" id="tgtL2_Shift">-</div>
           </div>
         </div>
         <div class="right-col">
@@ -331,10 +350,14 @@
     <div class="kpi-card" id="cardLine3_Shift">
       <div class="card-grid">
         <div>
-          <div class="kpi-title footer-title">Line 3 (Shift)</div>
-          <div class="metric-row">
-             <div class="metric-val" id="valL3_Shift">-</div>
-             <div class="metric-lbl">/ <span id="tgtL3_Shift">-</span></div>
+          <div class="kpi-title">Line 3 (Shift)</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="valL3_Shift">-</div>
+          </div>
+          <div class="metric">
+             <div class="metric-label">Target</div>
+             <div class="metric-value" id="tgtL3_Shift">-</div>
           </div>
         </div>
         <div class="right-col">
@@ -346,10 +369,14 @@
     <div class="kpi-card" id="cardLine4_Shift">
       <div class="card-grid">
         <div>
-          <div class="kpi-title footer-title">Line 4 (Shift)</div>
-          <div class="metric-row">
-             <div class="metric-val" id="valL4_Shift">-</div>
-             <div class="metric-lbl">/ <span id="tgtL4_Shift">-</span></div>
+          <div class="kpi-title">Line 4 (Shift)</div>
+          <div class="metric">
+             <div class="metric-label">Accumulated</div>
+             <div class="metric-value" id="valL4_Shift">-</div>
+          </div>
+          <div class="metric">
+             <div class="metric-label">Target</div>
+             <div class="metric-value" id="tgtL4_Shift">-</div>
           </div>
         </div>
         <div class="right-col">
@@ -365,7 +392,6 @@
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
 
-  /* ---------------- UTILS ---------------- */
   function getTodayISO() {
     const d = new Date();
     const y = d.getFullYear();
@@ -416,7 +442,7 @@
     return "";
   }
 
-  // Define cor da borda, ícone e texto %
+  // Update UI Card
   function updateCardUI(cardId, faceId, pctId, statusObj, percentage) {
     const card = document.getElementById(cardId);
     const face = document.getElementById(faceId);
@@ -424,7 +450,6 @@
     if(!card || !face || !pct) return;
 
     if (!statusObj) {
-      // IDLE STATE
       card.style.borderColor = "#444";
       face.innerHTML = "";
       pct.textContent = "";
@@ -436,11 +461,11 @@
     else if (statusObj.status === "MID") card.style.borderColor = "#FFFF00";
     else card.style.borderColor = "#c00000";
 
-    // Face Color & Icon
+    // Face
     face.style.color = (statusObj.status === "NOK") ? "#c00000" : (statusObj.status === "MID" ? "#FFFF00" : "#00b050");
     face.innerHTML = faceSVG(statusObj.face);
 
-    // Percentage Text
+    // Percentage
     pct.textContent = Math.round(percentage) + "%";
   }
 
@@ -451,9 +476,8 @@
     return Number(slot && slot.target_counted ? slot.target_counted : 0);
   }
 
-  /* Retorna array de slots até o último lançado (para cálculos de acumulado) */
   function calcUpToUltimo(slots, ultimo) {
-    if (!ultimo) return slots; // se nada lançado, considera tudo (ou nada, depende do contexto)
+    if (!ultimo) return slots; 
     const out = [];
     for (const s of slots) {
       out.push(s);
@@ -464,20 +488,15 @@
 
   /* ---------------- LOGIC ---------------- */
 
-  /* Atualiza os dois grupos de KPIs: Global e Turno Atual */
   function updateAllKPIs(json, activeShift) {
     const allSlots = json.slots || [];
     const ultimo = json.ultimo_slot || null;
     const anyLaunchDay = allSlots.some(s => hasAnyLaunchInSlot(s));
 
-    // ---------------- GLOBAL CALC (Dia inteiro) ----------------
-    // Considera slots desde o inicio do dia até o ultimo lançado
+    // --- GLOBAL ---
     const globalConsidered = calcUpToUltimo(allSlots, ultimo);
-    
-    // Soma Target (somente onde houve lançamento ou passou)
     const globalTargetPerLine = globalConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
     
-    // Soma Produção
     const globalProd = {
       line1: globalConsidered.reduce((a,s)=>a + Number(s.line1||0),0),
       line2: globalConsidered.reduce((a,s)=>a + Number(s.line2||0),0),
@@ -487,32 +506,36 @@
     const globalTotalProd = globalProd.line1 + globalProd.line2 + globalProd.line3 + globalProd.line4;
     const globalTotalTarget = globalTargetPerLine * 4;
 
+    // Last period info for Global Cards
+    const lastSlot = ultimo ? allSlots.find(s => s.id_slot === ultimo.id_slot) : null;
+
     // Render Global Total
-    const elGlobalTotalProd = document.getElementById("totalProd");
-    const elGlobalTotalTarget = document.getElementById("totalTarget");
-    
+    const elTotalProd = document.getElementById("totalProd");
+    const elTotalTarget = document.getElementById("totalTarget");
     if (!anyLaunchDay || globalTotalTarget <= 0) {
-       elGlobalTotalProd.textContent = "-";
-       elGlobalTotalTarget.textContent = "Target: -";
+       elTotalProd.textContent = "-";
+       elTotalTarget.textContent = "Target: -";
        updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
     } else {
-       elGlobalTotalProd.textContent = globalTotalProd;
-       elGlobalTotalTarget.textContent = "Target: " + globalTotalTarget;
+       elTotalProd.textContent = globalTotalProd;
+       elTotalTarget.textContent = "Target: " + globalTotalTarget;
        const p = globalTotalProd / globalTotalTarget;
        updateCardUI("cardTotal", "faceTotal", "pctTotal", perfStatus(p), p*100);
     }
 
     // Render Global Lines
     const globalLines = [
-      { key:"line1", valId:"accL1", tgtId:"tgtL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
-      { key:"line2", valId:"accL2", tgtId:"tgtL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
-      { key:"line3", valId:"accL3", tgtId:"tgtL3", card:"cardLine3", face:"faceL3", pct:"pctL3" },
-      { key:"line4", valId:"accL4", tgtId:"tgtL4", card:"cardLine4", face:"faceL4", pct:"pctL4" }
+      { key:"line1", lastId:"lastL1", accId:"accL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
+      { key:"line2", lastId:"lastL2", accId:"accL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
+      { key:"line3", lastId:"lastL3", accId:"accL3", card:"cardLine3", face:"faceL3", pct:"pctL3" },
+      { key:"line4", lastId:"lastL4", accId:"accL4", card:"cardLine4", face:"faceL4", pct:"pctL4" }
     ];
-
     globalLines.forEach(m => {
-      document.getElementById(m.tgtId).textContent = globalTargetPerLine > 0 ? globalTargetPerLine : "-";
-      document.getElementById(m.valId).textContent = anyLaunchDay ? globalProd[m.key] : "-";
+      const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
+      const lastTgt = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
+      
+      document.getElementById(m.lastId).textContent = lastSlot ? `${lastVal} / ${lastTgt}` : "-";
+      document.getElementById(m.accId).textContent = anyLaunchDay ? `${globalProd[m.key]} / ${globalTargetPerLine}` : "-";
       
       if (!anyLaunchDay || globalTotalTarget <= 0) {
         updateCardUI(m.card, m.face, m.pct, null, null);
@@ -522,22 +545,12 @@
       }
     });
 
-
-    // ---------------- SHIFT CALC (Apenas turno atual) ----------------
-    document.getElementById("lblActiveShift").textContent = "SHIFT " + activeShift;
-
-    // 1. Filtra slots que pertencem ao turno ativo
+    // --- SHIFT ---
     const shiftSlotsAll = allSlots.filter(s => Number(s.shift) === activeShift);
-    
-    // 2. Desses slots, considera apenas até o momento atual (se for o turno atual)
-    // Se o turno ativo já acabou (ex: olhando histórico), pegaria tudo. Mas aqui é realtime.
     const shiftConsidered = calcUpToUltimo(shiftSlotsAll, ultimo);
     const anyLaunchShift = shiftConsidered.some(s => hasAnyLaunchInSlot(s));
 
-    // Soma Target Turno
     const shiftTargetPerLine = shiftConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
-
-    // Soma Produção Turno
     const shiftProd = {
       line1: shiftConsidered.reduce((a,s)=>a + Number(s.line1||0),0),
       line2: shiftConsidered.reduce((a,s)=>a + Number(s.line2||0),0),
@@ -548,16 +561,15 @@
     const shiftTotalTarget = shiftTargetPerLine * 4;
 
     // Render Shift Total
-    const elShiftTotalProd = document.getElementById("totalProd_Shift");
-    const elShiftTotalTarget = document.getElementById("totalTarget_Shift");
-
+    const elShiftTotal = document.getElementById("totalProd_Shift");
+    const elShiftTarget = document.getElementById("totalTarget_Shift");
     if (!anyLaunchShift || shiftTotalTarget <= 0) {
-       elShiftTotalProd.textContent = "-";
-       elShiftTotalTarget.textContent = "Target: -";
+       elShiftTotal.textContent = "-";
+       elShiftTarget.textContent = "Target: -";
        updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
     } else {
-       elShiftTotalProd.textContent = shiftTotalProd;
-       elShiftTotalTarget.textContent = "Target: " + shiftTotalTarget;
+       elShiftTotal.textContent = shiftTotalProd;
+       elShiftTarget.textContent = "Target: " + shiftTotalTarget;
        const p = shiftTotalProd / shiftTotalTarget;
        updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", perfStatus(p), p*100);
     }
@@ -569,7 +581,6 @@
       { key:"line3", valId:"valL3_Shift", tgtId:"tgtL3_Shift", card:"cardLine3_Shift", face:"faceL3_Shift", pct:"pctL3_Shift" },
       { key:"line4", valId:"valL4_Shift", tgtId:"tgtL4_Shift", card:"cardLine4_Shift", face:"faceL4_Shift", pct:"pctL4_Shift" }
     ];
-
     shiftLines.forEach(m => {
       document.getElementById(m.tgtId).textContent = shiftTargetPerLine > 0 ? shiftTargetPerLine : "-";
       document.getElementById(m.valId).textContent = anyLaunchShift ? shiftProd[m.key] : "-";
@@ -581,10 +592,8 @@
         updateCardUI(m.card, m.face, m.pct, perfStatus(p), p*100);
       }
     });
-
   }
 
-  // Helper Table TD
   function tdWithPerf(value, targetEff, hasLaunch) {
     const td = document.createElement("td");
     if (!hasLaunch) { td.textContent = ""; return td; }
@@ -598,7 +607,6 @@
     return td;
   }
 
-  // Helper Table Summary (Value + %)
   function tdSummaryWithPerf(value, targetEff) {
     const td = document.createElement("td");
     if (targetEff <= 0) {
@@ -607,7 +615,7 @@
     }
     const ratio = value / targetEff;
     const st = perfStatus(ratio);
-    td.classList.add(st.cls);
+    td.classList.add(st.cls); // CSS com !important vai garantir a cor correta
     const pct = Math.round(ratio * 100);
     td.innerHTML = `${value} <span style="font-size:0.8em">(${pct}%)</span>`;
     return td;
@@ -628,16 +636,12 @@
     const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
     shifts.forEach(group => {
-      // Regra de Exibição de Turnos:
-      // > Futuro: Oculta
-      // < Passado: Resumo Apenas
-      // = Atual: Detalhes + Resumo
-
+      // Future -> hide
       if (group.shift > activeShift) return; 
 
       const isCurrentShift = (group.shift === activeShift);
 
-      // Linhas detalhadas (só se for o atual)
+      // Detailed rows only if current
       if (isCurrentShift) {
         group.slots.forEach(slot => {
           const tr = document.createElement("tr");
@@ -662,7 +666,6 @@
             { key:"line3", disp:"disp3", st:"st3" },
             { key:"line4", disp:"disp4", st:"st4" }
           ];
-
           defs.forEach(d => {
             const stKind = slot[d.st] || "RUN";
             if (stKind !== "RUN") {
@@ -686,7 +689,7 @@
         });
       }
 
-      // Linha de Resumo (SEMPRE APLICÁVEL, se houver slots)
+      // Summary Row
       if (group.slots.length > 0) {
         const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
         const sumTargetCounted = group.slots.reduce((a,s)=>a + countedTarget(s), 0);
@@ -704,10 +707,12 @@
         const td1 = document.createElement("td");
         td1.colSpan = 2;
         td1.innerHTML = `CUMULATIVE RESULT &ndash; SHIFT ${group.shift}`;
+        td1.classList.add("shift-sum-label");
         trSum.appendChild(td1);
 
         const tdT = document.createElement("td");
         tdT.textContent = sum.target > 0 ? sum.target : "";
+        tdT.classList.add("shift-sum-target");
         trSum.appendChild(tdT);
 
         ["line1","line2","line3","line4"].forEach(k => {
@@ -733,18 +738,13 @@
 
       if (json.status !== "success") return;
 
-      // Determinar turno ativo
       let activeShift = 1;
       if (json.ultimo_slot) {
         activeShift = Number(json.ultimo_slot.shift);
       }
 
       applyShiftDensity(json);
-      
-      // Constrói tabela focada no turno
       buildTable(json, activeShift);
-      
-      // Atualiza KPIs Global E KPIs do Turno
       updateAllKPIs(json, activeShift);
 
     } catch (err) {
