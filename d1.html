@@ -27,10 +27,11 @@
       padding:10px 14px;
       box-shadow:0 0 10px rgba(0,0,0,0.6);
       border:3px solid #444;
-      min-height: 105px;
+      min-height: 120px; /* Aumentado levemente para caber o % */
     }
 
-    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
+    /* Grid do Card: Esquerda (Infos) | Direita (Carinha + %) */
+    .card-grid { display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; height:100%; }
 
     .kpi-title { font-size:17px; margin-bottom:8px; }
     .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
@@ -40,13 +41,31 @@
     .metric-label { font-size:12px; color:#ccc; }
     .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
 
-    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
-    .big-face svg { width:66px; height:66px; display:block; }
+    /* Coluna da Direita (Carinha + %) */
+    .right-col {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:86px;
+    }
+
+    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:66px; color:#fff; }
+    .big-face svg { width:60px; height:60px; display:block; }
+    
+    /* Estilo da porcentagem abaixo da carinha */
+    .face-pct {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 4px;
+      text-align: center;
+    }
 
     /* TABLE */
     .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
     table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
-    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
+    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; z-index: 10; }
     tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
 
     .row-current { background:#262626; }
@@ -63,10 +82,12 @@
     .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
     .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
 
-    /* SHIFT SUMMARY ROW: borda branca no contorno + label/target azul */
+    /* SHIFT SUMMARY ROW */
     .shift-sum td{
       border-top:2px solid #fff !important;
       border-bottom:2px solid #fff !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
     }
     .shift-sum td:first-child { border-left:2px solid #fff !important; }
     .shift-sum td:last-child  { border-right:2px solid #fff !important; }
@@ -75,25 +96,26 @@
       background:#003366 !important;
       color:#fff;
       font-weight:900;
+      font-size: 1.1em; /* Destaque leve */
     }
 
-    /* SVG common (usa currentColor, para seguir cor da borda do card) */
+    /* SVG common */
     .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
     .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
 
     /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
-    body[data-shifts="1"] table { font-size: 15px; }
-    body[data-shifts="1"] thead th { padding: 10px 8px; }
-    body[data-shifts="1"] tbody td { padding: 10px 8px; }
+    body[data-shifts="1"] table { font-size: 16px; }
+    body[data-shifts="1"] thead th { padding: 12px 8px; }
+    body[data-shifts="1"] tbody td { padding: 12px 8px; }
 
-    body[data-shifts="2"] table { font-size: 13px; }
-    body[data-shifts="2"] thead th { padding: 7px 6px; }
-    body[data-shifts="2"] tbody td { padding: 7px 6px; }
+    body[data-shifts="2"] table { font-size: 14px; }
+    body[data-shifts="2"] thead th { padding: 8px 6px; }
+    body[data-shifts="2"] tbody td { padding: 8px 6px; }
 
-    body[data-shifts="3"] table { font-size: 12px; }
-    body[data-shifts="3"] thead th { padding: 5px 5px; }
-    body[data-shifts="3"] tbody td { padding: 5px 5px; }
+    body[data-shifts="3"] table { font-size: 13px; }
+    body[data-shifts="3"] thead th { padding: 6px 5px; }
+    body[data-shifts="3"] tbody td { padding: 6px 5px; }
   </style>
 </head>
 <body>
@@ -114,7 +136,6 @@
     </div>
 
     <div class="kpi-row">
-      <!-- TOTAL -->
       <div class="kpi-card" id="cardTotal">
         <div class="card-grid">
           <div>
@@ -122,11 +143,13 @@
             <div class="kpi-main" id="totalProd">-</div>
             <div class="kpi-sub" id="totalTarget">Target: -</div>
           </div>
-          <div class="big-face" id="faceTotal"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceTotal"></div>
+            <div class="face-pct" id="pctTotal"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 1 -->
       <div class="kpi-card" id="cardLine1">
         <div class="card-grid">
           <div>
@@ -140,11 +163,13 @@
               <div class="metric-value" id="accL1">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL1"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL1"></div>
+            <div class="face-pct" id="pctL1"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 2 -->
       <div class="kpi-card" id="cardLine2">
         <div class="card-grid">
           <div>
@@ -158,11 +183,13 @@
               <div class="metric-value" id="accL2">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL2"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL2"></div>
+            <div class="face-pct" id="pctL2"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 3 -->
       <div class="kpi-card" id="cardLine3">
         <div class="card-grid">
           <div>
@@ -176,11 +203,13 @@
               <div class="metric-value" id="accL3">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL3"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL3"></div>
+            <div class="face-pct" id="pctL3"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 4 -->
       <div class="kpi-card" id="cardLine4">
         <div class="card-grid">
           <div>
@@ -194,7 +223,10 @@
               <div class="metric-value" id="accL4">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL4"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL4"></div>
+            <div class="face-pct" id="pctL4"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -290,29 +322,37 @@
       return out;
     }
 
-    function setBigFace(elId, state) {
-      const el = document.getElementById(elId);
-      if (!el) return;
+    function setBigFaceAndPct(faceId, pctId, state, percentage) {
+      const elFace = document.getElementById(faceId);
+      const elPct = document.getElementById(pctId);
+      if (!elFace || !elPct) return;
 
       if (!state) {
-        el.innerHTML = "";
-        el.style.color = "#fff";
+        elFace.innerHTML = "";
+        elFace.style.color = "#fff";
+        elPct.textContent = "";
         return;
       }
 
-      if (state.status === "OK") el.style.color = "#00b050";
-      else if (state.status === "MID") el.style.color = "#FFFF00";
-      else el.style.color = "#c00000";
+      // Cor da carinha
+      if (state.status === "OK") elFace.style.color = "#00b050";
+      else if (state.status === "MID") elFace.style.color = "#FFFF00";
+      else elFace.style.color = "#c00000";
 
-      el.innerHTML = faceSVG(state.face);
+      elFace.innerHTML = faceSVG(state.face);
+      
+      // Texto da porcentagem
+      if (percentage !== null && percentage !== undefined) {
+        elPct.textContent = Math.round(percentage) + "%";
+      } else {
+        elPct.textContent = "";
+      }
     }
 
-    // usa flag do backend
     function hasAnyLaunchInSlot(slot) {
       return slot && slot.has_launch === true;
     }
 
-    // NOVO: target que cresce somente nos períodos lançados
     function countedTarget(slot){
       return Number(slot && slot.target_counted ? slot.target_counted : 0);
     }
@@ -322,10 +362,8 @@
       const ultimo = json.ultimo_slot || null;
 
       const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
-
       const considered = calcUpToUltimo(slots, ultimo);
 
-      // >>> aqui muda: soma só o target_counted (períodos lançados)
       const targetPerLine = considered.reduce((acc, s) => acc + countedTarget(s), 0);
 
       const acc = {
@@ -343,20 +381,21 @@
 
       if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
         setCardBorder("cardTotal", "IDLE");
-        setBigFace("faceTotal", null);
+        setBigFaceAndPct("faceTotal", "pctTotal", null, null);
       } else {
-        const st = perfStatus(totalProd / totalTarget);
+        const p = totalProd / totalTarget;
+        const st = perfStatus(p);
         setCardBorder("cardTotal", st.status);
-        setBigFace("faceTotal", st);
+        setBigFaceAndPct("faceTotal", "pctTotal", st, p * 100);
       }
 
       const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
 
       const lines = [
-        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1" },
-        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2" },
-        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3" },
-        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4" }
+        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
+        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
+        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3", pct:"pctL3" },
+        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4", pct:"pctL4" }
       ];
 
       lines.forEach(m => {
@@ -367,7 +406,7 @@
           lastEl.textContent = "-";
           accEl.textContent = "-";
           setCardBorder(m.card, "IDLE");
-          setBigFace(m.face, null);
+          setBigFaceAndPct(m.face, m.pct, null, null);
           return;
         }
 
@@ -378,21 +417,19 @@
         const accVal = acc[m.key];
         accEl.textContent = `${accVal} / ${targetPerLine}`;
 
-        const st = perfStatus(accVal / targetPerLine);
+        const p = accVal / targetPerLine;
+        const st = perfStatus(p);
         setCardBorder(m.card, st.status);
-        setBigFace(m.face, st);
+        setBigFaceAndPct(m.face, m.pct, st, p * 100);
       });
     }
 
-    // Tabela: só colore se tiver lançamento
     function tdWithPerf(value, targetEff, hasLaunch) {
       const td = document.createElement("td");
-
       if (!hasLaunch) {
         td.textContent = "";
         return td;
       }
-
       if (targetEff > 0) {
         const st = perfStatus(value / targetEff);
         td.classList.add(st.cls);
@@ -400,6 +437,28 @@
       } else {
         td.textContent = String(value ?? "");
       }
+      return td;
+    }
+
+    // TD especial para o resumo que inclui Porcentagem
+    function tdSummaryWithPerf(value, targetEff) {
+      const td = document.createElement("td");
+      
+      // Se não tem target, exibe só valor (ou vazio)
+      if (targetEff <= 0) {
+        td.textContent = (value > 0) ? value : "";
+        return td;
+      }
+      
+      // Calcula %
+      const ratio = value / targetEff;
+      const st = perfStatus(ratio);
+      td.classList.add(st.cls);
+      
+      // Exibe: Valor (Pct%)
+      const pct = Math.round(ratio * 100);
+      td.innerHTML = `${value} <span style="font-size:0.85em">(${pct}%)</span>`;
+      
       return td;
     }
 
@@ -414,68 +473,79 @@
 
       const slots = json.slots || [];
       const ultimo = json.ultimo_slot || null;
+      
+      // Identificar Turno Atual (se nenhum, assume 1)
+      let activeShift = 1;
+      if (ultimo) {
+        activeShift = Number(ultimo.shift);
+      }
 
       const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
       shifts.forEach(group => {
-        // linhas do turno
-        group.slots.forEach(slot => {
-          const tr = document.createElement("tr");
-          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+        // Lógica de Visibilidade:
+        // Se Turno > ActiveShift -> Oculta tudo (return)
+        // Se Turno < ActiveShift -> Oculta linhas internas, mostra só resumo
+        // Se Turno == ActiveShift -> Mostra tudo
+        
+        if (group.shift > activeShift) return; // Futuro: não mostra nada
 
-          const tdShift = document.createElement("td");
-          tdShift.textContent = "Shift " + slot.shift;
-          tr.appendChild(tdShift);
+        const isCurrentShift = (group.shift === activeShift);
 
-          const tdTime = document.createElement("td");
-          tdTime.textContent = slot.label;
-          tr.appendChild(tdTime);
+        // Se for o turno atual, desenha as linhas internas (Slots)
+        if (isCurrentShift) {
+          group.slots.forEach(slot => {
+            const tr = document.createElement("tr");
+            if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
 
-          const targetEff = Number(slot.target_effective || 0);
+            const tdShift = document.createElement("td");
+            tdShift.textContent = "Shift " + slot.shift;
+            tr.appendChild(tdShift);
 
-          const tdTarget = document.createElement("td");
-          tdTarget.textContent = targetEff > 0 ? targetEff : "";
-          tr.appendChild(tdTarget);
+            const tdTime = document.createElement("td");
+            tdTime.textContent = slot.label;
+            tr.appendChild(tdTime);
 
-          const defs = [
-            { key:"line1", disp:"disp1", st:"st1" },
-            { key:"line2", disp:"disp2", st:"st2" },
-            { key:"line3", disp:"disp3", st:"st3" },
-            { key:"line4", disp:"disp4", st:"st4" }
-          ];
+            const targetEff = Number(slot.target_effective || 0);
 
-          defs.forEach(d => {
-            const stKind = slot[d.st] || "RUN";
+            const tdTarget = document.createElement("td");
+            tdTarget.textContent = targetEff > 0 ? targetEff : "";
+            tr.appendChild(tdTarget);
 
-            if (stKind !== "RUN") {
-              const td = document.createElement("td");
-              td.textContent = slot[d.disp] || "";
-              td.classList.add(statusClass(stKind));
-              tr.appendChild(td);
-              return;
-            }
+            const defs = [
+              { key:"line1", disp:"disp1", st:"st1" },
+              { key:"line2", disp:"disp2", st:"st2" },
+              { key:"line3", disp:"disp3", st:"st3" },
+              { key:"line4", disp:"disp4", st:"st4" }
+            ];
 
-            const hasLaunch = hasAnyLaunchInSlot(slot);
-            if (!hasLaunch) {
-              const td = document.createElement("td");
-              td.textContent = "";
-              tr.appendChild(td);
-              return;
-            }
-
-            const raw = slot[d.key];
-            const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
-            tr.appendChild(tdWithPerf(v, targetEff, true));
+            defs.forEach(d => {
+              const stKind = slot[d.st] || "RUN";
+              if (stKind !== "RUN") {
+                const td = document.createElement("td");
+                td.textContent = slot[d.disp] || "";
+                td.classList.add(statusClass(stKind));
+                tr.appendChild(td);
+                return;
+              }
+              const hasLaunch = hasAnyLaunchInSlot(slot);
+              if (!hasLaunch) {
+                const td = document.createElement("td");
+                td.textContent = "";
+                tr.appendChild(td);
+                return;
+              }
+              const raw = slot[d.key];
+              const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
+              tr.appendChild(tdWithPerf(v, targetEff, true));
+            });
+            tbody.appendChild(tr);
           });
+        }
 
-          tbody.appendChild(tr);
-        });
-
-        // linha acumulada do turno
+        // SEMPRE desenha o resumo (para passado e presente), se houver slots
         if (group.slots.length > 0) {
           const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
-
-          // >>> aqui muda: target acumulado do turno soma target_counted
           const sumTargetCounted = group.slots.reduce((a,s)=>a + countedTarget(s), 0);
 
           const sum = {
@@ -507,7 +577,8 @@
               trSum.appendChild(td);
               return;
             }
-            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
+            // Usa a nova função que mostra Porcentagem no resumo
+            trSum.appendChild(tdSummaryWithPerf(sum[k], sum.target));
           });
 
           tbody.appendChild(trSum);
@@ -540,9 +611,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
