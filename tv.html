@@ -3,567 +3,751 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PERFORMANCE CLM6 – TV</title>
+  <title>PERFORMANCE CLM6 – TV FINAL</title>
   <style>
-    html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
-    .wrapper { display:flex; flex-direction:column; height:100vh; padding:12px 18px; box-sizing:border-box; background:#000; }
+    /* RESET & BASE */
+    html, body { 
+      margin: 0; padding: 0; 
+      height: 100vh; 
+      width: 100vw;
+      background: #000; 
+      font-family: Arial, Helvetica, sans-serif; 
+      color: #fff; 
+      overflow: hidden; 
+    }
 
-    /* HEADER */
-    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
+    .wrapper { 
+      display: flex; 
+      flex-direction: column; 
+      height: 100%; 
+      padding: 10px 16px; 
+      box-sizing: border-box; 
+      position: relative;
+    }
+
+    /* HEADER (Fixo, fora da rotação das páginas) */
+    .header { 
+      flex: 0 0 auto; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 8px; 
+      height: 44px;
+      z-index: 10;
+    }
     .header-left { display:flex; align-items:center; min-width: 160px; }
-    .logo { height:46px; width:auto; display:block; filter:none; }
+    .logo { height: 38px; width: auto; display: block; }
 
     .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
-    .header-title { font-size:44px; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+    .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
 
     .header-right { text-align:right; min-width: 320px; }
-    .header-date { font-size:28px; font-weight:900; line-height:1.1; }
-    .header-lang { font-size:12px; color:#bbb; margin-top:4px; letter-spacing:0.8px; }
+    .header-date { font-size: 24px; font-weight: 900; color: #ddd; line-height: 1.1; }
+    .header-lang { font-size: 12px; color: #bbb; margin-top: 2px; letter-spacing: 0.8px; }
 
-    /* KPI ROW */
-    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:10px; margin-bottom:10px; }
+    /* PAGES (Container para rotação) */
+    .pages { 
+      position: relative; 
+      flex: 1; 
+      display: block; 
+      overflow: hidden;
+    }
+    
+    .page {
+      position: absolute; 
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 550ms ease;
+      display: flex;
+      flex-direction: column; /* Importante para o layout flexivel interno */
+    }
+    
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* LABELS */
+    .section-label {
+      flex: 0 0 auto;
+      font-size: 14px;
+      font-weight: 900;
+      color: #777;
+      margin: 4px 0;
+      text-transform: uppercase;
+      border-bottom: 1px solid #333;
+      padding-bottom: 2px;
+    }
+
+    /* KPI CARDS ROW */
+    .kpi-row { 
+      flex: 0 0 auto; 
+      display: grid; 
+      grid-template-columns: 2fr repeat(4, 1fr); 
+      gap: 10px; 
+      margin-bottom: 8px;
+    }
 
     .kpi-card {
-      background:#111;
-      border-radius:14px;
-      padding:10px 14px;
-      box-shadow:0 0 10px rgba(0,0,0,0.6);
-      border:3px solid #444;
-      min-height: 105px;
+      background: #111;
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
+      border: 2px solid #444; 
+      height: 96px; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
+    .card-grid { 
+      display: grid; 
+      grid-template-columns: 1fr auto; 
+      gap: 8px; 
+      align-items: center; 
+      height: 100%;
+    }
 
-    .kpi-title { font-size:17px; margin-bottom:8px; }
-    .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
-    .kpi-sub  { font-size:13px; color:#ccc; }
+    /* Typography */
+    .kpi-title { font-size: 15px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 30px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-sub  { font-size: 12px; color: #999; }
 
-    .metric { margin-top:6px; }
-    .metric-label { font-size:12px; color:#ccc; }
-    .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
+    .metric { margin-top: 4px; }
+    .metric-label { font-size: 11px; color: #999; }
+    .metric-value { font-size: 15px; font-weight: 900; color: #fff; }
 
-    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
-    .big-face svg { width:66px; height:66px; display:block; }
+    /* Face + % */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 60px; 
+    }
+    .big-face svg { width: 42px; height: 42px; display: block; }
+    .face-pct { font-size: 17px; font-weight: 900; color: #fff; margin-top: 3px; }
 
     /* TABLE */
-    .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
-    table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
-    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
-    tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
-
-    .row-current { background:#262626; }
-
-    /* Performance cores */
-    .cell-ok  { background:#00b050; color:#000; font-weight:900; }
-    .cell-mid { background:#FFFF00; color:#000; font-weight:900; }
-    .cell-nok { background:#c00000; color:#fff; font-weight:900; }
-
-    /* STOP / status cores fixas */
-    .cell-mnt     { background: orange;   color:#000; font-weight:900; }
-    .cell-mat     { background: #808080;  color:#000; font-weight:900; }
-    .cell-peo     { background: #ff69b4;  color:#000; font-weight:900; }
-    .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
-    .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
-
-    /* SHIFT SUMMARY ROW */
-    .shift-sum td{
-      border-top:2px solid #fff !important;
-      border-bottom:2px solid #fff !important;
-    }
-    .shift-sum td:first-child { border-left:2px solid #fff !important; }
-    .shift-sum td:last-child  { border-right:2px solid #fff !important; }
-
-    .shift-sum-label, .shift-sum-target {
-      background:#003366 !important;
-      color:#fff;
-      font-weight:900;
+    .table-container { 
+      flex: 1 1 auto; 
+      background: #111; 
+      border-radius: 10px; 
+      padding: 0;
+      margin-bottom: 8px;
+      border: 1px solid #333;
+      overflow-y: auto; 
+      display: flex;
+      flex-direction: column;
     }
 
-    /* SVG common (usa currentColor, para seguir cor da borda do card) */
-    .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    
+    thead th { 
+      position: sticky; top: 0; 
+      background: #222; 
+      border-bottom: 2px solid #555; 
+      border-right: 1px solid #555; 
+      z-index: 10;
+      padding: 8px 6px;
+      font-size: 13px;
+    }
+    tbody td { 
+      text-align: center; 
+      border-bottom: 1px solid #222; 
+      border-right: 1px solid #222; 
+      padding: 6px 4px; 
+      height: 28px;
+    }
 
-    .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
+    .row-current { background: #262626; }
 
-    /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
+    /* Colors */
+    .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
+    .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
+    .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
+    
+    .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
+      font-weight: 900; font-size: 12px; color:#000; 
+    }
+    .cell-mnt { background: orange; }
+    .cell-mat { background: #808080; }
+    .cell-peo { background: #ff69b4; }
+    .cell-qual{ background: #ffd400; }
+    .cell-nosched { background: #0070c0; color:#fff; }
+
+    /* Summary Row */
+    .shift-sum td {
+      background: #003366; 
+      color: #fff; font-weight: 900; font-size: 15px;
+      padding: 10px 4px !important;
+    }
+    .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
+    .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
+    .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
+
+    .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
     body[data-shifts="1"] table { font-size: 15px; }
-    body[data-shifts="1"] thead th { padding: 10px 8px; }
-    body[data-shifts="1"] tbody td { padding: 10px 8px; }
-
-    body[data-shifts="2"] table { font-size: 13px; }
-    body[data-shifts="2"] thead th { padding: 7px 6px; }
-    body[data-shifts="2"] tbody td { padding: 7px 6px; }
-
-    body[data-shifts="3"] table { font-size: 12px; }
-    body[data-shifts="3"] thead th { padding: 5px 5px; }
-    body[data-shifts="3"] tbody td { padding: 5px 5px; }
-
-    /* ---- TV WALL PAGES ---- */
-    .pages { position:relative; flex:1; display:block; }
-    .page {
-      position:absolute; inset:0;
-      opacity:0;
-      pointer-events:none;
-      transition: opacity 550ms ease;
-    }
-    .page.active {
-      opacity:1;
-      pointer-events:auto;
-    }
   </style>
 </head>
 <body>
-  <div class="wrapper">
 
-    <div class="header">
-      <div class="header-left">
-        <img class="logo" src="assets/BGM.png" alt="BGM Motors">
-      </div>
+<div class="wrapper">
 
-      <div class="header-center">
-        <div class="header-title" id="titleMain">PERFORMANCE CLM6</div>
-      </div>
-
-      <div class="header-right">
-        <div class="header-date" id="dateTime">--</div>
-        <div class="header-lang" id="langLabel">--</div>
-      </div>
+  <div class="header">
+    <div class="header-left">
+      <img class="logo" src="assets/BGM.png" alt="BGM">
     </div>
-
-    <div class="pages">
-      <!-- PAGE EN -->
-      <div class="page active" id="pageEN" data-lang="en">
-        <div class="kpi-row">
-          <div class="kpi-card" id="cardTotal_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="kpiTotalTitle_en">Total Production vs Target</div>
-                <div class="kpi-main" id="totalProd_en">-</div>
-                <div class="kpi-sub" id="totalTarget_en">Target: -</div>
-              </div>
-              <div class="big-face" id="faceTotal_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine1_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line1Title_en">Line 1</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel_en">Last period</div>
-                  <div class="metric-value" id="lastL1_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel_en">Accumulated</div>
-                  <div class="metric-value" id="accL1_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL1_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine2_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line2Title_en">Line 2</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel2_en">Last period</div>
-                  <div class="metric-value" id="lastL2_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel2_en">Accumulated</div>
-                  <div class="metric-value" id="accL2_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL2_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine3_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line3Title_en">Line 3</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel3_en">Last period</div>
-                  <div class="metric-value" id="lastL3_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel3_en">Accumulated</div>
-                  <div class="metric-value" id="accL3_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL3_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine4_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line4Title_en">Line 4</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel4_en">Last period</div>
-                  <div class="metric-value" id="lastL4_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel4_en">Accumulated</div>
-                  <div class="metric-value" id="accL4_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL4_en"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:16%;" id="thShift_en">Shift</th>
-                <th style="width:28%;" id="thTime_en">Time</th>
-                <th style="width:10%;" id="thTarget_en">Target</th>
-                <th style="width:11%;" id="thL1_en">Line 1</th>
-                <th style="width:11%;" id="thL2_en">Line 2</th>
-                <th style="width:11%;" id="thL3_en">Line 3</th>
-                <th style="width:13%;" id="thL4_en">Line 4</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody_en"></tbody>
-          </table>
-          <div class="footer-status" id="lastUpdate_en">Last update: --</div>
-        </div>
-      </div>
-
-      <!-- PAGE BG -->
-      <div class="page" id="pageBG" data-lang="bg">
-        <div class="kpi-row">
-          <div class="kpi-card" id="cardTotal_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="kpiTotalTitle_bg">Общо производство спрямо цел</div>
-                <div class="kpi-main" id="totalProd_bg">-</div>
-                <div class="kpi-sub" id="totalTarget_bg">Цел: -</div>
-              </div>
-              <div class="big-face" id="faceTotal_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine1_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line1Title_bg">Линия 1</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel_bg">Последен период</div>
-                  <div class="metric-value" id="lastL1_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel_bg">Натрупано</div>
-                  <div class="metric-value" id="accL1_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL1_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine2_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line2Title_bg">Линия 2</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel2_bg">Последен период</div>
-                  <div class="metric-value" id="lastL2_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel2_bg">Натрупано</div>
-                  <div class="metric-value" id="accL2_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL2_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine3_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line3Title_bg">Линия 3</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel3_bg">Последен период</div>
-                  <div class="metric-value" id="lastL3_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel3_bg">Натрупано</div>
-                  <div class="metric-value" id="accL3_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL3_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine4_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line4Title_bg">Линия 4</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel4_bg">Последен период</div>
-                  <div class="metric-value" id="lastL4_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel4_bg">Натрупано</div>
-                  <div class="metric-value" id="accL4_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL4_bg"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:16%;" id="thShift_bg">Смяна</th>
-                <th style="width:28%;" id="thTime_bg">Период</th>
-                <th style="width:10%;" id="thTarget_bg">Цел</th>
-                <th style="width:11%;" id="thL1_bg">Линия 1</th>
-                <th style="width:11%;" id="thL2_bg">Линия 2</th>
-                <th style="width:11%;" id="thL3_bg">Линия 3</th>
-                <th style="width:13%;" id="thL4_bg">Линия 4</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody_bg"></tbody>
-          </table>
-          <div class="footer-status" id="lastUpdate_bg">Обновено: --</div>
-        </div>
-      </div>
+    <div class="header-center">
+      <div class="header-title">PERFORMANCE CLM6</div>
+    </div>
+    <div class="header-right">
+      <div class="header-date" id="dateTime">--</div>
+      <div class="header-lang" id="langLabel">LANG: ENGLISH</div>
     </div>
   </div>
 
-  <script>
-    // === CONFIG ===
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
-    const ROTATE_MS = 30000;
+  <div class="pages">
+    
+    <div class="page active" id="pageEN" data-lang="en">
+      
+      <div class="section-label">GLOBAL RESULTS</div>
+      <div class="kpi-row">
+        <div class="kpi-card" id="cardTotal_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Total vs Target</div>
+              <div class="kpi-main" id="totalProd_en">-</div>
+              <div class="kpi-sub" id="totalTarget_en">Tgt: -</div>
+            </div>
+            <div class="right-col">
+              <div class="big-face" id="faceTotal_en"></div>
+              <div class="face-pct" id="pctTotal_en"></div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine1_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 1</div>
+              <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL1_en">-</div></div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL1_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL1_en"></div><div class="face-pct" id="pctL1_en"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine2_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 2</div>
+              <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL2_en">-</div></div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL2_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL2_en"></div><div class="face-pct" id="pctL2_en"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine3_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 3</div>
+              <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL3_en">-</div></div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL3_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL3_en"></div><div class="face-pct" id="pctL3_en"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine4_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 4</div>
+              <div class="metric"><div class="metric-label">Last</div><div class="metric-value" id="lastL4_en">-</div></div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL4_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL4_en"></div><div class="face-pct" id="pctL4_en"></div></div>
+          </div>
+        </div>
+      </div>
 
-    function qs(name){
-      const u = new URL(window.location.href);
-      return (u.searchParams.get(name) || "").trim().toLowerCase();
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:14%;">Shift</th>
+              <th style="width:26%;">Time</th>
+              <th style="width:12%;">Target</th>
+              <th style="width:12%;">Line 1</th>
+              <th style="width:12%;">Line 2</th>
+              <th style="width:12%;">Line 3</th>
+              <th style="width:12%;">Line 4</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_en"></tbody>
+        </table>
+      </div>
+
+      <div class="section-label" id="lblShift_en">CURRENT SHIFT RESULTS</div>
+      <div class="kpi-row" style="margin-bottom:0;">
+        <div class="kpi-card" id="cardTotal_Shift_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Shift Total</div>
+              <div class="kpi-main" id="totalProd_Shift_en">-</div>
+              <div class="kpi-sub" id="totalTarget_Shift_en">Tgt: -</div>
+            </div>
+            <div class="right-col">
+              <div class="big-face" id="faceTotal_Shift_en"></div>
+              <div class="face-pct" id="pctTotal_Shift_en"></div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine1_Shift_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 1 (Shift)</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL1_Shift_en">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Shift_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL1_Shift_en"></div><div class="face-pct" id="pctL1_Shift_en"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine2_Shift_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 2 (Shift)</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL2_Shift_en">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Shift_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL2_Shift_en"></div><div class="face-pct" id="pctL2_Shift_en"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine3_Shift_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 3 (Shift)</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL3_Shift_en">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Shift_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL3_Shift_en"></div><div class="face-pct" id="pctL3_Shift_en"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine4_Shift_en">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 4 (Shift)</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL4_Shift_en">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Shift_en">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL4_Shift_en"></div><div class="face-pct" id="pctL4_Shift_en"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="pageBG" data-lang="bg">
+      
+      <div class="section-label">ГЛОБАЛНИ РЕЗУЛТАТИ</div>
+      <div class="kpi-row">
+        <div class="kpi-card" id="cardTotal_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Общо производство</div>
+              <div class="kpi-main" id="totalProd_bg">-</div>
+              <div class="kpi-sub" id="totalTarget_bg">Цел: -</div>
+            </div>
+            <div class="right-col">
+              <div class="big-face" id="faceTotal_bg"></div>
+              <div class="face-pct" id="pctTotal_bg"></div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine1_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 1</div>
+              <div class="metric"><div class="metric-label">Последен</div><div class="metric-value" id="lastL1_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Натрупано</div><div class="metric-value" id="accL1_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL1_bg"></div><div class="face-pct" id="pctL1_bg"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine2_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 2</div>
+              <div class="metric"><div class="metric-label">Последен</div><div class="metric-value" id="lastL2_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Натрупано</div><div class="metric-value" id="accL2_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL2_bg"></div><div class="face-pct" id="pctL2_bg"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine3_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 3</div>
+              <div class="metric"><div class="metric-label">Последен</div><div class="metric-value" id="lastL3_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Натрупано</div><div class="metric-value" id="accL3_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL3_bg"></div><div class="face-pct" id="pctL3_bg"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine4_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 4</div>
+              <div class="metric"><div class="metric-label">Последен</div><div class="metric-value" id="lastL4_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Натрупано</div><div class="metric-value" id="accL4_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL4_bg"></div><div class="face-pct" id="pctL4_bg"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:14%;">Смяна</th>
+              <th style="width:26%;">Период</th>
+              <th style="width:12%;">Цел</th>
+              <th style="width:12%;">Линия 1</th>
+              <th style="width:12%;">Линия 2</th>
+              <th style="width:12%;">Линия 3</th>
+              <th style="width:12%;">Линия 4</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_bg"></tbody>
+        </table>
+      </div>
+
+      <div class="section-label" id="lblShift_bg">РЕЗУЛТАТИ ОТ ТЕКУЩА СМЯНА</div>
+      <div class="kpi-row" style="margin-bottom:0;">
+        <div class="kpi-card" id="cardTotal_Shift_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Общо Смяна</div>
+              <div class="kpi-main" id="totalProd_Shift_bg">-</div>
+              <div class="kpi-sub" id="totalTarget_Shift_bg">Цел: -</div>
+            </div>
+            <div class="right-col">
+              <div class="big-face" id="faceTotal_Shift_bg"></div>
+              <div class="face-pct" id="pctTotal_Shift_bg"></div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine1_Shift_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 1 (Смяна)</div>
+              <div class="metric"><div class="metric-label">Натр</div><div class="metric-value" id="valL1_Shift_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Цел</div><div class="metric-value" id="tgtL1_Shift_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL1_Shift_bg"></div><div class="face-pct" id="pctL1_Shift_bg"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine2_Shift_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 2 (Смяна)</div>
+              <div class="metric"><div class="metric-label">Натр</div><div class="metric-value" id="valL2_Shift_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Цел</div><div class="metric-value" id="tgtL2_Shift_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL2_Shift_bg"></div><div class="face-pct" id="pctL2_Shift_bg"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine3_Shift_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 3 (Смяна)</div>
+              <div class="metric"><div class="metric-label">Натр</div><div class="metric-value" id="valL3_Shift_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Цел</div><div class="metric-value" id="tgtL3_Shift_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL3_Shift_bg"></div><div class="face-pct" id="pctL3_Shift_bg"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card" id="cardLine4_Shift_bg">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Линия 4 (Смяна)</div>
+              <div class="metric"><div class="metric-label">Натр</div><div class="metric-value" id="valL4_Shift_bg">-</div></div>
+              <div class="metric"><div class="metric-label">Цел</div><div class="metric-value" id="tgtL4_Shift_bg">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL4_Shift_bg"></div><div class="face-pct" id="pctL4_Shift_bg"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div> </div> <script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
+  const ROTATE_MS = 30000;
+
+  function qs(name){
+    const u = new URL(window.location.href);
+    return (u.searchParams.get(name) || "").trim().toLowerCase();
+  }
+
+  function getTodayISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function startDateTime() {
+    const el = document.getElementById("dateTime");
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    function tick() {
+      const now = new Date();
+      const d = String(now.getDate()).padStart(2, "0");
+      const m = monthNames[now.getMonth()];
+      const y = String(now.getFullYear()).slice(-2);
+      const hh = String(now.getHours()).padStart(2,"0");
+      const mm = String(now.getMinutes()).padStart(2,"0");
+      el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  function faceSVG(type) {
+    const common = `class="face-stroke"`;
+    const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
+    const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
+    let mouth = "";
+    if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
+    else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
+    else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
+    return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+  }
+
+  function perfStatus(pct) {
+    if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
+    if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
+    return { status:"NOK", cls:"cell-nok", face:"sad" };
+  }
+
+  function statusClass(kind) {
+    if (kind === "STOP_MAINT") return "cell-mnt";
+    if (kind === "STOP_MAT") return "cell-mat";
+    if (kind === "STOP_PEO") return "cell-peo";
+    if (kind === "STOP_QUAL") return "cell-qual";
+    if (kind === "NO_SCHEDULE") return "cell-nosched";
+    return "";
+  }
+
+  function translateStopText(lang, text){
+    const t = String(text || "").trim();
+    if (!t) return "";
+    if (lang !== "bg") return t;
+    const map = {
+      "STOP – MAINTENANCE": "СТОП – ПОДДРЪЖКА",
+      "STOP - MAINTENANCE": "СТОП – ПОДДРЪЖКА",
+      "STOP – MATERIAL":    "СТОП – МАТЕРИАЛ",
+      "STOP - MATERIAL":    "СТОП – МАТЕРИАЛ",
+      "STOP – PEOPLE":      "СТОП – ПЕРСОНАЛ",
+      "STOP - PEOPLE":      "СТОП – ПЕРСОНАЛ",
+      "STOP – QUALITY":     "СТОП – КАЧЕСТВО",
+      "STOP - QUALITY":     "СТОП – КАЧЕСТВО",
+      "NO SCHEDULE":        "БЕЗ ПЛАН"
+    };
+    const normalized = t.replace(/—/g, "–");
+    return map[normalized] || map[t] || t;
+  }
+
+  // Helper para atualizar visual dos cards
+  function updateCardUI(lang, cardId, faceId, pctId, statusObj, percentage) {
+    const card = document.getElementById(cardId + "_" + lang);
+    const face = document.getElementById(faceId + "_" + lang);
+    const pct  = document.getElementById(pctId + "_" + lang);
+    if(!card || !face || !pct) return;
+
+    if (!statusObj) {
+      card.style.borderColor = "#444";
+      face.innerHTML = "";
+      pct.textContent = "";
+      return;
+    }
+    if (statusObj.status === "OK") card.style.borderColor = "#00b050";
+    else if (statusObj.status === "MID") card.style.borderColor = "#FFFF00";
+    else card.style.borderColor = "#c00000";
+
+    face.style.color = (statusObj.status === "NOK") ? "#c00000" : (statusObj.status === "MID" ? "#FFFF00" : "#00b050");
+    face.innerHTML = faceSVG(statusObj.face);
+    pct.textContent = Math.round(percentage) + "%";
+  }
+
+  function hasAnyLaunchInSlot(slot) { return slot && slot.has_launch === true; }
+  function countedTarget(slot){ return Number(slot && slot.target_counted ? slot.target_counted : 0); }
+  function calcUpToUltimo(slots, ultimo) {
+    if (!ultimo) return slots; 
+    const out = [];
+    for (const s of slots) {
+      out.push(s);
+      if (s.id_slot === ultimo.id_slot) break;
+    }
+    return out;
+  }
+
+  function tdWithPerf(value, targetEff, hasLaunch) {
+    const td = document.createElement("td");
+    if (!hasLaunch) { td.textContent = ""; return td; }
+    if (targetEff > 0) {
+      const st = perfStatus(value / targetEff);
+      td.classList.add(st.cls);
+      td.textContent = value;
+    } else {
+      td.textContent = String(value ?? "");
+    }
+    return td;
+  }
+
+  function tdSummaryWithPerf(value, targetEff) {
+    const td = document.createElement("td");
+    if (targetEff <= 0) { td.textContent = (value > 0) ? value : ""; return td; }
+    const ratio = value / targetEff;
+    const st = perfStatus(ratio);
+    td.classList.add(st.cls);
+    const pct = Math.round(ratio * 100);
+    td.innerHTML = `${value} <span style="font-size:0.9em">(${pct}%)</span>`;
+    return td;
+  }
+
+  /* ====================== UPDATERS ====================== */
+
+  function updateAllKPIsFor(lang, json, activeShift) {
+    const allSlots = json.slots || [];
+    const ultimo = json.ultimo_slot || null;
+    const anyLaunchDay = allSlots.some(s => hasAnyLaunchInSlot(s));
+
+    // --- GLOBAL ---
+    const globalConsidered = calcUpToUltimo(allSlots, ultimo);
+    const globalTargetPerLine = globalConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
+    const globalProd = {
+      line1: globalConsidered.reduce((a,s)=>a + Number(s.line1||0),0),
+      line2: globalConsidered.reduce((a,s)=>a + Number(s.line2||0),0),
+      line3: globalConsidered.reduce((a,s)=>a + Number(s.line3||0),0),
+      line4: globalConsidered.reduce((a,s)=>a + Number(s.line4||0),0)
+    };
+    const globalTotalProd = globalProd.line1 + globalProd.line2 + globalProd.line3 + globalProd.line4;
+    const globalTotalTarget = globalTargetPerLine * 4;
+    const lastSlot = ultimo ? allSlots.find(s => s.id_slot === ultimo.id_slot) : null;
+
+    // Global Total
+    const elTotalProd = document.getElementById("totalProd_" + lang);
+    const elTotalTarget = document.getElementById("totalTarget_" + lang);
+    const targetPrefix = (lang === "bg") ? "Цел: " : "Tgt: ";
+
+    if (!anyLaunchDay || globalTotalTarget <= 0) {
+       elTotalProd.textContent = "-";
+       elTotalTarget.textContent = targetPrefix + "-";
+       updateCardUI(lang, "cardTotal", "faceTotal", "pctTotal", null, null);
+    } else {
+       elTotalProd.textContent = globalTotalProd;
+       elTotalTarget.textContent = targetPrefix + globalTotalTarget;
+       const p = globalTotalProd / globalTotalTarget;
+       updateCardUI(lang, "cardTotal", "faceTotal", "pctTotal", perfStatus(p), p*100);
     }
 
-    function getTodayISO() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    }
-
-    function startDateTime() {
-      const el = document.getElementById("dateTime");
-      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      function tick() {
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2, "0");
-        const m = monthNames[now.getMonth()];
-        const y = String(now.getFullYear()).slice(-2);
-        const hh = String(now.getHours()).padStart(2,"0");
-        const mm = String(now.getMinutes()).padStart(2,"0");
-        el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
-      }
-      tick();
-      setInterval(tick, 1000);
-    }
-
-    function setCardBorder(id, status) {
-      const card = document.getElementById(id);
-      if (!card) return;
-      if (status === "OK") card.style.borderColor = "#00b050";
-      else if (status === "MID") card.style.borderColor = "#FFFF00";
-      else if (status === "NOK") card.style.borderColor = "#c00000";
-      else card.style.borderColor = "#666";
-    }
-
-    function statusClass(kind) {
-      if (kind === "STOP_MAINT") return "cell-mnt";
-      if (kind === "STOP_MAT") return "cell-mat";
-      if (kind === "STOP_PEO") return "cell-peo";
-      if (kind === "STOP_QUAL") return "cell-qual";
-      if (kind === "NO_SCHEDULE") return "cell-nosched";
-      return "";
-    }
-
-    // >>> NEW: translate stop text only in BG (front only)
-    function translateStopText(lang, text){
-      const t = String(text || "").trim();
-      if (!t) return "";
-
-      if (lang !== "bg") return t;
-
-      const map = {
-        "STOP – MAINTENANCE": "СТОП – ПОДДРЪЖКА",
-        "STOP - MAINTENANCE": "СТОП – ПОДДРЪЖКА",
-        "STOP – MATERIAL":    "СТОП – МАТЕРИАЛ",
-        "STOP - MATERIAL":    "СТОП – МАТЕРИАЛ",
-        "STOP – PEOPLE":      "СТОП – ПЕРСОНАЛ",
-        "STOP - PEOPLE":      "СТОП – ПЕРСОНАЛ",
-        "STOP – QUALITY":     "СТОП – КАЧЕСТВО",
-        "STOP - QUALITY":     "СТОП – КАЧЕСТВО",
-        "NO SCHEDULE":        "БЕЗ ПЛАН"
-      };
-
-      // normaliza traços para casar
-      const normalized = t.replace(/—/g, "–");
-      return map[normalized] || map[t] || t;
-    }
-
-    function faceSVG(type) {
-      const common = `class="face-stroke"`;
-      const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
-      const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
-      let mouth = "";
-      if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
-      else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
-      else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
-      return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
-    }
-
-    function perfStatus(pct) {
-      if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
-      if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
-      return { status:"NOK", cls:"cell-nok", face:"sad" };
-    }
-
-    function applyShiftDensity(slots){
-      const used = [1,2,3].filter(s => (slots || []).some(x => Number(x.shift) === s)).length || 1;
-      document.body.dataset.shifts = String(used);
-    }
-
-    function hasAnyLaunchInSlot(slot) {
-      return slot && slot.has_launch === true;
-    }
-
-    function calcUpToUltimo(slots, ultimo) {
-      if (!ultimo) return slots;
-      const out = [];
-      for (const s of slots) { out.push(s); if (s.id_slot === ultimo.id_slot) break; }
-      return out;
-    }
-
-    function setBigFace(elId, state) {
-      const el = document.getElementById(elId);
-      if (!el) return;
-      if (!state) { el.innerHTML = ""; el.style.color = "#fff"; return; }
-
-      if (state.status === "OK") el.style.color = "#00b050";
-      else if (state.status === "MID") el.style.color = "#FFFF00";
-      else el.style.color = "#c00000";
-
-      el.innerHTML = faceSVG(state.face);
-    }
-
-    function tdWithPerf(value, targetEff, hasLaunch) {
-      const td = document.createElement("td");
-      if (!hasLaunch) { td.textContent = ""; return td; }
-
-      if (targetEff > 0) {
-        const st = perfStatus(value / targetEff);
-        td.classList.add(st.cls);
-        td.textContent = value;
+    // Global Lines
+    const globalLines = [
+      { key:"line1", lastId:"lastL1", accId:"accL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
+      { key:"line2", lastId:"lastL2", accId:"accL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
+      { key:"line3", lastId:"lastL3", accId:"accL3", card:"cardLine3", face:"faceL3", pct:"pctL3" },
+      { key:"line4", lastId:"lastL4", accId:"accL4", card:"cardLine4", face:"faceL4", pct:"pctL4" }
+    ];
+    globalLines.forEach(m => {
+      const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
+      const lastTgt = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
+      document.getElementById(m.lastId + "_" + lang).textContent = lastSlot ? `${lastVal}/${lastTgt}` : "-";
+      document.getElementById(m.accId + "_" + lang).textContent = anyLaunchDay ? `${globalProd[m.key]}/${globalTargetPerLine}` : "-";
+      
+      if (!anyLaunchDay || globalTotalTarget <= 0) {
+        updateCardUI(lang, m.card, m.face, m.pct, null, null);
       } else {
-        td.textContent = String(value ?? "");
+        const p = globalProd[m.key] / globalTargetPerLine;
+        updateCardUI(lang, m.card, m.face, m.pct, perfStatus(p), p*100);
       }
-      return td;
+    });
+
+    // --- SHIFT ---
+    const shiftSlotsAll = allSlots.filter(s => Number(s.shift) === activeShift);
+    const shiftConsidered = calcUpToUltimo(shiftSlotsAll, ultimo);
+    const anyLaunchShift = shiftConsidered.some(s => hasAnyLaunchInSlot(s));
+    const shiftTargetPerLine = shiftConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
+    const shiftProd = {
+      line1: shiftConsidered.reduce((a,s)=>a + Number(s.line1||0),0),
+      line2: shiftConsidered.reduce((a,s)=>a + Number(s.line2||0),0),
+      line3: shiftConsidered.reduce((a,s)=>a + Number(s.line3||0),0),
+      line4: shiftConsidered.reduce((a,s)=>a + Number(s.line4||0),0)
+    };
+    const shiftTotalProd = shiftProd.line1 + shiftProd.line2 + shiftProd.line3 + shiftProd.line4;
+    const shiftTotalTarget = shiftTargetPerLine * 4;
+
+    // Shift Total
+    const elShiftTotal = document.getElementById("totalProd_Shift_" + lang);
+    const elShiftTarget = document.getElementById("totalTarget_Shift_" + lang);
+    if (!anyLaunchShift || shiftTotalTarget <= 0) {
+       elShiftTotal.textContent = "-";
+       elShiftTarget.textContent = targetPrefix + "-";
+       updateCardUI(lang, "cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
+    } else {
+       elShiftTotal.textContent = shiftTotalProd;
+       elShiftTarget.textContent = targetPrefix + shiftTotalTarget;
+       const p = shiftTotalProd / shiftTotalTarget;
+       updateCardUI(lang, "cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", perfStatus(p), p*100);
     }
 
-    function updateTopKPIsFor(lang, json){
-      const slots = json.slots || [];
-      const ultimo = json.ultimo_slot || null;
-      const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
-
-      const considered = calcUpToUltimo(slots, ultimo);
-      const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_counted ?? 0)), 0);
-      const acc = {
-        line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
-        line2: considered.reduce((a,s)=>a + Number(s.line2||0),0),
-        line3: considered.reduce((a,s)=>a + Number(s.line3||0),0),
-        line4: considered.reduce((a,s)=>a + Number(s.line4||0),0)
-      };
-
-      const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
-      const totalTarget = targetPerLine * 4;
-
-      const id = (x)=>`${x}_${lang}`;
-
-      document.getElementById(id("totalProd")).textContent = anyLaunchDay ? totalProd : "-";
-      const targetPrefix = (lang === "bg") ? "Цел: " : "Target: ";
-      document.getElementById(id("totalTarget")).textContent = targetPrefix + (totalTarget > 0 ? totalTarget : "-");
-
-      if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
-        setCardBorder(id("cardTotal"), "IDLE");
-        setBigFace(id("faceTotal"), null);
+    // Shift Lines
+    const shiftLines = [
+      { key:"line1", valId:"valL1_Shift", tgtId:"tgtL1_Shift", card:"cardLine1_Shift", face:"faceL1_Shift", pct:"pctL1_Shift" },
+      { key:"line2", valId:"valL2_Shift", tgtId:"tgtL2_Shift", card:"cardLine2_Shift", face:"faceL2_Shift", pct:"pctL2_Shift" },
+      { key:"line3", valId:"valL3_Shift", tgtId:"tgtL3_Shift", card:"cardLine3_Shift", face:"faceL3_Shift", pct:"pctL3_Shift" },
+      { key:"line4", valId:"valL4_Shift", tgtId:"tgtL4_Shift", card:"cardLine4_Shift", face:"faceL4_Shift", pct:"pctL4_Shift" }
+    ];
+    shiftLines.forEach(m => {
+      document.getElementById(m.tgtId + "_" + lang).textContent = shiftTargetPerLine > 0 ? shiftTargetPerLine : "-";
+      document.getElementById(m.valId + "_" + lang).textContent = anyLaunchShift ? shiftProd[m.key] : "-";
+      if (!anyLaunchShift || shiftTotalTarget <= 0) {
+        updateCardUI(lang, m.card, m.face, m.pct, null, null);
       } else {
-        const st = perfStatus(totalProd / totalTarget);
-        setCardBorder(id("cardTotal"), st.status);
-        setBigFace(id("faceTotal"), st);
+        const p = shiftProd[m.key] / shiftTargetPerLine;
+        updateCardUI(lang, m.card, m.face, m.pct, perfStatus(p), p*100);
       }
+    });
+  }
 
-      const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
+  function applyShiftDensity(json){
+    const used = [1,2,3].filter(s => (json.slots || []).some(x => Number(x.shift) === s)).length || 1;
+    document.body.dataset.shifts = String(used);
+  }
 
-      const lines = [
-        { key:"line1", last:id("lastL1"), acc:id("accL1"), card:id("cardLine1"), face:id("faceL1") },
-        { key:"line2", last:id("lastL2"), acc:id("accL2"), card:id("cardLine2"), face:id("faceL2") },
-        { key:"line3", last:id("lastL3"), acc:id("accL3"), card:id("cardLine3"), face:id("faceL3") },
-        { key:"line4", last:id("lastL4"), acc:id("accL4"), card:id("cardLine4"), face:id("faceL4") }
-      ];
+  function buildTableFor(lang, json, activeShift) {
+    const tbody = document.getElementById(`tableBody_${lang}`);
+    tbody.innerHTML = "";
+    const slots = json.slots || [];
+    const ultimo = json.ultimo_slot || null;
+    const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
 
-      lines.forEach(m => {
-        const lastEl = document.getElementById(m.last);
-        const accEl  = document.getElementById(m.acc);
+    shifts.forEach(group => {
+      if (group.shift > activeShift) return; 
+      const isCurrentShift = (group.shift === activeShift);
 
-        if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
-          lastEl.textContent = "-";
-          accEl.textContent = "-";
-          setCardBorder(m.card, "IDLE");
-          setBigFace(m.face, null);
-          return;
-        }
-
-        const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
-        const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
-        lastEl.textContent = `${lastVal} / ${lastTarget}`;
-
-        const accVal = acc[m.key];
-        accEl.textContent = `${accVal} / ${targetPerLine}`;
-
-        const st = perfStatus(accVal / targetPerLine);
-        setCardBorder(m.card, st.status);
-        setBigFace(m.face, st);
-      });
-    }
-
-    function buildTableFor(lang, json){
-      const tbody = document.getElementById(`tableBody_${lang}`);
-      tbody.innerHTML = "";
-
-      const slots = json.slots || [];
-      const ultimo = json.ultimo_slot || null;
-
-      const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
-
-      shifts.forEach(group => {
+      if (isCurrentShift) {
         group.slots.forEach(slot => {
           const tr = document.createElement("tr");
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
-
-          const tdShift = document.createElement("td");
-          tdShift.textContent = (lang === "bg") ? ("Смяна " + slot.shift) : ("Shift " + slot.shift);
+          
+          const tdShift = document.createElement("td"); 
+          tdShift.textContent = (lang==="bg"?"Смяна ":"Shift ") + slot.shift; 
           tr.appendChild(tdShift);
-
-          const tdTime = document.createElement("td");
-          tdTime.textContent = slot.label;
-          tr.appendChild(tdTime);
-
+          
+          const tdTime = document.createElement("td"); tdTime.textContent = slot.label; tr.appendChild(tdTime);
+          
           const targetEff = Number(slot.target_effective || 0);
-
-          const tdTarget = document.createElement("td");
-          tdTarget.textContent = targetEff > 0 ? targetEff : "";
-          tr.appendChild(tdTarget);
+          const tdTarget = document.createElement("td"); tdTarget.textContent = targetEff > 0 ? targetEff : ""; tr.appendChild(tdTarget);
 
           const defs = [
             { key:"line1", disp:"disp1", st:"st1" },
@@ -571,124 +755,103 @@
             { key:"line3", disp:"disp3", st:"st3" },
             { key:"line4", disp:"disp4", st:"st4" }
           ];
-
           defs.forEach(d => {
             const stKind = slot[d.st] || "RUN";
-
             if (stKind !== "RUN") {
-              const td = document.createElement("td");
-              const rawText = slot[d.disp] || "";
-              td.textContent = translateStopText(lang, rawText); // <<<<< translated here
-              td.classList.add(statusClass(stKind));
-              tr.appendChild(td);
-              return;
+              const td = document.createElement("td"); 
+              td.textContent = translateStopText(lang, slot[d.disp] || ""); 
+              td.classList.add(statusClass(stKind)); tr.appendChild(td); return;
             }
-
-            const hasLaunch = (slot && slot.has_launch === true);
-            if (!hasLaunch) {
-              const td = document.createElement("td");
-              td.textContent = "";
-              tr.appendChild(td);
-              return;
+            if (!hasAnyLaunchInSlot(slot)) {
+              const td = document.createElement("td"); td.textContent = ""; tr.appendChild(td); return;
             }
-
             const raw = slot[d.key];
             const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
             tr.appendChild(tdWithPerf(v, targetEff, true));
           });
-
           tbody.appendChild(tr);
         });
+      }
 
-        if (group.slots.length > 0) {
-          const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
+      if (group.slots.length > 0) {
+        const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
+        const sumTargetCounted = group.slots.reduce((a,s)=>a + countedTarget(s), 0);
+        const sum = {
+          target: sumTargetCounted,
+          line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
+          line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
+          line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
+          line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
+        };
+        const trSum = document.createElement("tr"); trSum.classList.add("shift-sum");
+        const td1 = document.createElement("td"); td1.colSpan = 2; 
+        td1.innerHTML = (lang==="bg") 
+          ? `НАТРУПАНО &ndash; СМЯНА ${group.shift}`
+          : `CUMULATIVE RESULT &ndash; SHIFT ${group.shift}`;
+        trSum.appendChild(td1);
+        const tdT = document.createElement("td"); tdT.textContent = sum.target > 0 ? sum.target : ""; trSum.appendChild(tdT);
 
-          const sum = {
-            target: group.slots.reduce((a,s)=>a + Number(s.target_counted ?? 0),0),
-            line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
-            line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
-            line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
-            line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
-          };
+        ["line1","line2","line3","line4"].forEach(k => {
+          if (!hasAnyLaunchShift || sum.target <= 0) {
+            const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td); return;
+          }
+          trSum.appendChild(tdSummaryWithPerf(sum[k], sum.target));
+        });
+        tbody.appendChild(trSum);
+      }
+    });
+  }
 
-          const trSum = document.createElement("tr");
-          trSum.classList.add("shift-sum");
-
-          const td1 = document.createElement("td");
-          td1.colSpan = 2;
-          td1.textContent = (lang === "bg")
-            ? `НАТРУПАНО – СМЯНА ${group.shift}`
-            : `CUMULATIVE RESULT – SHIFT ${group.shift}`;
-          td1.classList.add("shift-sum-label");
-          trSum.appendChild(td1);
-
-          const tdT = document.createElement("td");
-          tdT.textContent = sum.target > 0 ? sum.target : "";
-          tdT.classList.add("shift-sum-target");
-          trSum.appendChild(tdT);
-
-          ["line1","line2","line3","line4"].forEach(k => {
-            if (!hasAnyLaunchShift) {
-              const td = document.createElement("td");
-              td.textContent = "";
-              trSum.appendChild(td);
-              return;
-            }
-            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
-          });
-
-          tbody.appendChild(trSum);
-        }
-      });
-
-      const lu = document.getElementById(`lastUpdate_${lang}`);
-      lu.textContent = (lang === "bg")
-        ? ("Обновено: " + new Date().toLocaleTimeString())
-        : ("Last update: " + new Date().toLocaleTimeString());
-    }
-
-    async function refresh(){
+  async function refresh() {
+    try {
       const today = getTodayISO();
       const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
       const json = await res.json();
       if (json.status !== "success") return;
+      
+      let activeShift = 1;
+      if (json.ultimo_slot) activeShift = Number(json.ultimo_slot.shift);
 
-      applyShiftDensity(json.slots || []);
-      updateTopKPIsFor("en", json);
-      updateTopKPIsFor("bg", json);
-      buildTableFor("en", json);
-      buildTableFor("bg", json);
-    }
+      applyShiftDensity(json);
+      
+      buildTableFor("en", json, activeShift);
+      buildTableFor("bg", json, activeShift);
+      
+      updateAllKPIsFor("en", json, activeShift);
+      updateAllKPIsFor("bg", json, activeShift);
 
-    // === Rotation ===
-    const pageEN = document.getElementById("pageEN");
-    const pageBG = document.getElementById("pageBG");
-    const langLabel = document.getElementById("langLabel");
+    } catch (err) { console.error(err); }
+  }
 
-    function show(lang){
-      const isEN = (lang === "en");
-      pageEN.classList.toggle("active", isEN);
-      pageBG.classList.toggle("active", !isEN);
-      langLabel.textContent = isEN ? "LANG: ENGLISH" : "ЕЗИК: БЪЛГАРСКИ";
-    }
+  // === Rotation ===
+  const pageEN = document.getElementById("pageEN");
+  const pageBG = document.getElementById("pageBG");
+  const langLabel = document.getElementById("langLabel");
 
-    function startRotation(){
-      const forced = qs("lang"); // en | bg | auto
-      if (forced === "en") { show("en"); return; }
-      if (forced === "bg") { show("bg"); return; }
+  function show(lang){
+    const isEN = (lang === "en");
+    pageEN.classList.toggle("active", isEN);
+    pageBG.classList.toggle("active", !isEN);
+    langLabel.textContent = isEN ? "LANG: ENGLISH" : "ЕЗИК: БЪЛГАРСКИ";
+  }
 
-      let cur = "en";
+  function startRotation(){
+    const forced = qs("lang");
+    if (forced === "en") { show("en"); return; }
+    if (forced === "bg") { show("bg"); return; }
+    
+    let cur = "en";
+    show(cur);
+    setInterval(() => {
+      cur = (cur === "en") ? "bg" : "en";
       show(cur);
-      setInterval(() => {
-        cur = (cur === "en") ? "bg" : "en";
-        show(cur);
-      }, ROTATE_MS);
-    }
+    }, ROTATE_MS);
+  }
 
-    startDateTime();
-    refresh();
-    setInterval(refresh, 30000);
-    startRotation();
-  </script>
+  startDateTime();
+  refresh();
+  setInterval(refresh, 30000);
+  startRotation();
+</script>
 </body>
 </html>
