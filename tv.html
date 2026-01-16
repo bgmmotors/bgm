@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PERFORMANCE CLM6 – TV FINAL</title>
+  <title>PERFORMANCE CLM6 – TV COMPACT</title>
   <style>
     /* RESET & BASE */
     html, body { 
@@ -11,41 +11,42 @@
       height: 100vh; 
       width: 100vw;
       background: #000; 
-      font-family: Arial, Helvetica, sans-serif; 
+      font-family: "Segoe UI", Arial, sans-serif; /* Fonte mais limpa para TV */
       color: #fff; 
-      overflow: hidden; 
+      overflow: hidden; /* Bloqueia barras de rolagem */
     }
 
     .wrapper { 
       display: flex; 
       flex-direction: column; 
       height: 100%; 
-      padding: 10px 16px; 
+      /* Margem de segurança maior para evitar corte da TV (Overscan) */
+      padding: 1vh 2vw; 
       box-sizing: border-box; 
       position: relative;
     }
 
-    /* HEADER (Fixo, fora da rotação das páginas) */
+    /* HEADER COMPACTO */
     .header { 
       flex: 0 0 auto; 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 8px; 
-      height: 44px;
+      margin-bottom: 4px; 
+      height: 36px; /* Reduzido */
       z-index: 10;
     }
-    .header-left { display:flex; align-items:center; min-width: 160px; }
-    .logo { height: 38px; width: auto; display: block; }
+    .header-left { display:flex; align-items:center; min-width: 140px; }
+    .logo { height: 32px; width: auto; display: block; }
 
     .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
-    .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
+    .header-title { font-size: 32px; font-weight: 900; letter-spacing: 1px; }
 
-    .header-right { text-align:right; min-width: 320px; }
-    .header-date { font-size: 24px; font-weight: 900; color: #ddd; line-height: 1.1; }
-    .header-lang { font-size: 12px; color: #bbb; margin-top: 2px; letter-spacing: 0.8px; }
+    .header-right { text-align:right; min-width: 280px; }
+    .header-date { font-size: 22px; font-weight: 900; color: #ddd; line-height: 1; }
+    .header-lang { font-size: 11px; color: #bbb; margin-top: 2px; letter-spacing: 0.8px; }
 
-    /* PAGES (Container para rotação) */
+    /* PAGES */
     .pages { 
       position: relative; 
       flex: 1; 
@@ -54,48 +55,42 @@
     }
     
     .page {
-      position: absolute; 
-      inset: 0;
-      opacity: 0;
-      pointer-events: none;
+      position: absolute; inset: 0;
+      opacity: 0; pointer-events: none;
       transition: opacity 550ms ease;
-      display: flex;
-      flex-direction: column; /* Importante para o layout flexivel interno */
+      display: flex; flex-direction: column;
     }
     
-    .page.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .page.active { opacity: 1; pointer-events: auto; }
 
     /* LABELS */
     .section-label {
       flex: 0 0 auto;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: #777;
-      margin: 4px 0;
+      margin: 2px 0;
       text-transform: uppercase;
       border-bottom: 1px solid #333;
-      padding-bottom: 2px;
+      padding-bottom: 1px;
     }
 
-    /* KPI CARDS ROW */
+    /* KPI CARDS (Mais baixos) */
     .kpi-row { 
       flex: 0 0 auto; 
       display: grid; 
       grid-template-columns: 2fr repeat(4, 1fr); 
-      gap: 10px; 
-      margin-bottom: 8px;
+      gap: 8px; 
+      margin-bottom: 6px;
     }
 
     .kpi-card {
       background: #111;
-      border-radius: 12px;
-      padding: 8px 12px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.6);
+      border-radius: 10px;
+      padding: 6px 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.6);
       border: 2px solid #444; 
-      height: 96px; 
+      height: 80px; /* Reduzido de 96px para 80px */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -104,45 +99,45 @@
     .card-grid { 
       display: grid; 
       grid-template-columns: 1fr auto; 
-      gap: 8px; 
+      gap: 6px; 
       align-items: center; 
       height: 100%;
     }
 
-    /* Typography */
-    .kpi-title { font-size: 15px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .kpi-main { font-size: 30px; font-weight: 900; line-height: 1; color:#fff; }
-    .kpi-sub  { font-size: 12px; color: #999; }
+    /* Tipografia Card Ajustada */
+    .kpi-title { 
+      font-size: 14px; margin-bottom: 2px; color: #ccc; 
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+    }
+    .kpi-main { font-size: 26px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-sub  { font-size: 11px; color: #999; }
 
-    .metric { margin-top: 4px; }
-    .metric-label { font-size: 11px; color: #999; }
-    .metric-value { font-size: 15px; font-weight: 900; color: #fff; }
+    .metric { margin-top: 2px; }
+    .metric-label { font-size: 10px; color: #999; }
+    .metric-value { font-size: 14px; font-weight: 900; color: #fff; }
 
     /* Face + % */
     .right-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 60px; 
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      width: 50px; 
     }
-    .big-face svg { width: 42px; height: 42px; display: block; }
-    .face-pct { font-size: 17px; font-weight: 900; color: #fff; margin-top: 3px; }
+    .big-face svg { width: 36px; height: 36px; display: block; }
+    .face-pct { font-size: 15px; font-weight: 900; color: #fff; margin-top: 2px; }
 
     /* TABLE */
     .table-container { 
       flex: 1 1 auto; 
       background: #111; 
-      border-radius: 10px; 
+      border-radius: 8px; 
       padding: 0;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       border: 1px solid #333;
-      overflow-y: auto; 
-      display: flex;
-      flex-direction: column;
+      overflow-y: hidden; /* Evita scroll na tabela para não quebrar layout, ajusta fonte se precisar */
+      display: flex; flex-direction: column;
     }
 
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
     
     thead th { 
       position: sticky; top: 0; 
@@ -150,15 +145,15 @@
       border-bottom: 2px solid #555; 
       border-right: 1px solid #555; 
       z-index: 10;
-      padding: 8px 6px;
-      font-size: 13px;
+      padding: 6px 4px;
+      font-size: 12px;
     }
     tbody td { 
       text-align: center; 
       border-bottom: 1px solid #222; 
       border-right: 1px solid #222; 
-      padding: 6px 4px; 
-      height: 28px;
+      padding: 4px 2px; /* Padding vertical mínimo */
+      height: 24px;
     }
 
     .row-current { background: #262626; }
@@ -169,7 +164,7 @@
     .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
     
     .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
-      font-weight: 900; font-size: 12px; color:#000; 
+      font-weight: 900; font-size: 11px; color:#000; 
     }
     .cell-mnt { background: orange; }
     .cell-mat { background: #808080; }
@@ -180,8 +175,8 @@
     /* Summary Row */
     .shift-sum td {
       background: #003366; 
-      color: #fff; font-weight: 900; font-size: 15px;
-      padding: 10px 4px !important;
+      color: #fff; font-weight: 900; font-size: 14px;
+      padding: 8px 4px !important;
     }
     .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
     .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
@@ -189,7 +184,8 @@
 
     .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    body[data-shifts="1"] table { font-size: 15px; }
+    /* Ajuste fino para telas menores */
+    body[data-shifts="1"] table { font-size: 14px; }
   </style>
 </head>
 <body>
@@ -212,7 +208,6 @@
   <div class="pages">
     
     <div class="page active" id="pageEN" data-lang="en">
-      
       <div class="section-label">GLOBAL RESULTS</div>
       <div class="kpi-row">
         <div class="kpi-card" id="cardTotal_en">
@@ -222,10 +217,7 @@
               <div class="kpi-main" id="totalProd_en">-</div>
               <div class="kpi-sub" id="totalTarget_en">Tgt: -</div>
             </div>
-            <div class="right-col">
-              <div class="big-face" id="faceTotal_en"></div>
-              <div class="face-pct" id="pctTotal_en"></div>
-            </div>
+            <div class="right-col"><div class="big-face" id="faceTotal_en"></div><div class="face-pct" id="pctTotal_en"></div></div>
           </div>
         </div>
         <div class="kpi-card" id="cardLine1_en">
@@ -274,13 +266,8 @@
         <table>
           <thead>
             <tr>
-              <th style="width:14%;">Shift</th>
-              <th style="width:26%;">Time</th>
-              <th style="width:12%;">Target</th>
-              <th style="width:12%;">Line 1</th>
-              <th style="width:12%;">Line 2</th>
-              <th style="width:12%;">Line 3</th>
-              <th style="width:12%;">Line 4</th>
+              <th style="width:14%;">Shift</th><th style="width:26%;">Time</th><th style="width:12%;">Target</th>
+              <th style="width:12%;">Line 1</th><th style="width:12%;">Line 2</th><th style="width:12%;">Line 3</th><th style="width:12%;">Line 4</th>
             </tr>
           </thead>
           <tbody id="tableBody_en"></tbody>
@@ -296,10 +283,7 @@
               <div class="kpi-main" id="totalProd_Shift_en">-</div>
               <div class="kpi-sub" id="totalTarget_Shift_en">Tgt: -</div>
             </div>
-            <div class="right-col">
-              <div class="big-face" id="faceTotal_Shift_en"></div>
-              <div class="face-pct" id="pctTotal_Shift_en"></div>
-            </div>
+            <div class="right-col"><div class="big-face" id="faceTotal_Shift_en"></div><div class="face-pct" id="pctTotal_Shift_en"></div></div>
           </div>
         </div>
         <div class="kpi-card" id="cardLine1_Shift_en">
@@ -346,20 +330,16 @@
     </div>
 
     <div class="page" id="pageBG" data-lang="bg">
-      
       <div class="section-label">ГЛОБАЛНИ РЕЗУЛТАТИ</div>
       <div class="kpi-row">
         <div class="kpi-card" id="cardTotal_bg">
           <div class="card-grid">
             <div>
-              <div class="kpi-title">Общо производство</div>
+              <div class="kpi-title">Общо Производство</div>
               <div class="kpi-main" id="totalProd_bg">-</div>
               <div class="kpi-sub" id="totalTarget_bg">Цел: -</div>
             </div>
-            <div class="right-col">
-              <div class="big-face" id="faceTotal_bg"></div>
-              <div class="face-pct" id="pctTotal_bg"></div>
-            </div>
+            <div class="right-col"><div class="big-face" id="faceTotal_bg"></div><div class="face-pct" id="pctTotal_bg"></div></div>
           </div>
         </div>
         <div class="kpi-card" id="cardLine1_bg">
@@ -408,13 +388,8 @@
         <table>
           <thead>
             <tr>
-              <th style="width:14%;">Смяна</th>
-              <th style="width:26%;">Период</th>
-              <th style="width:12%;">Цел</th>
-              <th style="width:12%;">Линия 1</th>
-              <th style="width:12%;">Линия 2</th>
-              <th style="width:12%;">Линия 3</th>
-              <th style="width:12%;">Линия 4</th>
+              <th style="width:14%;">Смяна</th><th style="width:26%;">Период</th><th style="width:12%;">Цел</th>
+              <th style="width:12%;">Линия 1</th><th style="width:12%;">Линия 2</th><th style="width:12%;">Линия 3</th><th style="width:12%;">Линия 4</th>
             </tr>
           </thead>
           <tbody id="tableBody_bg"></tbody>
@@ -430,10 +405,7 @@
               <div class="kpi-main" id="totalProd_Shift_bg">-</div>
               <div class="kpi-sub" id="totalTarget_Shift_bg">Цел: -</div>
             </div>
-            <div class="right-col">
-              <div class="big-face" id="faceTotal_Shift_bg"></div>
-              <div class="face-pct" id="pctTotal_Shift_bg"></div>
-            </div>
+            <div class="right-col"><div class="big-face" id="faceTotal_Shift_bg"></div><div class="face-pct" id="pctTotal_Shift_bg"></div></div>
           </div>
         </div>
         <div class="kpi-card" id="cardLine1_Shift_bg">
@@ -478,8 +450,11 @@
         </div>
       </div>
     </div>
-  
-  </div> </div> <script>
+  </div>
+
+</div>
+
+<script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
   const ROTATE_MS = 30000;
 
@@ -557,7 +532,6 @@
     return map[normalized] || map[t] || t;
   }
 
-  // Helper para atualizar visual dos cards
   function updateCardUI(lang, cardId, faceId, pctId, statusObj, percentage) {
     const card = document.getElementById(cardId + "_" + lang);
     const face = document.getElementById(faceId + "_" + lang);
@@ -615,14 +589,11 @@
     return td;
   }
 
-  /* ====================== UPDATERS ====================== */
-
   function updateAllKPIsFor(lang, json, activeShift) {
     const allSlots = json.slots || [];
     const ultimo = json.ultimo_slot || null;
     const anyLaunchDay = allSlots.some(s => hasAnyLaunchInSlot(s));
 
-    // --- GLOBAL ---
     const globalConsidered = calcUpToUltimo(allSlots, ultimo);
     const globalTargetPerLine = globalConsidered.reduce((acc, s) => acc + countedTarget(s), 0);
     const globalProd = {
@@ -635,7 +606,6 @@
     const globalTotalTarget = globalTargetPerLine * 4;
     const lastSlot = ultimo ? allSlots.find(s => s.id_slot === ultimo.id_slot) : null;
 
-    // Global Total
     const elTotalProd = document.getElementById("totalProd_" + lang);
     const elTotalTarget = document.getElementById("totalTarget_" + lang);
     const targetPrefix = (lang === "bg") ? "Цел: " : "Tgt: ";
@@ -651,7 +621,6 @@
        updateCardUI(lang, "cardTotal", "faceTotal", "pctTotal", perfStatus(p), p*100);
     }
 
-    // Global Lines
     const globalLines = [
       { key:"line1", lastId:"lastL1", accId:"accL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
       { key:"line2", lastId:"lastL2", accId:"accL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
@@ -672,7 +641,6 @@
       }
     });
 
-    // --- SHIFT ---
     const shiftSlotsAll = allSlots.filter(s => Number(s.shift) === activeShift);
     const shiftConsidered = calcUpToUltimo(shiftSlotsAll, ultimo);
     const anyLaunchShift = shiftConsidered.some(s => hasAnyLaunchInSlot(s));
@@ -686,7 +654,6 @@
     const shiftTotalProd = shiftProd.line1 + shiftProd.line2 + shiftProd.line3 + shiftProd.line4;
     const shiftTotalTarget = shiftTargetPerLine * 4;
 
-    // Shift Total
     const elShiftTotal = document.getElementById("totalProd_Shift_" + lang);
     const elShiftTarget = document.getElementById("totalTarget_Shift_" + lang);
     if (!anyLaunchShift || shiftTotalTarget <= 0) {
@@ -700,7 +667,6 @@
        updateCardUI(lang, "cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", perfStatus(p), p*100);
     }
 
-    // Shift Lines
     const shiftLines = [
       { key:"line1", valId:"valL1_Shift", tgtId:"tgtL1_Shift", card:"cardLine1_Shift", face:"faceL1_Shift", pct:"pctL1_Shift" },
       { key:"line2", valId:"valL2_Shift", tgtId:"tgtL2_Shift", card:"cardLine2_Shift", face:"faceL2_Shift", pct:"pctL2_Shift" },
@@ -823,7 +789,6 @@
     } catch (err) { console.error(err); }
   }
 
-  // === Rotation ===
   const pageEN = document.getElementById("pageEN");
   const pageBG = document.getElementById("pageBG");
   const langLabel = document.getElementById("langLabel");
