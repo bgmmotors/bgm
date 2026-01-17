@@ -59,7 +59,7 @@
       min-height: 105px;
     }
 
-    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
+    .card-grid { display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; }
 
     .kpi-title { font-size:17px; margin-bottom:8px; }
     .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
@@ -69,8 +69,26 @@
     .metric-label { font-size:12px; color:#ccc; }
     .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
 
-    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
-    .big-face svg { width:66px; height:66px; display:block; }
+    /* Right Col (Face + %) */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 86px;
+    }
+
+    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:66px; color:#fff; }
+    .big-face svg { width:60px; height:60px; display:block; }
+    
+    /* Estilo da porcentagem abaixo da carinha */
+    .face-pct {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 4px;
+      text-align: center;
+    }
 
     /* TABLE */
     .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
@@ -96,6 +114,8 @@
     .shift-sum td{
       border-top:2px solid #fff !important;
       border-bottom:2px solid #fff !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
     }
     .shift-sum td:first-child { border-left:2px solid #fff !important; }
     .shift-sum td:last-child  { border-right:2px solid #fff !important; }
@@ -149,7 +169,6 @@
       </div>
     </div>
 
-    <!-- SEARCH -->
     <div class="searchbar">
       <div class="field">
         <label for="datePick">Select date (YYYY-MM-DD)</label>
@@ -160,7 +179,6 @@
     </div>
 
     <div class="kpi-row">
-      <!-- TOTAL -->
       <div class="kpi-card" id="cardTotal">
         <div class="card-grid">
           <div>
@@ -168,11 +186,13 @@
             <div class="kpi-main" id="totalProd">-</div>
             <div class="kpi-sub" id="totalTarget">Target: -</div>
           </div>
-          <div class="big-face" id="faceTotal"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceTotal"></div>
+            <div class="face-pct" id="pctTotal"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 1 -->
       <div class="kpi-card" id="cardLine1">
         <div class="card-grid">
           <div>
@@ -186,11 +206,13 @@
               <div class="metric-value" id="accL1">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL1"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL1"></div>
+            <div class="face-pct" id="pctL1"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 2 -->
       <div class="kpi-card" id="cardLine2">
         <div class="card-grid">
           <div>
@@ -204,11 +226,13 @@
               <div class="metric-value" id="accL2">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL2"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL2"></div>
+            <div class="face-pct" id="pctL2"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 3 -->
       <div class="kpi-card" id="cardLine3">
         <div class="card-grid">
           <div>
@@ -222,11 +246,13 @@
               <div class="metric-value" id="accL3">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL3"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL3"></div>
+            <div class="face-pct" id="pctL3"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Line 4 -->
       <div class="kpi-card" id="cardLine4">
         <div class="card-grid">
           <div>
@@ -240,7 +266,10 @@
               <div class="metric-value" id="accL4">-</div>
             </div>
           </div>
-          <div class="big-face" id="faceL4"></div>
+          <div class="right-col">
+            <div class="big-face" id="faceL4"></div>
+            <div class="face-pct" id="pctL4"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -308,24 +337,6 @@
       el.textContent = text || "";
     }
 
-    function setCardBorder(id, status) {
-      const card = document.getElementById(id);
-      if (!card) return;
-      if (status === "OK") card.style.borderColor = "#00b050";
-      else if (status === "MID") card.style.borderColor = "#FFFF00";
-      else if (status === "NOK") card.style.borderColor = "#c00000";
-      else card.style.borderColor = "#666";
-    }
-
-    function statusClass(kind) {
-      if (kind === "STOP_MAINT") return "cell-mnt";
-      if (kind === "STOP_MAT") return "cell-mat";
-      if (kind === "STOP_PEO") return "cell-peo";
-      if (kind === "STOP_QUAL") return "cell-qual";
-      if (kind === "NO_SCHEDULE") return "cell-nosched";
-      return "";
-    }
-
     function faceSVG(type) {
       const common = `class="face-stroke"`;
       const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
@@ -342,6 +353,38 @@
       if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
       return { status:"NOK", cls:"cell-nok", face:"sad" };
     }
+    
+    function statusClass(kind) {
+      if (kind === "STOP_MAINT") return "cell-mnt";
+      if (kind === "STOP_MAT") return "cell-mat";
+      if (kind === "STOP_PEO") return "cell-peo";
+      if (kind === "STOP_QUAL") return "cell-qual";
+      if (kind === "NO_SCHEDULE") return "cell-nosched";
+      return "";
+    }
+
+    // UPDATE CARD COM PORCENTAGEM
+    function updateCardUI(cardId, faceId, pctId, statusObj, percentage) {
+      const card = document.getElementById(cardId);
+      const face = document.getElementById(faceId);
+      const pct  = document.getElementById(pctId);
+      if(!card || !face || !pct) return;
+
+      if (!statusObj) {
+        card.style.borderColor = "#444";
+        face.innerHTML = "";
+        pct.textContent = "";
+        return;
+      }
+
+      if (statusObj.status === "OK") card.style.borderColor = "#00b050";
+      else if (statusObj.status === "MID") card.style.borderColor = "#FFFF00";
+      else card.style.borderColor = "#c00000";
+
+      face.style.color = (statusObj.status === "NOK") ? "#c00000" : (statusObj.status === "MID" ? "#FFFF00" : "#00b050");
+      face.innerHTML = faceSVG(statusObj.face);
+      pct.textContent = Math.round(percentage) + "%";
+    }
 
     function calcUpToUltimo(slots, ultimo) {
       if (!ultimo) return slots;
@@ -350,25 +393,11 @@
       return out;
     }
 
-    function setBigFace(elId, state) {
-      const el = document.getElementById(elId);
-      if (!el) return;
-
-      if (!state) { el.innerHTML = ""; el.style.color = "#fff"; return; }
-
-      if (state.status === "OK") el.style.color = "#00b050";
-      else if (state.status === "MID") el.style.color = "#FFFF00";
-      else el.style.color = "#c00000";
-
-      el.innerHTML = faceSVG(state.face);
-    }
-
     function hasAnyLaunchInSlot(slot) {
       return slot && slot.has_launch === true;
     }
 
     function countedTarget(slot){
-      // usa target_counted se existir; caso não exista (compat), cai no target do slot
       if (!slot) return 0;
       const tc = Number(slot.target_counted ?? 0);
       if (tc > 0) return tc;
@@ -398,21 +427,20 @@
       document.getElementById("totalTarget").textContent = "Target: " + (totalTarget > 0 ? totalTarget : "-");
 
       if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
-        setCardBorder("cardTotal", "IDLE");
-        setBigFace("faceTotal", null);
+        updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
       } else {
-        const st = perfStatus(totalProd / totalTarget);
-        setCardBorder("cardTotal", st.status);
-        setBigFace("faceTotal", st);
+        const p = totalProd / totalTarget;
+        const st = perfStatus(p);
+        updateCardUI("cardTotal", "faceTotal", "pctTotal", st, p * 100);
       }
 
       const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
 
       const lines = [
-        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1" },
-        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2" },
-        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3" },
-        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4" }
+        { key:"line1", last:"lastL1", acc:"accL1", card:"cardLine1", face:"faceL1", pct:"pctL1" },
+        { key:"line2", last:"lastL2", acc:"accL2", card:"cardLine2", face:"faceL2", pct:"pctL2" },
+        { key:"line3", last:"lastL3", acc:"accL3", card:"cardLine3", face:"faceL3", pct:"pctL3" },
+        { key:"line4", last:"lastL4", acc:"accL4", card:"cardLine4", face:"faceL4", pct:"pctL4" }
       ];
 
       lines.forEach(m => {
@@ -422,8 +450,7 @@
         if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
           lastEl.textContent = "-";
           accEl.textContent = "-";
-          setCardBorder(m.card, "IDLE");
-          setBigFace(m.face, null);
+          updateCardUI(m.card, m.face, m.pct, null, null);
           return;
         }
 
@@ -434,9 +461,9 @@
         const accVal = acc[m.key];
         accEl.textContent = `${accVal} / ${targetPerLine}`;
 
-        const st = perfStatus(accVal / targetPerLine);
-        setCardBorder(m.card, st.status);
-        setBigFace(m.face, st);
+        const p = accVal / targetPerLine;
+        const st = perfStatus(p);
+        updateCardUI(m.card, m.face, m.pct, st, p * 100);
       });
     }
 
@@ -451,6 +478,21 @@
       } else {
         td.textContent = String(value ?? "");
       }
+      return td;
+    }
+
+    // TD especial para resumo com %
+    function tdSummaryWithPerf(value, targetEff) {
+      const td = document.createElement("td");
+      if (targetEff <= 0) {
+        td.textContent = (value > 0) ? value : "";
+        return td;
+      }
+      const ratio = value / targetEff;
+      const st = perfStatus(ratio);
+      td.classList.add(st.cls);
+      const pct = Math.round(ratio * 100);
+      td.innerHTML = `${value} <span style="font-size:0.9em">(${pct}%)</span>`;
       return td;
     }
 
@@ -555,7 +597,8 @@
               trSum.appendChild(td);
               return;
             }
-            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
+            // Usa tdSummaryWithPerf para mostrar a porcentagem
+            trSum.appendChild(tdSummaryWithPerf(sum[k], sum.target));
           });
 
           tbody.appendChild(trSum);
