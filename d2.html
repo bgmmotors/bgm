@@ -14,14 +14,14 @@
       overflow: hidden; 
     }
 
-    /* --- SISTEMA DE LARGURAS (GRID) --- */
+    /* --- SISTEMA DE LARGURAS (GRID PERFEITO) --- */
     :root {
-      /* Espaço da esquerda (Sem cards) = 25% */
+      /* Espaço da esquerda (Shift + Time + Target) = 25% */
       --w-shift: 6%;
       --w-time: 12%;
       --w-target: 7%;
       
-      /* Espaço dos Cards e Dados = 75% (15% x 5) */
+      /* Espaço das Colunas de Dados (L1..L4 + Total) = 75% */
       --w-col: 15%; 
     }
 
@@ -46,13 +46,14 @@
     .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
     .header-date { font-size: 24px; font-weight: 900; color: #ddd; }
 
-    /* --- LINHA SUPERIOR (SHIFT) --- */
-    .kpi-row-top {
+    /* --- LINHAS DE KPI (TOPO E RODAPÉ) --- */
+    /* Usamos flexbox com as mesmas larguras da tabela para garantir alinhamento */
+    .kpi-row {
       flex: 0 0 auto;
       display: flex;
+      width: 100%;
       margin-bottom: 6px;
-      /* Alinhamento visual */
-      padding-right: 18px; /* Compensa eventual scrollbar da tabela */
+      box-sizing: border-box;
     }
 
     .kpi-spacer {
@@ -61,23 +62,30 @@
       align-items: flex-end;
       padding-right: 10px;
       box-sizing: border-box;
+      flex-shrink: 0; /* Não deixa encolher */
     }
+
     .section-label {
       font-size: 14px; font-weight: 900; color: #00b050; 
       text-transform: uppercase; border-bottom: 2px solid #00b050; 
       width: 100%; margin-bottom: 5px;
     }
+    .section-label-btm {
+      font-size: 14px; font-weight: 900; color: #777; 
+      text-transform: uppercase; margin-bottom: 5px;
+    }
 
     .kpi-col-wrapper {
       width: var(--w-col);
-      padding: 0 4px; /* Pequeno espaçamento entre cards */
+      padding: 0 4px; 
       box-sizing: border-box;
+      flex-shrink: 0;
     }
 
     .kpi-card {
       background: #111;
       border-radius: 12px;
-      padding: 8px 12px;
+      padding: 8px 10px; /* Padding ajustado */
       box-shadow: 0 0 8px rgba(0,0,0,0.6);
       border: 2px solid #444; 
       height: 96px; 
@@ -89,25 +97,25 @@
     .card-grid { 
       display: grid; 
       grid-template-columns: 1fr auto; 
-      gap: 8px; 
+      gap: 5px; 
       align-items: center; 
       height: 100%;
     }
 
-    /* Tipografia Original */
-    .kpi-title { font-size: 15px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .kpi-main { font-size: 30px; font-weight: 900; line-height: 1; color:#fff; }
-    .kpi-sub  { font-size: 12px; color: #999; }
+    /* Tipografia */
+    .kpi-title { font-size: 14px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 28px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-sub  { font-size: 11px; color: #999; }
 
     .metric { margin-top: 4px; }
     .metric-label { font-size: 11px; color: #999; }
     .metric-value { font-size: 15px; font-weight: 900; color: #fff; }
 
     .right-col {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; width: 55px; 
     }
-    .big-face svg { width: 42px; height: 42px; display: block; }
-    .face-pct { font-size: 17px; font-weight: 900; color: #fff; margin-top: 3px; }
+    .big-face svg { width: 40px; height: 40px; display: block; }
+    .face-pct { font-size: 16px; font-weight: 900; color: #fff; margin-top: 3px; }
 
     /* TABLE */
     .table-container { 
@@ -142,7 +150,7 @@
       white-space: nowrap; overflow: hidden;
     }
 
-    /* Colunas com Largura Fixa */
+    /* Larguras Fixas (Vincular ao :root) */
     .th-shift { width: var(--w-shift); }
     .th-time { width: var(--w-time); }
     .th-target { width: var(--w-target); }
@@ -157,7 +165,7 @@
     .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
     
     .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
-      font-weight: 900; font-size: 12px; color:#000; 
+      font-weight: 900; font-size: 11px; color:#000; 
     }
     .cell-mnt { background: orange; }
     .cell-mat { background: #808080; }
@@ -165,12 +173,13 @@
     .cell-qual{ background: #ffd400; }
     .cell-nosched { background: #0070c0; color:#fff; }
 
+    /* Linha Azul (Shift Summary) */
     .shift-sum td {
       background: #003366; 
       color: #fff; font-weight: 900; font-size: 15px;
       padding: 10px 4px !important;
-      border-top: 3px solid #FFFFFF;
-      border-bottom: 3px solid #FFFFFF;
+      border-top: 3px solid #fff;
+      border-bottom: 3px solid #fff;
     }
     .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
     .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
@@ -178,20 +187,10 @@
 
     .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* --- LINHA INFERIOR (GLOBAL) --- */
-    .kpi-row-btm {
-      flex: 0 0 auto;
+    /* Rodapé (Borda extra) */
+    .footer-divider {
       border-top: 1px solid #444;
       padding-top: 10px;
-    }
-    .section-label-btm {
-      font-size: 14px; font-weight: 900; color: #777; 
-      margin-bottom: 6px; text-transform: uppercase;
-    }
-    .global-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
     }
 
     body[data-shifts="1"] table { font-size: 15px; }
@@ -213,7 +212,7 @@
     </div>
   </div>
 
-  <div class="kpi-row-top">
+  <div class="kpi-row">
     <div class="kpi-spacer">
       <div class="section-label">CURRENT SHIFT</div>
     </div>
@@ -274,9 +273,9 @@
       <div class="kpi-card" id="cardTotal_Shift">
         <div class="card-grid">
           <div>
-            <div class="kpi-title">Total Shift</div>
-            <div class="kpi-main" id="totalProd_Shift">-</div>
-            <div class="kpi-sub" id="totalTarget_Shift">Tgt: -</div>
+            <div class="kpi-title">Shift Total</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="totalProd_Shift">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="totalTarget_Shift">-</div></div>
           </div>
           <div class="right-col"><div class="big-face" id="faceTotal_Shift"></div><div class="face-pct" id="pctTotal_Shift"></div></div>
         </div>
@@ -302,65 +301,76 @@
     </table>
   </div>
 
-  <div class="kpi-row-btm">
-    <div class="section-label-btm">GLOBAL RESULTS</div>
-    <div class="global-grid">
-      
-      <div class="kpi-card" id="cardLine1">
-        <div class="card-grid">
-          <div>
-            <div class="kpi-title">Line 1 Global</div>
-            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL1">-</div></div>
-            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Glb">-</div></div>
+  <div class="footer-divider">
+    <div class="kpi-row">
+      <div class="kpi-spacer">
+        <div class="section-label-btm">GLOBAL (ACCUMULATED)</div>
+      </div>
+
+      <div class="kpi-col-wrapper">
+        <div class="kpi-card" id="cardLine1">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 1</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL1">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Glb">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL1"></div><div class="face-pct" id="pctL1"></div></div>
           </div>
-          <div class="right-col"><div class="big-face" id="faceL1"></div><div class="face-pct" id="pctL1"></div></div>
         </div>
       </div>
 
-      <div class="kpi-card" id="cardLine2">
-        <div class="card-grid">
-          <div>
-            <div class="kpi-title">Line 2 Global</div>
-            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL2">-</div></div>
-            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Glb">-</div></div>
+      <div class="kpi-col-wrapper">
+        <div class="kpi-card" id="cardLine2">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 2</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL2">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Glb">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL2"></div><div class="face-pct" id="pctL2"></div></div>
           </div>
-          <div class="right-col"><div class="big-face" id="faceL2"></div><div class="face-pct" id="pctL2"></div></div>
         </div>
       </div>
 
-      <div class="kpi-card" id="cardLine3">
-        <div class="card-grid">
-          <div>
-            <div class="kpi-title">Line 3 Global</div>
-            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL3">-</div></div>
-            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Glb">-</div></div>
+      <div class="kpi-col-wrapper">
+        <div class="kpi-card" id="cardLine3">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 3</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL3">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Glb">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL3"></div><div class="face-pct" id="pctL3"></div></div>
           </div>
-          <div class="right-col"><div class="big-face" id="faceL3"></div><div class="face-pct" id="pctL3"></div></div>
         </div>
       </div>
 
-      <div class="kpi-card" id="cardLine4">
-        <div class="card-grid">
-          <div>
-            <div class="kpi-title">Line 4 Global</div>
-            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL4">-</div></div>
-            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Glb">-</div></div>
+      <div class="kpi-col-wrapper">
+        <div class="kpi-card" id="cardLine4">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Line 4</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL4">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Glb">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceL4"></div><div class="face-pct" id="pctL4"></div></div>
           </div>
-          <div class="right-col"><div class="big-face" id="faceL4"></div><div class="face-pct" id="pctL4"></div></div>
         </div>
       </div>
 
-      <div class="kpi-card" id="cardTotal">
-        <div class="card-grid">
-          <div>
-            <div class="kpi-title">Total Global</div>
-            <div class="kpi-main" id="totalProd">-</div>
-            <div class="kpi-sub" id="totalTarget">Tgt: -</div>
+      <div class="kpi-col-wrapper">
+        <div class="kpi-card" id="cardTotal">
+          <div class="card-grid">
+            <div>
+              <div class="kpi-title">Total Global</div>
+              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="totalProd">-</div></div>
+              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="totalTarget">-</div></div>
+            </div>
+            <div class="right-col"><div class="big-face" id="faceTotal"></div><div class="face-pct" id="pctTotal"></div></div>
           </div>
-          <div class="right-col"><div class="big-face" id="faceTotal"></div><div class="face-pct" id="pctTotal"></div></div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -371,7 +381,7 @@
 
   function getTodayISO() {
     const d = new Date();
-    // Regra das 06:00 (madrugada conta como ontem)
+    // Regra das 06:00
     if (d.getHours() < 6) d.setDate(d.getDate() - 1);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -421,7 +431,7 @@
     return "";
   }
 
-  // Verifica códigos que zeram target: .5, 5., ,5, 5,
+  // Verifica códigos que zeram target
   function isNoSchedule(val) {
     if (!val) return false;
     const s = String(val).trim();
@@ -494,8 +504,6 @@
     const gTotalProd = gProd.l1 + gProd.l2 + gProd.l3 + gProd.l4;
     const gTotalTgt  = gTgt.l1 + gTgt.l2 + gTgt.l3 + gTgt.l4;
 
-    // Atualiza Cards Globais (Linha Inferior)
-    // ID Mappings: cardLine1 -> Global L1
     const globalLines = [
       { key:"l1", valId:"accL1", tgtId:"tgtL1_Glb", card:"cardLine1", face:"faceL1", pct:"pctL1" },
       { key:"l2", valId:"accL2", tgtId:"tgtL2_Glb", card:"cardLine2", face:"faceL2", pct:"pctL2" },
@@ -517,9 +525,9 @@
       }
     });
 
-    // Global Total
+    // Total Global
     document.getElementById("totalProd").textContent = anyLaunchDay ? gTotalProd : "-";
-    document.getElementById("totalTarget").textContent = "Tgt: " + (anyLaunchDay ? gTotalTgt : "-");
+    document.getElementById("totalTarget").textContent = anyLaunchDay ? gTotalTgt : "-";
     if (!anyLaunchDay || gTotalTgt <= 0) {
       updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
     } else {
@@ -573,7 +581,7 @@
 
     // Total Shift Card
     document.getElementById("totalProd_Shift").textContent = anyLaunchShift ? sTotalProd : "-";
-    document.getElementById("totalTarget_Shift").textContent = "Tgt: " + (anyLaunchShift ? sTotalTgt : "-");
+    document.getElementById("totalTarget_Shift").textContent = anyLaunchShift ? sTotalTgt : "-";
     
     if (!anyLaunchShift || sTotalTgt <= 0) {
       updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
@@ -681,10 +689,13 @@
       if (group.slots.length > 0) {
         let sumProd = { l1:0, l2:0, l3:0, l4:0 };
         let sumTgt = { l1:0, l2:0, l3:0, l4:0 };
+        let totalSlotTarget = 0; // Target simples do turno (soma da coluna Target)
         let hasData = false;
 
         group.slots.forEach(s => {
           if (hasAnyLaunchInSlot(s)) hasData = true;
+          totalSlotTarget += Number(s.target_effective || 0);
+
           sumProd.l1 += Number(s.line1||0);
           sumProd.l2 += Number(s.line2||0);
           sumProd.l3 += Number(s.line3||0);
@@ -701,7 +712,11 @@
 
         const trSum = document.createElement("tr"); trSum.classList.add("shift-sum");
         const td1 = document.createElement("td"); td1.colSpan = 2; td1.innerHTML = `SHIFT ${group.shift} RESULT`; trSum.appendChild(td1);
-        const tdT = document.createElement("td"); tdT.textContent = ""; trSum.appendChild(tdT);
+        
+        // CORREÇÃO: Mostra a soma dos targets do slot na coluna Target
+        const tdT = document.createElement("td"); 
+        tdT.textContent = totalSlotTarget > 0 ? totalSlotTarget : ""; 
+        trSum.appendChild(tdT);
 
         ["l1","l2","l3","l4"].forEach(k => {
           if (!hasData || sumTgt[k] <= 0) {
@@ -711,7 +726,7 @@
           }
         });
 
-        // Total Column Summary
+        // Total Column Summary - CORRIGIDO (Usa target ajustado, sem as linhas paradas)
         if (!hasData || sumTotalTgt <= 0) {
            const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td);
         } else {
