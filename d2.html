@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>PERFORMANCE CLM6 - ANDON TV FINAL</title>
   <style>
-    /* RESET & BASE */
     html, body { 
       margin: 0; padding: 0; 
       height: 100vh; 
@@ -13,6 +12,17 @@
       font-family: Arial, Helvetica, sans-serif; 
       color: #fff; 
       overflow: hidden; 
+    }
+
+    /* --- SISTEMA DE LARGURAS (GRID) --- */
+    :root {
+      /* Espaço da esquerda (Sem cards) = 25% */
+      --w-shift: 6%;
+      --w-time: 12%;
+      --w-target: 7%;
+      
+      /* Espaço dos Cards e Dados = 75% (15% x 5) */
+      --w-col: 15%; 
     }
 
     .wrapper { 
@@ -36,52 +46,41 @@
     .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
     .header-date { font-size: 24px; font-weight: 900; color: #ddd; }
 
-    /* DEFINIÇÃO DE LARGURAS (GRID SYSTEM) 
-       Soma total deve ser 100%.
-       Shift(7) + Time(13) + Target(5) = 25% (Área sem cards)
-       L1(15) + L2(15) + L3(15) + L4(15) + Total(15) = 75% (Área com cards)
-    */
-    :root {
-      --w-shift: 7%;
-      --w-time: 13%;
-      --w-target: 5%;
-      --w-col: 15%; /* L1, L2, L3, L4, Total */
+    /* --- LINHA SUPERIOR (SHIFT) --- */
+    .kpi-row-top {
+      flex: 0 0 auto;
+      display: flex;
+      margin-bottom: 6px;
+      /* Alinhamento visual */
+      padding-right: 18px; /* Compensa eventual scrollbar da tabela */
     }
 
-    /* KPI ROW (TOP - CURRENT SHIFT) */
-    .kpi-row-top { 
-      flex: 0 0 auto; 
-      display: flex; 
-      gap: 0; /* Gap zero para alinhar perfeitamente com a tabela */
-      margin-bottom: 4px;
-      padding-right: 18px; /* Compensar scrollbar da tabela se houver */
-    }
-
-    /* Espaçador à esquerda onde não tem card (Shift/Time/Target) */
     .kpi-spacer {
       width: calc(var(--w-shift) + var(--w-time) + var(--w-target));
       display: flex;
       align-items: flex-end;
       padding-right: 10px;
+      box-sizing: border-box;
     }
-    .section-label-top {
-      font-size: 14px; font-weight: 900; color: #00b050; text-transform: uppercase;
-      border-bottom: 2px solid #00b050; width: 100%; margin-bottom: 5px;
+    .section-label {
+      font-size: 14px; font-weight: 900; color: #00b050; 
+      text-transform: uppercase; border-bottom: 2px solid #00b050; 
+      width: 100%; margin-bottom: 5px;
     }
 
-    .kpi-card-wrapper {
+    .kpi-col-wrapper {
       width: var(--w-col);
-      padding: 0 4px; /* Pequeno respiro entre cards */
+      padding: 0 4px; /* Pequeno espaçamento entre cards */
       box-sizing: border-box;
     }
 
     .kpi-card {
       background: #111;
       border-radius: 12px;
-      padding: 6px 10px;
+      padding: 8px 12px;
       box-shadow: 0 0 8px rgba(0,0,0,0.6);
       border: 2px solid #444; 
-      height: 90px; 
+      height: 96px; 
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -90,22 +89,27 @@
     .card-grid { 
       display: grid; 
       grid-template-columns: 1fr auto; 
-      gap: 4px; 
+      gap: 8px; 
       align-items: center; 
       height: 100%;
     }
 
-    .kpi-title { font-size: 14px; margin-bottom: 2px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .kpi-main { font-size: 28px; font-weight: 900; line-height: 1; color:#fff; }
+    /* Tipografia Original */
+    .kpi-title { font-size: 15px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 30px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-sub  { font-size: 12px; color: #999; }
+
     .metric { margin-top: 4px; }
     .metric-label { font-size: 11px; color: #999; }
-    .metric-value { font-size: 14px; font-weight: 900; color: #fff; }
+    .metric-value { font-size: 15px; font-weight: 900; color: #fff; }
 
-    .right-col { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; }
-    .big-face svg { width: 38px; height: 38px; display: block; }
-    .face-pct { font-size: 16px; font-weight: 900; color: #fff; margin-top: 2px; }
+    .right-col {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; 
+    }
+    .big-face svg { width: 42px; height: 42px; display: block; }
+    .face-pct { font-size: 17px; font-weight: 900; color: #fff; margin-top: 3px; }
 
-    /* TABLE CONTAINER */
+    /* TABLE */
     .table-container { 
       flex: 1 1 auto; 
       background: #111; 
@@ -133,21 +137,21 @@
       text-align: center; 
       border-bottom: 1px solid #222; 
       border-right: 1px solid #222; 
-      padding: 6px 2px; 
+      padding: 6px 4px; 
       height: 28px;
-      overflow: hidden; white-space: nowrap;
+      white-space: nowrap; overflow: hidden;
     }
 
-    /* LARGURAS DAS COLUNAS */
+    /* Colunas com Largura Fixa */
     .th-shift { width: var(--w-shift); }
     .th-time { width: var(--w-time); }
     .th-target { width: var(--w-target); }
     .th-line { width: var(--w-col); }
-    .th-total { width: var(--w-col); background: #1a1a1a; } /* Destaque leve na coluna total */
+    .th-total { width: var(--w-col); background: #1a1a1a; }
 
     .row-current { background: #262626; }
 
-    /* Cores de Status */
+    /* Cores */
     .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
     .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
     .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
@@ -161,48 +165,35 @@
     .cell-qual{ background: #ffd400; }
     .cell-nosched { background: #0070c0; color:#fff; }
 
-    /* Resumo Azul (Shift Summary) */
     .shift-sum td {
       background: #003366; 
       color: #fff; font-weight: 900; font-size: 15px;
       padding: 10px 4px !important;
-      border-top: 3px solid #fff;
-      border-bottom: 3px solid #fff;
+      border-top: 3px solid #FFFFFF;
+      border-bottom: 3px solid #FFFFFF;
     }
     .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
     .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
     .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
 
-    /* BOTTOM ROW (GLOBAL RESULTS) */
-    .bottom-section {
-      flex: 0 0 auto;
-      border-top: 1px solid #444;
-      padding-top: 8px;
-    }
-    .section-label-btm {
-      font-size: 14px; font-weight: 900; color: #777; margin-bottom: 4px; text-transform: uppercase;
-    }
-    .global-row {
-      display: flex;
-      gap: 10px;
-    }
-    .global-card {
-      flex: 1;
-      background: #0a0a0a;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 5px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .g-title { font-size: 12px; color: #888; margin-bottom: 2px;}
-    .g-val { font-size: 18px; font-weight: 900; color: #fff; }
-    .g-pct { font-size: 16px; font-weight: 900; margin-left: 8px; }
-
     .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Auto Size Adjust */
+    /* --- LINHA INFERIOR (GLOBAL) --- */
+    .kpi-row-btm {
+      flex: 0 0 auto;
+      border-top: 1px solid #444;
+      padding-top: 10px;
+    }
+    .section-label-btm {
+      font-size: 14px; font-weight: 900; color: #777; 
+      margin-bottom: 6px; text-transform: uppercase;
+    }
+    .global-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
     body[data-shifts="1"] table { font-size: 15px; }
   </style>
 </head>
@@ -224,10 +215,10 @@
 
   <div class="kpi-row-top">
     <div class="kpi-spacer">
-      <div class="section-label-top">CURRENT SHIFT</div>
+      <div class="section-label">CURRENT SHIFT</div>
     </div>
 
-    <div class="kpi-card-wrapper">
+    <div class="kpi-col-wrapper">
       <div class="kpi-card" id="cardLine1_Shift">
         <div class="card-grid">
           <div>
@@ -240,7 +231,7 @@
       </div>
     </div>
 
-    <div class="kpi-card-wrapper">
+    <div class="kpi-col-wrapper">
       <div class="kpi-card" id="cardLine2_Shift">
         <div class="card-grid">
           <div>
@@ -253,7 +244,7 @@
       </div>
     </div>
 
-    <div class="kpi-card-wrapper">
+    <div class="kpi-col-wrapper">
       <div class="kpi-card" id="cardLine3_Shift">
         <div class="card-grid">
           <div>
@@ -266,7 +257,7 @@
       </div>
     </div>
 
-    <div class="kpi-card-wrapper">
+    <div class="kpi-col-wrapper">
       <div class="kpi-card" id="cardLine4_Shift">
         <div class="card-grid">
           <div>
@@ -279,13 +270,13 @@
       </div>
     </div>
 
-    <div class="kpi-card-wrapper">
+    <div class="kpi-col-wrapper">
       <div class="kpi-card" id="cardTotal_Shift">
         <div class="card-grid">
           <div>
-            <div class="kpi-title">SHIFT TOTAL</div>
-            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="totalProd_Shift">-</div></div>
-            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="totalTarget_Shift">-</div></div>
+            <div class="kpi-title">Total Shift</div>
+            <div class="kpi-main" id="totalProd_Shift">-</div>
+            <div class="kpi-sub" id="totalTarget_Shift">Tgt: -</div>
           </div>
           <div class="right-col"><div class="big-face" id="faceTotal_Shift"></div><div class="face-pct" id="pctTotal_Shift"></div></div>
         </div>
@@ -311,29 +302,65 @@
     </table>
   </div>
 
-  <div class="bottom-section">
-    <div class="section-label-btm">GLOBAL (ACCUMULATED)</div>
-    <div class="global-row">
-      <div class="global-card" id="gCardL1">
-        <div><div class="g-title">L1 Global</div><div class="g-val" id="accL1">-</div></div>
-        <div class="g-pct" id="pctL1">-</div>
+  <div class="kpi-row-btm">
+    <div class="section-label-btm">GLOBAL RESULTS</div>
+    <div class="global-grid">
+      
+      <div class="kpi-card" id="cardLine1">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 1 Global</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL1">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Glb">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceL1"></div><div class="face-pct" id="pctL1"></div></div>
+        </div>
       </div>
-      <div class="global-card" id="gCardL2">
-        <div><div class="g-title">L2 Global</div><div class="g-val" id="accL2">-</div></div>
-        <div class="g-pct" id="pctL2">-</div>
+
+      <div class="kpi-card" id="cardLine2">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 2 Global</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL2">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Glb">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceL2"></div><div class="face-pct" id="pctL2"></div></div>
+        </div>
       </div>
-      <div class="global-card" id="gCardL3">
-        <div><div class="g-title">L3 Global</div><div class="g-val" id="accL3">-</div></div>
-        <div class="g-pct" id="pctL3">-</div>
+
+      <div class="kpi-card" id="cardLine3">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 3 Global</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL3">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Glb">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceL3"></div><div class="face-pct" id="pctL3"></div></div>
+        </div>
       </div>
-      <div class="global-card" id="gCardL4">
-        <div><div class="g-title">L4 Global</div><div class="g-val" id="accL4">-</div></div>
-        <div class="g-pct" id="pctL4">-</div>
+
+      <div class="kpi-card" id="cardLine4">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 4 Global</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL4">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Glb">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceL4"></div><div class="face-pct" id="pctL4"></div></div>
+        </div>
       </div>
-      <div class="global-card" id="gCardTotal" style="border-color:#555; background:#151515;">
-        <div><div class="g-title">TOTAL GLOBAL</div><div class="g-val" id="totalProd">-</div></div>
-        <div class="g-pct" id="pctTotal">-</div>
+
+      <div class="kpi-card" id="cardTotal">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Total Global</div>
+            <div class="kpi-main" id="totalProd">-</div>
+            <div class="kpi-sub" id="totalTarget">Tgt: -</div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceTotal"></div><div class="face-pct" id="pctTotal"></div></div>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -344,6 +371,8 @@
 
   function getTodayISO() {
     const d = new Date();
+    // Regra das 06:00 (madrugada conta como ontem)
+    if (d.getHours() < 6) d.setDate(d.getDate() - 1);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
@@ -378,9 +407,9 @@
   }
 
   function perfStatus(pct) {
-    if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy", color:"#00b050" };
-    if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral", color:"#FFFF00" };
-    return { status:"NOK", cls:"cell-nok", face:"sad", color:"#c00000" };
+    if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
+    if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
+    return { status:"NOK", cls:"cell-nok", face:"sad" };
   }
 
   function statusClass(kind) {
@@ -392,7 +421,7 @@
     return "";
   }
 
-  // Verifica se é um código que zera o target (.5, 5., ,5, 5,)
+  // Verifica códigos que zeram target: .5, 5., ,5, 5,
   function isNoSchedule(val) {
     if (!val) return false;
     const s = String(val).trim();
@@ -421,29 +450,10 @@
     pct.textContent = Math.round(percentage) + "%";
   }
 
-  function updateGlobalCard(cardId, valId, pctId, val, target) {
-    const card = document.getElementById(cardId);
-    const elVal = document.getElementById(valId);
-    const elPct = document.getElementById(pctId);
-    
-    if (target <= 0) {
-      elVal.textContent = "-"; elPct.textContent = ""; card.style.borderColor = "#333"; return;
-    }
-    
-    const p = val/target;
-    const st = perfStatus(p);
-    
-    elVal.textContent = val;
-    elPct.textContent = Math.round(p*100) + "%";
-    elPct.style.color = st.color;
-    card.style.borderColor = st.color;
-  }
-
   function hasAnyLaunchInSlot(slot) { return slot && slot.has_launch === true; }
   
-  // Função auxiliar para calcular target individual da linha
-  function getLineTarget(slot, lineStatusKey) {
-    const st = slot[lineStatusKey];
+  function getLineTarget(slot, stKey) {
+    const st = slot[stKey];
     if (isNoSchedule(st)) return 0;
     return Number(slot.target_effective || slot.target || 0);
   }
@@ -466,18 +476,15 @@
 
     // --- GLOBAL (BOTTOM) ---
     const globalConsidered = calcUpToUltimo(allSlots, ultimo);
-    
-    // Calculo refinado global
     let gProd = { l1:0, l2:0, l3:0, l4:0 };
     let gTgt  = { l1:0, l2:0, l3:0, l4:0 };
 
     globalConsidered.forEach(s => {
-      // Prod
       gProd.l1 += Number(s.line1||0);
       gProd.l2 += Number(s.line2||0);
       gProd.l3 += Number(s.line3||0);
       gProd.l4 += Number(s.line4||0);
-      // Target (Considering No Schedule)
+
       gTgt.l1 += getLineTarget(s, "st1");
       gTgt.l2 += getLineTarget(s, "st2");
       gTgt.l3 += getLineTarget(s, "st3");
@@ -487,12 +494,37 @@
     const gTotalProd = gProd.l1 + gProd.l2 + gProd.l3 + gProd.l4;
     const gTotalTgt  = gTgt.l1 + gTgt.l2 + gTgt.l3 + gTgt.l4;
 
-    if (anyLaunchDay) {
-      updateGlobalCard("gCardL1", "accL1", "pctL1", gProd.l1, gTgt.l1);
-      updateGlobalCard("gCardL2", "accL2", "pctL2", gProd.l2, gTgt.l2);
-      updateGlobalCard("gCardL3", "accL3", "pctL3", gProd.l3, gTgt.l3);
-      updateGlobalCard("gCardL4", "accL4", "pctL4", gProd.l4, gTgt.l4);
-      updateGlobalCard("gCardTotal", "totalProd", "pctTotal", gTotalProd, gTotalTgt);
+    // Atualiza Cards Globais (Linha Inferior)
+    // ID Mappings: cardLine1 -> Global L1
+    const globalLines = [
+      { key:"l1", valId:"accL1", tgtId:"tgtL1_Glb", card:"cardLine1", face:"faceL1", pct:"pctL1" },
+      { key:"l2", valId:"accL2", tgtId:"tgtL2_Glb", card:"cardLine2", face:"faceL2", pct:"pctL2" },
+      { key:"l3", valId:"accL3", tgtId:"tgtL3_Glb", card:"cardLine3", face:"faceL3", pct:"pctL3" },
+      { key:"l4", valId:"accL4", tgtId:"tgtL4_Glb", card:"cardLine4", face:"faceL4", pct:"pctL4" }
+    ];
+
+    globalLines.forEach(m => {
+      const t = gTgt[m.key];
+      const v = gProd[m.key];
+      document.getElementById(m.valId).textContent = anyLaunchDay ? v : "-";
+      document.getElementById(m.tgtId).textContent = anyLaunchDay ? t : "-";
+
+      if (!anyLaunchDay || t <= 0) {
+        updateCardUI(m.card, m.face, m.pct, null, null);
+      } else {
+        const p = v / t;
+        updateCardUI(m.card, m.face, m.pct, perfStatus(p), p*100);
+      }
+    });
+
+    // Global Total
+    document.getElementById("totalProd").textContent = anyLaunchDay ? gTotalProd : "-";
+    document.getElementById("totalTarget").textContent = "Tgt: " + (anyLaunchDay ? gTotalTgt : "-");
+    if (!anyLaunchDay || gTotalTgt <= 0) {
+      updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
+    } else {
+      const p = gTotalProd / gTotalTgt;
+      updateCardUI("cardTotal", "faceTotal", "pctTotal", perfStatus(p), p*100);
     }
 
     // --- SHIFT (TOP) ---
@@ -518,7 +550,6 @@
     const sTotalProd = sProd.l1 + sProd.l2 + sProd.l3 + sProd.l4;
     const sTotalTgt  = sTgt.l1 + sTgt.l2 + sTgt.l3 + sTgt.l4;
 
-    // Update Top Cards
     const shiftLines = [
       { key:"l1", valId:"valL1_Shift", tgtId:"tgtL1_Shift", card:"cardLine1_Shift", face:"faceL1_Shift", pct:"pctL1_Shift" },
       { key:"l2", valId:"valL2_Shift", tgtId:"tgtL2_Shift", card:"cardLine2_Shift", face:"faceL2_Shift", pct:"pctL2_Shift" },
@@ -527,20 +558,22 @@
     ];
 
     shiftLines.forEach(m => {
-      document.getElementById(m.tgtId).textContent = anyLaunchShift ? sTgt[m.key] : "-";
-      document.getElementById(m.valId).textContent = anyLaunchShift ? sProd[m.key] : "-";
+      const t = sTgt[m.key];
+      const v = sProd[m.key];
+      document.getElementById(m.tgtId).textContent = anyLaunchShift ? t : "-";
+      document.getElementById(m.valId).textContent = anyLaunchShift ? v : "-";
       
-      if (!anyLaunchShift || sTgt[m.key] <= 0) {
+      if (!anyLaunchShift || t <= 0) {
         updateCardUI(m.card, m.face, m.pct, null, null);
       } else {
-        const p = sProd[m.key] / sTgt[m.key];
+        const p = v / t;
         updateCardUI(m.card, m.face, m.pct, perfStatus(p), p*100);
       }
     });
 
     // Total Shift Card
     document.getElementById("totalProd_Shift").textContent = anyLaunchShift ? sTotalProd : "-";
-    document.getElementById("totalTarget_Shift").textContent = anyLaunchShift ? sTotalTgt : "-";
+    document.getElementById("totalTarget_Shift").textContent = "Tgt: " + (anyLaunchShift ? sTotalTgt : "-");
     
     if (!anyLaunchShift || sTotalTgt <= 0) {
       updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
@@ -594,7 +627,7 @@
           const tr = document.createElement("tr");
           if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
           
-          const tdShift = document.createElement("td"); tdShift.textContent = slot.shift; tr.appendChild(tdShift);
+          const tdShift = document.createElement("td"); tdShift.textContent = "Shift " + slot.shift; tr.appendChild(tdShift);
           const tdTime = document.createElement("td"); tdTime.textContent = slot.label; tr.appendChild(tdTime);
           
           const targetSlot = Number(slot.target_effective || 0);
@@ -611,11 +644,9 @@
           ];
 
           defs.forEach(d => {
-            // Check status
             const stKind = slot[d.st] || "RUN";
             const isStop = (stKind !== "RUN");
             
-            // Calc Target contribution
             const lineTgt = isNoSchedule(stKind) ? 0 : targetSlot;
             rowTgt += lineTgt;
 
@@ -636,7 +667,7 @@
             tr.appendChild(tdWithPerf(v, lineTgt, true));
           });
 
-          // NEW TOTAL COLUMN
+          // TOTAL COLUMN
           if (hasAnyLaunchInSlot(slot)) {
             tr.appendChild(tdWithPerf(rowProd, rowTgt, true));
           } else {
@@ -647,7 +678,6 @@
         });
       }
 
-      // SHIFT SUMMARY ROW
       if (group.slots.length > 0) {
         let sumProd = { l1:0, l2:0, l3:0, l4:0 };
         let sumTgt = { l1:0, l2:0, l3:0, l4:0 };
@@ -670,10 +700,7 @@
         const sumTotalTgt = sumTgt.l1 + sumTgt.l2 + sumTgt.l3 + sumTgt.l4;
 
         const trSum = document.createElement("tr"); trSum.classList.add("shift-sum");
-        
-        const td1 = document.createElement("td"); td1.colSpan = 2; td1.innerHTML = `SHIFT ${group.shift}`; trSum.appendChild(td1);
-        
-        // Target Sum (Não exibe no summary, deixa vazio ou soma simples? Deixarei vazio para focar no atingimento)
+        const td1 = document.createElement("td"); td1.colSpan = 2; td1.innerHTML = `SHIFT ${group.shift} RESULT`; trSum.appendChild(td1);
         const tdT = document.createElement("td"); tdT.textContent = ""; trSum.appendChild(tdT);
 
         ["l1","l2","l3","l4"].forEach(k => {
