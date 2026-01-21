@@ -2,170 +2,151 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>PERFORMANCE CLM6 - ANDON TV FINAL</title>
+  <title>PERFORMANCE CLM6 - ANDON FINAL</title>
   <style>
     html, body { 
       margin: 0; padding: 0; 
-      height: 100vh; 
-      width: 100vw;
+      height: 100vh; width: 100vw;
       background: #000; 
       font-family: Arial, Helvetica, sans-serif; 
       color: #fff; 
       overflow: hidden; 
     }
 
-    /* --- SISTEMA DE LARGURAS (GRID PERFEITO) --- */
+    /* --- GRID SYSTEM MATEMÁTICO --- */
+    /* Define a largura exata de cada coluna para ser usada em Cards e Tabela */
     :root {
-      /* Espaço da esquerda (Shift + Time + Target) = 25% */
-      --w-shift: 6%;
-      --w-time: 12%;
-      --w-target: 7%;
-      
-      /* Espaço das Colunas de Dados (L1..L4 + Total) = 75% */
-      --w-col: 15%; 
+      /* Shift(6%) Time(12%) Target(7%) L1(15%) L2(15%) L3(15%) L4(15%) Total(Resto) */
+      --grid-layout: 6% 12% 7% 15% 15% 15% 15% 1fr;
     }
 
     .wrapper { 
-      display: flex; 
-      flex-direction: column; 
-      height: 100%; 
-      padding: 10px 16px; 
-      box-sizing: border-box; 
+      display: flex; flex-direction: column; 
+      height: 100%; padding: 10px 14px; box-sizing: border-box; 
     }
 
     /* HEADER */
     .header { 
-      flex: 0 0 auto; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 8px; 
-      height: 44px;
+      flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; 
+      margin-bottom: 6px; height: 40px;
     }
-    .logo { height: 38px; width: auto; display: block; }
-    .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
-    .header-date { font-size: 24px; font-weight: 900; color: #ddd; }
+    .logo { height: 34px; width: auto; display: block; }
+    .header-title { font-size: 32px; font-weight: 900; letter-spacing: 1px; }
+    .header-date { font-size: 22px; font-weight: 900; color: #ddd; }
 
-    /* --- LINHAS DE KPI (TOPO E RODAPÉ) --- */
-    /* Usamos flexbox com as mesmas larguras da tabela para garantir alinhamento */
+    /* --- ESTRUTURA DE LINHAS (KPIs e TABELA) --- */
+    /* Essa classe garante que o cabeçalho dos cards e as linhas da tabela sigam o mesmo grid */
+    .master-grid {
+      display: grid;
+      grid-template-columns: var(--grid-layout);
+      gap: 0; /* Gap zero para alinhamento perfeito */
+      align-items: center;
+    }
+
+    /* KPI ROW (TOPO E RODAPÉ) */
     .kpi-row {
       flex: 0 0 auto;
-      display: flex;
-      width: 100%;
-      margin-bottom: 6px;
-      box-sizing: border-box;
+      margin-bottom: 4px;
+      /* Padding right compensa scroll da tabela se necessário, ajustável */
+      padding-right: 6px; 
     }
 
+    /* Células Invisíveis (Spacer) */
     .kpi-spacer {
-      width: calc(var(--w-shift) + var(--w-time) + var(--w-target));
-      display: flex;
-      align-items: flex-end;
-      padding-right: 10px;
-      box-sizing: border-box;
-      flex-shrink: 0; /* Não deixa encolher */
+      display: flex; align-items: flex-end; padding-right: 10px; height: 100%;
     }
-
     .section-label {
-      font-size: 14px; font-weight: 900; color: #00b050; 
+      font-size: 13px; font-weight: 900; color: #00b050; 
       text-transform: uppercase; border-bottom: 2px solid #00b050; 
       width: 100%; margin-bottom: 5px;
     }
     .section-label-btm {
-      font-size: 14px; font-weight: 900; color: #777; 
-      text-transform: uppercase; margin-bottom: 5px;
+      font-size: 13px; font-weight: 900; color: #777; 
+      text-transform: uppercase; margin-bottom: 5px; width: 100%;
     }
 
-    .kpi-col-wrapper {
-      width: var(--w-col);
-      padding: 0 4px; 
+    /* Células de Cards */
+    .kpi-cell {
+      padding: 0 4px; /* Espaço entre cards */
+      height: 90px;
       box-sizing: border-box;
-      flex-shrink: 0;
     }
 
     .kpi-card {
       background: #111;
-      border-radius: 12px;
-      padding: 8px 10px; /* Padding ajustado */
+      border-radius: 10px;
+      padding: 6px 10px;
       box-shadow: 0 0 8px rgba(0,0,0,0.6);
       border: 2px solid #444; 
-      height: 96px; 
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      height: 100%; 
+      display: flex; flex-direction: column; justify-content: center;
     }
 
     .card-grid { 
-      display: grid; 
-      grid-template-columns: 1fr auto; 
-      gap: 5px; 
-      align-items: center; 
-      height: 100%;
+      display: grid; grid-template-columns: 1fr auto; 
+      gap: 4px; align-items: center; height: 100%;
     }
 
-    /* Tipografia */
-    .kpi-title { font-size: 14px; margin-bottom: 4px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .kpi-main { font-size: 28px; font-weight: 900; line-height: 1; color:#fff; }
+    .kpi-title { font-size: 13px; margin-bottom: 2px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 26px; font-weight: 900; line-height: 1; color:#fff; }
     .kpi-sub  { font-size: 11px; color: #999; }
+    .metric { margin-top: 3px; }
+    .metric-label { font-size: 10px; color: #999; }
+    .metric-value { font-size: 14px; font-weight: 900; color: #fff; }
 
-    .metric { margin-top: 4px; }
-    .metric-label { font-size: 11px; color: #999; }
-    .metric-value { font-size: 15px; font-weight: 900; color: #fff; }
+    .right-col { display: flex; flex-direction: column; align-items: center; width: 45px; }
+    .big-face svg { width: 36px; height: 36px; display: block; }
+    .face-pct { font-size: 15px; font-weight: 900; color: #fff; margin-top: 2px; }
 
-    .right-col {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; width: 55px; 
-    }
-    .big-face svg { width: 40px; height: 40px; display: block; }
-    .face-pct { font-size: 16px; font-weight: 900; color: #fff; margin-top: 3px; }
-
-    /* TABLE */
+    /* TABELA */
     .table-container { 
       flex: 1 1 auto; 
       background: #111; 
-      border-radius: 10px; 
-      padding: 0;
-      margin-bottom: 8px;
+      border-radius: 8px; 
       border: 1px solid #333;
       overflow-y: auto; 
       display: flex; flex-direction: column;
     }
-
-    table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
     
-    thead th { 
-      position: sticky; top: 0; 
+    /* Cabeçalho da Tabela */
+    .table-head {
+      position: sticky; top: 0; z-index: 10;
       background: #222; 
-      border-bottom: 2px solid #555; 
-      border-right: 1px solid #555; 
-      z-index: 10;
+      border-bottom: 2px solid #555;
+      font-size: 13px; font-weight: bold;
+    }
+    .th-cell {
       padding: 8px 4px;
-      font-size: 13px;
-      overflow: hidden; text-overflow: ellipsis;
+      border-right: 1px solid #555;
+      text-align: center;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    tbody td { 
-      text-align: center; 
-      border-bottom: 1px solid #222; 
-      border-right: 1px solid #222; 
-      padding: 6px 4px; 
-      height: 28px;
-      white-space: nowrap; overflow: hidden;
+    .th-cell:last-child { border-right: none; background: #1a1a1a; }
+
+    /* Corpo da Tabela */
+    .table-row {
+      border-bottom: 1px solid #222;
+      font-size: 14px;
     }
-
-    /* Larguras Fixas (Vincular ao :root) */
-    .th-shift { width: var(--w-shift); }
-    .th-time { width: var(--w-time); }
-    .th-target { width: var(--w-target); }
-    .th-line { width: var(--w-col); }
-    .th-total { width: var(--w-col); background: #1a1a1a; }
-
     .row-current { background: #262626; }
 
+    .td-cell {
+      padding: 6px 4px;
+      border-right: 1px solid #222;
+      text-align: center;
+      height: 30px; 
+      display: flex; align-items: center; justify-content: center; /* Centraliza vertical e horizontal */
+      white-space: nowrap; overflow: hidden;
+    }
+    .td-cell:last-child { border-right: none; }
+
     /* Cores */
-    .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
-    .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
-    .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
+    .cell-ok  { background: #00b050; color: #000; font-weight: 900; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+    .cell-mid { background: #FFFF00; color: #000; font-weight: 900; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+    .cell-nok { background: #c00000; color: #fff; font-weight: 900; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
     
     .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
-      font-weight: 900; font-size: 11px; color:#000; 
+      font-weight: 900; font-size: 11px; color:#000; width:100%; height:100%; display:flex; align-items:center; justify-content:center;
     }
     .cell-mnt { background: orange; }
     .cell-mat { background: #808080; }
@@ -173,27 +154,21 @@
     .cell-qual{ background: #ffd400; }
     .cell-nosched { background: #0070c0; color:#fff; }
 
-    /* Linha Azul (Shift Summary) */
-    .shift-sum td {
-      background: #003366; 
-      color: #fff; font-weight: 900; font-size: 15px;
-      padding: 10px 4px !important;
-      border-top: 3px solid #fff;
-      border-bottom: 3px solid #fff;
+    /* Shift Summary */
+    .shift-sum { border-top: 3px solid #fff; border-bottom: 3px solid #fff; }
+    .shift-sum .td-cell {
+      background: #003366; color: #fff; font-weight: 900; font-size: 15px;
+      height: 40px;
     }
-    .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
-    .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
-    .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
+    /* Summary Spans */
+    .span-2 { grid-column: span 2; } /* Ocupa Shift + Time */
 
     .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Rodapé (Borda extra) */
-    .footer-divider {
-      border-top: 1px solid #444;
-      padding-top: 10px;
-    }
+    .footer-divider { border-top: 1px solid #444; padding-top: 8px; margin-top: auto;}
 
-    body[data-shifts="1"] table { font-size: 15px; }
+    /* Responsividade Texto */
+    body[data-shifts="1"] .table-row { font-size: 15px; }
   </style>
 </head>
 <body>
@@ -201,23 +176,19 @@
 <div class="wrapper">
 
   <div class="header">
-    <div class="header-left">
-      <img class="logo" src="assets/BGM.png" alt="BGM">
-    </div>
-    <div class="header-center">
-      <div class="header-title">PERFORMANCE CLM6</div>
-    </div>
-    <div class="header-right">
-      <div class="header-date" id="dateTime">--</div>
-    </div>
+    <div class="header-left"><img class="logo" src="assets/BGM.png" alt="BGM"></div>
+    <div class="header-center"><div class="header-title">PERFORMANCE CLM6</div></div>
+    <div class="header-right"><div class="header-date" id="dateTime">--</div></div>
   </div>
 
-  <div class="kpi-row">
-    <div class="kpi-spacer">
-      <div class="section-label">CURRENT SHIFT</div>
+  <div class="master-grid kpi-row">
+    <div style="grid-column: span 3; padding-right:10px;">
+      <div class="kpi-spacer">
+        <div class="section-label">CURRENT SHIFT</div>
+      </div>
     </div>
 
-    <div class="kpi-col-wrapper">
+    <div class="kpi-cell">
       <div class="kpi-card" id="cardLine1_Shift">
         <div class="card-grid">
           <div>
@@ -229,8 +200,7 @@
         </div>
       </div>
     </div>
-
-    <div class="kpi-col-wrapper">
+    <div class="kpi-cell">
       <div class="kpi-card" id="cardLine2_Shift">
         <div class="card-grid">
           <div>
@@ -242,8 +212,7 @@
         </div>
       </div>
     </div>
-
-    <div class="kpi-col-wrapper">
+    <div class="kpi-cell">
       <div class="kpi-card" id="cardLine3_Shift">
         <div class="card-grid">
           <div>
@@ -255,8 +224,7 @@
         </div>
       </div>
     </div>
-
-    <div class="kpi-col-wrapper">
+    <div class="kpi-cell">
       <div class="kpi-card" id="cardLine4_Shift">
         <div class="card-grid">
           <div>
@@ -268,8 +236,7 @@
         </div>
       </div>
     </div>
-
-    <div class="kpi-col-wrapper">
+    <div class="kpi-cell">
       <div class="kpi-card" id="cardTotal_Shift">
         <div class="card-grid">
           <div>
@@ -284,34 +251,32 @@
   </div>
 
   <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th class="th-shift">Shift</th>
-          <th class="th-time">Time</th>
-          <th class="th-target">Target</th>
-          <th class="th-line">Line 1</th>
-          <th class="th-line">Line 2</th>
-          <th class="th-line">Line 3</th>
-          <th class="th-line">Line 4</th>
-          <th class="th-total">TOTAL</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+    <div class="master-grid table-head">
+      <div class="th-cell">Shift</div>
+      <div class="th-cell">Time</div>
+      <div class="th-cell">Target</div>
+      <div class="th-cell">Line 1</div>
+      <div class="th-cell">Line 2</div>
+      <div class="th-cell">Line 3</div>
+      <div class="th-cell">Line 4</div>
+      <div class="th-cell">TOTAL</div>
+    </div>
+    <div id="tableBody"></div>
   </div>
 
   <div class="footer-divider">
-    <div class="kpi-row">
-      <div class="kpi-spacer">
-        <div class="section-label-btm">GLOBAL (ACCUMULATED)</div>
+    <div class="master-grid kpi-row">
+      <div style="grid-column: span 3; padding-right:10px;">
+        <div class="kpi-spacer">
+          <div class="section-label-btm">GLOBAL (ACCUMULATED)</div>
+        </div>
       </div>
 
-      <div class="kpi-col-wrapper">
+      <div class="kpi-cell">
         <div class="kpi-card" id="cardLine1">
           <div class="card-grid">
             <div>
-              <div class="kpi-title">Line 1</div>
+              <div class="kpi-title">Line 1 Global</div>
               <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL1">-</div></div>
               <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Glb">-</div></div>
             </div>
@@ -319,12 +284,11 @@
           </div>
         </div>
       </div>
-
-      <div class="kpi-col-wrapper">
+      <div class="kpi-cell">
         <div class="kpi-card" id="cardLine2">
           <div class="card-grid">
             <div>
-              <div class="kpi-title">Line 2</div>
+              <div class="kpi-title">Line 2 Global</div>
               <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL2">-</div></div>
               <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Glb">-</div></div>
             </div>
@@ -332,12 +296,11 @@
           </div>
         </div>
       </div>
-
-      <div class="kpi-col-wrapper">
+      <div class="kpi-cell">
         <div class="kpi-card" id="cardLine3">
           <div class="card-grid">
             <div>
-              <div class="kpi-title">Line 3</div>
+              <div class="kpi-title">Line 3 Global</div>
               <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL3">-</div></div>
               <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Glb">-</div></div>
             </div>
@@ -345,12 +308,11 @@
           </div>
         </div>
       </div>
-
-      <div class="kpi-col-wrapper">
+      <div class="kpi-cell">
         <div class="kpi-card" id="cardLine4">
           <div class="card-grid">
             <div>
-              <div class="kpi-title">Line 4</div>
+              <div class="kpi-title">Line 4 Global</div>
               <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="accL4">-</div></div>
               <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Glb">-</div></div>
             </div>
@@ -358,14 +320,13 @@
           </div>
         </div>
       </div>
-
-      <div class="kpi-col-wrapper">
+      <div class="kpi-cell">
         <div class="kpi-card" id="cardTotal">
           <div class="card-grid">
             <div>
               <div class="kpi-title">Total Global</div>
-              <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="totalProd">-</div></div>
-              <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="totalTarget">-</div></div>
+              <div class="kpi-main" id="totalProd">-</div>
+              <div class="kpi-sub" id="totalTarget">Tgt: -</div>
             </div>
             <div class="right-col"><div class="big-face" id="faceTotal"></div><div class="face-pct" id="pctTotal"></div></div>
           </div>
@@ -401,8 +362,7 @@
       const mm = String(now.getMinutes()).padStart(2,"0");
       el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
     }
-    tick();
-    setInterval(tick, 1000);
+    tick(); setInterval(tick, 1000);
   }
 
   function faceSVG(type) {
@@ -431,7 +391,6 @@
     return "";
   }
 
-  // Verifica códigos que zeram target
   function isNoSchedule(val) {
     if (!val) return false;
     const s = String(val).trim();
@@ -450,7 +409,6 @@
       pct.textContent = "";
       return;
     }
-
     if (statusObj.status === "OK") card.style.borderColor = "#00b050";
     else if (statusObj.status === "MID") card.style.borderColor = "#FFFF00";
     else card.style.borderColor = "#c00000";
@@ -478,13 +436,12 @@
     return out;
   }
 
-  /* ---------------- LOGIC ---------------- */
   function updateAllKPIs(json, activeShift) {
     const allSlots = json.slots || [];
     const ultimo = json.ultimo_slot || null;
     const anyLaunchDay = allSlots.some(s => hasAnyLaunchInSlot(s));
 
-    // --- GLOBAL (BOTTOM) ---
+    // --- GLOBAL ---
     const globalConsidered = calcUpToUltimo(allSlots, ultimo);
     let gProd = { l1:0, l2:0, l3:0, l4:0 };
     let gTgt  = { l1:0, l2:0, l3:0, l4:0 };
@@ -516,26 +473,22 @@
       const v = gProd[m.key];
       document.getElementById(m.valId).textContent = anyLaunchDay ? v : "-";
       document.getElementById(m.tgtId).textContent = anyLaunchDay ? t : "-";
-
-      if (!anyLaunchDay || t <= 0) {
-        updateCardUI(m.card, m.face, m.pct, null, null);
-      } else {
+      if (!anyLaunchDay || t <= 0) updateCardUI(m.card, m.face, m.pct, null, null);
+      else {
         const p = v / t;
         updateCardUI(m.card, m.face, m.pct, perfStatus(p), p*100);
       }
     });
 
-    // Total Global
     document.getElementById("totalProd").textContent = anyLaunchDay ? gTotalProd : "-";
-    document.getElementById("totalTarget").textContent = anyLaunchDay ? gTotalTgt : "-";
-    if (!anyLaunchDay || gTotalTgt <= 0) {
-      updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
-    } else {
+    document.getElementById("totalTarget").textContent = "Tgt: " + (anyLaunchDay ? gTotalTgt : "-");
+    if (!anyLaunchDay || gTotalTgt <= 0) updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
+    else {
       const p = gTotalProd / gTotalTgt;
       updateCardUI("cardTotal", "faceTotal", "pctTotal", perfStatus(p), p*100);
     }
 
-    // --- SHIFT (TOP) ---
+    // --- SHIFT ---
     const shiftSlotsAll = allSlots.filter(s => Number(s.shift) === activeShift);
     const shiftConsidered = calcUpToUltimo(shiftSlotsAll, ultimo);
     const anyLaunchShift = shiftConsidered.some(s => hasAnyLaunchInSlot(s));
@@ -570,48 +523,61 @@
       const v = sProd[m.key];
       document.getElementById(m.tgtId).textContent = anyLaunchShift ? t : "-";
       document.getElementById(m.valId).textContent = anyLaunchShift ? v : "-";
-      
-      if (!anyLaunchShift || t <= 0) {
-        updateCardUI(m.card, m.face, m.pct, null, null);
-      } else {
+      if (!anyLaunchShift || t <= 0) updateCardUI(m.card, m.face, m.pct, null, null);
+      else {
         const p = v / t;
         updateCardUI(m.card, m.face, m.pct, perfStatus(p), p*100);
       }
     });
 
-    // Total Shift Card
     document.getElementById("totalProd_Shift").textContent = anyLaunchShift ? sTotalProd : "-";
-    document.getElementById("totalTarget_Shift").textContent = anyLaunchShift ? sTotalTgt : "-";
+    document.getElementById("totalTarget_Shift").textContent = "Tgt: " + (anyLaunchShift ? sTotalTgt : "-");
     
-    if (!anyLaunchShift || sTotalTgt <= 0) {
-      updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
-    } else {
+    if (!anyLaunchShift || sTotalTgt <= 0) updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
+    else {
       const p = sTotalProd / sTotalTgt;
       updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", perfStatus(p), p*100);
     }
   }
 
-  function tdWithPerf(value, targetEff, hasLaunch) {
-    const td = document.createElement("td");
+  function divWithPerf(value, targetEff, hasLaunch) {
+    const div = document.createElement("div");
+    div.className = "td-cell";
     if (!hasLaunch || targetEff <= 0) { 
-      td.textContent = (value > 0 || hasLaunch) ? value : ""; 
-      return td; 
+      div.textContent = (value > 0 || hasLaunch) ? value : ""; 
+      return div; 
     }
     const st = perfStatus(value / targetEff);
-    td.classList.add(st.cls);
-    td.textContent = value;
-    return td;
+    div.innerHTML = `<div class="${st.cls}">${value}</div>`;
+    return div;
   }
 
-  function tdSummaryWithPerf(value, targetEff) {
-    const td = document.createElement("td");
-    if (targetEff <= 0) { td.textContent = (value > 0) ? value : ""; return td; }
+  function divSummaryWithPerf(value, targetEff) {
+    const div = document.createElement("div");
+    div.className = "td-cell";
+    if (targetEff <= 0) { 
+        // Se target é zero, mas tem produção, não mostra erro
+        div.textContent = (value > 0) ? value : ""; 
+        return div; 
+    }
     const ratio = value / targetEff;
     const st = perfStatus(ratio);
-    td.classList.add(st.cls);
-    const pct = Math.round(ratio * 100);
-    td.innerHTML = `${value} <span style="font-size:0.9em">(${pct}%)</span>`;
-    return td;
+    
+    // Ajuste visual para ficar igual ao seu print (barra cheia)
+    // As classes .cell-ok já possuem width:100%
+    div.innerHTML = `<div class="${st.cls}">${value} <span style="font-size:0.8em; margin-left:4px;">(${Math.round(ratio*100)}%)</span></div>`;
+    return div;
+  }
+
+  function simpleDiv(text, cls) {
+    const d = document.createElement("div");
+    d.className = "td-cell";
+    if(cls) {
+        d.innerHTML = `<div class="${cls}">${text}</div>`;
+    } else {
+        d.textContent = text;
+    }
+    return d;
   }
 
   function applyShiftDensity(json){
@@ -632,14 +598,15 @@
 
       if (isCurrentShift) {
         group.slots.forEach(slot => {
-          const tr = document.createElement("tr");
-          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+          const row = document.createElement("div");
+          row.className = "master-grid table-row";
+          if (ultimo && slot.id_slot === ultimo.id_slot) row.classList.add("row-current");
           
-          const tdShift = document.createElement("td"); tdShift.textContent = "Shift " + slot.shift; tr.appendChild(tdShift);
-          const tdTime = document.createElement("td"); tdTime.textContent = slot.label; tr.appendChild(tdTime);
+          row.appendChild(simpleDiv("Shift " + slot.shift));
+          row.appendChild(simpleDiv(slot.label));
           
           const targetSlot = Number(slot.target_effective || 0);
-          const tdTarget = document.createElement("td"); tdTarget.textContent = targetSlot > 0 ? targetSlot : ""; tr.appendChild(tdTarget);
+          row.appendChild(simpleDiv(targetSlot > 0 ? targetSlot : ""));
 
           // Lines
           let rowProd = 0;
@@ -655,85 +622,84 @@
             const stKind = slot[d.st] || "RUN";
             const isStop = (stKind !== "RUN");
             
+            // Só soma target se a linha não estiver parada
             const lineTgt = isNoSchedule(stKind) ? 0 : targetSlot;
             rowTgt += lineTgt;
 
             if (isStop) {
-              const td = document.createElement("td"); 
-              td.textContent = slot[d.disp] || ""; 
-              td.classList.add(statusClass(stKind)); 
-              tr.appendChild(td);
+              row.appendChild(simpleDiv(slot[d.disp] || "", statusClass(stKind)));
               return;
             }
             if (!hasAnyLaunchInSlot(slot)) {
-              const td = document.createElement("td"); td.textContent = ""; tr.appendChild(td); return;
+              row.appendChild(simpleDiv("")); return;
             }
             
             const raw = slot[d.key];
             const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
             rowProd += v;
-            tr.appendChild(tdWithPerf(v, lineTgt, true));
+            row.appendChild(divWithPerf(v, lineTgt, true));
           });
 
           // TOTAL COLUMN
           if (hasAnyLaunchInSlot(slot)) {
-            tr.appendChild(tdWithPerf(rowProd, rowTgt, true));
+            row.appendChild(divWithPerf(rowProd, rowTgt, true));
           } else {
-            const td = document.createElement("td"); td.textContent = ""; tr.appendChild(td);
+            row.appendChild(simpleDiv(""));
           }
-
-          tbody.appendChild(tr);
+          tbody.appendChild(row);
         });
       }
 
       if (group.slots.length > 0) {
         let sumProd = { l1:0, l2:0, l3:0, l4:0 };
         let sumTgt = { l1:0, l2:0, l3:0, l4:0 };
-        let totalSlotTarget = 0; // Target simples do turno (soma da coluna Target)
+        let totalSlotTarget = 0; // Soma dos targets das linhas (apenas visual, sem lógica de eficiência)
         let hasData = false;
 
         group.slots.forEach(s => {
-          if (hasAnyLaunchInSlot(s)) hasData = true;
-          totalSlotTarget += Number(s.target_effective || 0);
+          if (hasAnyLaunchInSlot(s)) {
+              hasData = true;
+              // SÓ SOMA O TARGET NA BARRA AZUL SE O SLOT TIVER DADOS
+              totalSlotTarget += Number(s.target_effective || 0);
+              
+              sumTgt.l1 += getLineTarget(s, "st1");
+              sumTgt.l2 += getLineTarget(s, "st2");
+              sumTgt.l3 += getLineTarget(s, "st3");
+              sumTgt.l4 += getLineTarget(s, "st4");
+          }
 
           sumProd.l1 += Number(s.line1||0);
           sumProd.l2 += Number(s.line2||0);
           sumProd.l3 += Number(s.line3||0);
           sumProd.l4 += Number(s.line4||0);
-          
-          sumTgt.l1 += getLineTarget(s, "st1");
-          sumTgt.l2 += getLineTarget(s, "st2");
-          sumTgt.l3 += getLineTarget(s, "st3");
-          sumTgt.l4 += getLineTarget(s, "st4");
         });
 
         const sumTotalProd = sumProd.l1 + sumProd.l2 + sumProd.l3 + sumProd.l4;
         const sumTotalTgt = sumTgt.l1 + sumTgt.l2 + sumTgt.l3 + sumTgt.l4;
 
-        const trSum = document.createElement("tr"); trSum.classList.add("shift-sum");
-        const td1 = document.createElement("td"); td1.colSpan = 2; td1.innerHTML = `SHIFT ${group.shift} RESULT`; trSum.appendChild(td1);
+        const rowSum = document.createElement("div"); 
+        rowSum.className = "master-grid shift-sum";
         
-        // CORREÇÃO: Mostra a soma dos targets do slot na coluna Target
-        const tdT = document.createElement("td"); 
-        tdT.textContent = totalSlotTarget > 0 ? totalSlotTarget : ""; 
-        trSum.appendChild(tdT);
+        // Label ocupa 2 colunas
+        const d1 = document.createElement("div");
+        d1.className = "td-cell"; 
+        d1.style.gridColumn = "span 2"; 
+        d1.textContent = `SHIFT ${group.shift} RESULT`; 
+        rowSum.appendChild(d1);
+        
+        // Target Sum (Corrigido para só mostrar slots realizados)
+        rowSum.appendChild(simpleDiv(totalSlotTarget > 0 ? totalSlotTarget : ""));
 
         ["l1","l2","l3","l4"].forEach(k => {
-          if (!hasData || sumTgt[k] <= 0) {
-             const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td);
-          } else {
-             trSum.appendChild(tdSummaryWithPerf(sumProd[k], sumTgt[k]));
-          }
+          if (!hasData || sumTgt[k] <= 0) rowSum.appendChild(simpleDiv(""));
+          else rowSum.appendChild(divSummaryWithPerf(sumProd[k], sumTgt[k]));
         });
 
-        // Total Column Summary - CORRIGIDO (Usa target ajustado, sem as linhas paradas)
-        if (!hasData || sumTotalTgt <= 0) {
-           const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td);
-        } else {
-           trSum.appendChild(tdSummaryWithPerf(sumTotalProd, sumTotalTgt));
-        }
+        // Total Column Summary
+        if (!hasData || sumTotalTgt <= 0) rowSum.appendChild(simpleDiv(""));
+        else rowSum.appendChild(divSummaryWithPerf(sumTotalProd, sumTotalTgt));
 
-        tbody.appendChild(trSum);
+        tbody.appendChild(rowSum);
       }
     });
   }
@@ -741,6 +707,8 @@
   async function refreshDashboard() {
     try {
       const today = getTodayISO();
+      // Se quiser forçar data para teste:
+      // const today = "2025-11-21";
       const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
       const json = await res.json();
       if (json.status !== "success") return;
