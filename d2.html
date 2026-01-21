@@ -1,672 +1,572 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PERFORMANCE CLM6 – TV</title>
+  <meta charset="UTF-8">
+  <title>PERFORMANCE CLM6 - ANDON TV FINAL</title>
   <style>
-    html, body { margin:0; padding:0; height:100%; background:#000; font-family: Arial, Helvetica, sans-serif; color:#fff; }
-    .wrapper { display:flex; flex-direction:column; height:100vh; padding:12px 18px; box-sizing:border-box; background:#000; }
+    /* RESET & BASE */
+    html, body { 
+      margin: 0; padding: 0; 
+      height: 100vh; 
+      width: 100vw;
+      background: #000; 
+      font-family: Arial, Helvetica, sans-serif; 
+      color: #fff; 
+      overflow: hidden; 
+    }
+
+    .wrapper { 
+      display: flex; 
+      flex-direction: column; 
+      height: 100%; 
+      padding: 10px 16px; 
+      box-sizing: border-box; 
+    }
 
     /* HEADER */
-    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; }
-    .header-left { display:flex; align-items:center; min-width: 160px; }
-    .logo { height:46px; width:auto; display:block; filter:none; }
+    .header { 
+      flex: 0 0 auto; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 8px; 
+      height: 44px;
+    }
+    .logo { height: 38px; width: auto; display: block; }
+    .header-title { font-size: 36px; font-weight: 900; letter-spacing: 1px; }
+    .header-date { font-size: 24px; font-weight: 900; color: #ddd; }
 
-    .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
-    .header-title { font-size:44px; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+    /* DEFINIÇÃO DE LARGURAS (GRID SYSTEM) 
+       Soma total deve ser 100%.
+       Shift(7) + Time(13) + Target(5) = 25% (Área sem cards)
+       L1(15) + L2(15) + L3(15) + L4(15) + Total(15) = 75% (Área com cards)
+    */
+    :root {
+      --w-shift: 7%;
+      --w-time: 13%;
+      --w-target: 5%;
+      --w-col: 15%; /* L1, L2, L3, L4, Total */
+    }
 
-    .header-right { text-align:right; min-width: 320px; }
-    .header-date { font-size:28px; font-weight:900; line-height:1.1; }
-    .header-lang { font-size:12px; color:#bbb; margin-top:4px; letter-spacing:0.8px; }
+    /* KPI ROW (TOP - CURRENT SHIFT) */
+    .kpi-row-top { 
+      flex: 0 0 auto; 
+      display: flex; 
+      gap: 0; /* Gap zero para alinhar perfeitamente com a tabela */
+      margin-bottom: 4px;
+      padding-right: 18px; /* Compensar scrollbar da tabela se houver */
+    }
 
-    /* KPI ROW */
-    .kpi-row { display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap:10px; margin-bottom:10px; }
+    /* Espaçador à esquerda onde não tem card (Shift/Time/Target) */
+    .kpi-spacer {
+      width: calc(var(--w-shift) + var(--w-time) + var(--w-target));
+      display: flex;
+      align-items: flex-end;
+      padding-right: 10px;
+    }
+    .section-label-top {
+      font-size: 14px; font-weight: 900; color: #00b050; text-transform: uppercase;
+      border-bottom: 2px solid #00b050; width: 100%; margin-bottom: 5px;
+    }
+
+    .kpi-card-wrapper {
+      width: var(--w-col);
+      padding: 0 4px; /* Pequeno respiro entre cards */
+      box-sizing: border-box;
+    }
 
     .kpi-card {
-      background:#111;
-      border-radius:14px;
-      padding:10px 14px;
-      box-shadow:0 0 10px rgba(0,0,0,0.6);
-      border:3px solid #444;
-      min-height: 105px;
+      background: #111;
+      border-radius: 12px;
+      padding: 6px 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
+      border: 2px solid #444; 
+      height: 90px; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    .card-grid { display:grid; grid-template-columns: 1fr 86px; gap:10px; align-items:center; }
-
-    .kpi-title { font-size:17px; margin-bottom:8px; }
-    .kpi-main { font-size:30px; font-weight:900; margin-bottom:6px; }
-    .kpi-sub  { font-size:13px; color:#ccc; }
-
-    .metric { margin-top:6px; }
-    .metric-label { font-size:12px; color:#ccc; }
-    .metric-value { font-size:15px; font-weight:900; color:#fff; margin-top:2px; }
-
-    .big-face { display:flex; justify-content:center; align-items:center; width:86px; height:86px; color:#fff; }
-    .big-face svg { width:66px; height:66px; display:block; }
-
-    /* TABLE */
-    .table-container { flex:1; overflow:hidden; border-radius:10px; background:#111; padding:8px; }
-    table { width:100%; border-collapse:collapse; background:#111; color:#fff; }
-    thead th { position:sticky; top:0; background:#222; border-bottom:2px solid #555; border-right:1px solid #555; }
-    tbody td { text-align:center; border-bottom:1px solid #222; border-right:1px solid #222; }
-
-    .row-current { background:#262626; }
-
-    /* Performance cores */
-    .cell-ok  { background:#00b050; color:#000; font-weight:900; }
-    .cell-mid { background:#FFFF00; color:#000; font-weight:900; }
-    .cell-nok { background:#c00000; color:#fff; font-weight:900; }
-
-    /* STOP / status cores fixas */
-    .cell-mnt     { background: orange;   color:#000; font-weight:900; }
-    .cell-mat     { background: #808080;  color:#000; font-weight:900; }
-    .cell-peo     { background: #ff69b4;  color:#000; font-weight:900; }
-    .cell-qual    { background: #ffd400;  color:#000; font-weight:900; }
-    .cell-nosched { background: #0070c0;  color:#fff; font-weight:900; }
-
-    /* SHIFT SUMMARY ROW */
-    .shift-sum td{
-      border-top:2px solid #fff !important;
-      border-bottom:2px solid #fff !important;
-    }
-    .shift-sum td:first-child { border-left:2px solid #fff !important; }
-    .shift-sum td:last-child  { border-right:2px solid #fff !important; }
-
-    .shift-sum-label, .shift-sum-target {
-      background:#003366 !important;
-      color:#fff;
-      font-weight:900;
+    .card-grid { 
+      display: grid; 
+      grid-template-columns: 1fr auto; 
+      gap: 4px; 
+      align-items: center; 
+      height: 100%;
     }
 
-    /* SVG common (usa currentColor, para seguir cor da borda do card) */
-    .face-stroke { stroke: currentColor; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+    .kpi-title { font-size: 14px; margin-bottom: 2px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-main { font-size: 28px; font-weight: 900; line-height: 1; color:#fff; }
+    .metric { margin-top: 4px; }
+    .metric-label { font-size: 11px; color: #999; }
+    .metric-value { font-size: 14px; font-weight: 900; color: #fff; }
 
-    .footer-status { margin-top:6px; font-size:13px; color:#ccc; }
+    .right-col { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; }
+    .big-face svg { width: 38px; height: 38px; display: block; }
+    .face-pct { font-size: 16px; font-weight: 900; color: #fff; margin-top: 2px; }
 
-    /* ---- AUTO DENSITY (1/2/3 shifts) ---- */
+    /* TABLE CONTAINER */
+    .table-container { 
+      flex: 1 1 auto; 
+      background: #111; 
+      border-radius: 10px; 
+      padding: 0;
+      margin-bottom: 8px;
+      border: 1px solid #333;
+      overflow-y: auto; 
+      display: flex; flex-direction: column;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+    
+    thead th { 
+      position: sticky; top: 0; 
+      background: #222; 
+      border-bottom: 2px solid #555; 
+      border-right: 1px solid #555; 
+      z-index: 10;
+      padding: 8px 4px;
+      font-size: 13px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    tbody td { 
+      text-align: center; 
+      border-bottom: 1px solid #222; 
+      border-right: 1px solid #222; 
+      padding: 6px 2px; 
+      height: 28px;
+      overflow: hidden; white-space: nowrap;
+    }
+
+    /* LARGURAS DAS COLUNAS */
+    .th-shift { width: var(--w-shift); }
+    .th-time { width: var(--w-time); }
+    .th-target { width: var(--w-target); }
+    .th-line { width: var(--w-col); }
+    .th-total { width: var(--w-col); background: #1a1a1a; } /* Destaque leve na coluna total */
+
+    .row-current { background: #262626; }
+
+    /* Cores de Status */
+    .cell-ok  { background: #00b050; color: #000; font-weight: 900; }
+    .cell-mid { background: #FFFF00; color: #000; font-weight: 900; }
+    .cell-nok { background: #c00000; color: #fff; font-weight: 900; }
+    
+    .cell-mnt, .cell-mat, .cell-peo, .cell-qual, .cell-nosched { 
+      font-weight: 900; font-size: 12px; color:#000; 
+    }
+    .cell-mnt { background: orange; }
+    .cell-mat { background: #808080; }
+    .cell-peo { background: #ff69b4; }
+    .cell-qual{ background: #ffd400; }
+    .cell-nosched { background: #0070c0; color:#fff; }
+
+    /* Resumo Azul (Shift Summary) */
+    .shift-sum td {
+      background: #003366; 
+      color: #fff; font-weight: 900; font-size: 15px;
+      padding: 10px 4px !important;
+      border-top: 3px solid #fff;
+      border-bottom: 3px solid #fff;
+    }
+    .shift-sum td.cell-ok { background: #00b050 !important; color: #000; }
+    .shift-sum td.cell-mid { background: #FFFF00 !important; color: #000; }
+    .shift-sum td.cell-nok { background: #c00000 !important; color: #fff; }
+
+    /* BOTTOM ROW (GLOBAL RESULTS) */
+    .bottom-section {
+      flex: 0 0 auto;
+      border-top: 1px solid #444;
+      padding-top: 8px;
+    }
+    .section-label-btm {
+      font-size: 14px; font-weight: 900; color: #777; margin-bottom: 4px; text-transform: uppercase;
+    }
+    .global-row {
+      display: flex;
+      gap: 10px;
+    }
+    .global-card {
+      flex: 1;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 5px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .g-title { font-size: 12px; color: #888; margin-bottom: 2px;}
+    .g-val { font-size: 18px; font-weight: 900; color: #fff; }
+    .g-pct { font-size: 16px; font-weight: 900; margin-left: 8px; }
+
+    .face-stroke { stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Auto Size Adjust */
     body[data-shifts="1"] table { font-size: 15px; }
-    body[data-shifts="1"] thead th { padding: 10px 8px; }
-    body[data-shifts="1"] tbody td { padding: 10px 8px; }
-
-    body[data-shifts="2"] table { font-size: 13px; }
-    body[data-shifts="2"] thead th { padding: 7px 6px; }
-    body[data-shifts="2"] tbody td { padding: 7px 6px; }
-
-    body[data-shifts="3"] table { font-size: 12px; }
-    body[data-shifts="3"] thead th { padding: 5px 5px; }
-    body[data-shifts="3"] tbody td { padding: 5px 5px; }
-
-    /* ---- TV WALL PAGES ---- */
-    .pages { position:relative; flex:1; display:block; }
-    .page {
-      position:absolute; inset:0;
-      opacity:0;
-      pointer-events:none;
-      transition: opacity 550ms ease;
-    }
-    .page.active {
-      opacity:1;
-      pointer-events:auto;
-    }
   </style>
 </head>
 <body>
-  <div class="wrapper">
 
-    <div class="header">
-      <div class="header-left">
-        <img class="logo" src="assets/BGM.png" alt="BGM Motors">
-      </div>
+<div class="wrapper">
 
-      <div class="header-center">
-        <div class="header-title" id="titleMain">PERFORMANCE CLM6</div>
-      </div>
+  <div class="header">
+    <div class="header-left">
+      <img class="logo" src="assets/BGM.png" alt="BGM">
+    </div>
+    <div class="header-center">
+      <div class="header-title">PERFORMANCE CLM6</div>
+    </div>
+    <div class="header-right">
+      <div class="header-date" id="dateTime">--</div>
+    </div>
+  </div>
 
-      <div class="header-right">
-        <div class="header-date" id="dateTime">--</div>
-        <div class="header-lang" id="langLabel">--</div>
+  <div class="kpi-row-top">
+    <div class="kpi-spacer">
+      <div class="section-label-top">CURRENT SHIFT</div>
+    </div>
+
+    <div class="kpi-card-wrapper">
+      <div class="kpi-card" id="cardLine1_Shift">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 1</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL1_Shift">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL1_Shift">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceL1_Shift"></div><div class="face-pct" id="pctL1_Shift"></div></div>
+        </div>
       </div>
     </div>
 
-    <div class="pages">
-      <!-- PAGE EN -->
-      <div class="page active" id="pageEN" data-lang="en">
-        <div class="kpi-row">
-          <div class="kpi-card" id="cardTotal_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="kpiTotalTitle_en">Total Production vs Target</div>
-                <div class="kpi-main" id="totalProd_en">-</div>
-                <div class="kpi-sub" id="totalTarget_en">Target: -</div>
-              </div>
-              <div class="big-face" id="faceTotal_en"></div>
-            </div>
+    <div class="kpi-card-wrapper">
+      <div class="kpi-card" id="cardLine2_Shift">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 2</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL2_Shift">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL2_Shift">-</div></div>
           </div>
-
-          <div class="kpi-card" id="cardLine1_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line1Title_en">Line 1</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel_en">Last period</div>
-                  <div class="metric-value" id="lastL1_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel_en">Accumulated</div>
-                  <div class="metric-value" id="accL1_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL1_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine2_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line2Title_en">Line 2</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel2_en">Last period</div>
-                  <div class="metric-value" id="lastL2_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel2_en">Accumulated</div>
-                  <div class="metric-value" id="accL2_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL2_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine3_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line3Title_en">Line 3</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel3_en">Last period</div>
-                  <div class="metric-value" id="lastL3_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel3_en">Accumulated</div>
-                  <div class="metric-value" id="accL3_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL3_en"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine4_en">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line4Title_en">Line 4</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel4_en">Last period</div>
-                  <div class="metric-value" id="lastL4_en">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel4_en">Accumulated</div>
-                  <div class="metric-value" id="accL4_en">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL4_en"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:16%;" id="thShift_en">Shift</th>
-                <th style="width:28%;" id="thTime_en">Time</th>
-                <th style="width:10%;" id="thTarget_en">Target</th>
-                <th style="width:11%;" id="thL1_en">Line 1</th>
-                <th style="width:11%;" id="thL2_en">Line 2</th>
-                <th style="width:11%;" id="thL3_en">Line 3</th>
-                <th style="width:13%;" id="thL4_en">Line 4</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody_en"></tbody>
-          </table>
-          <div class="footer-status" id="lastUpdate_en">Last update: --</div>
+          <div class="right-col"><div class="big-face" id="faceL2_Shift"></div><div class="face-pct" id="pctL2_Shift"></div></div>
         </div>
       </div>
+    </div>
 
-      <!-- PAGE BG -->
-      <div class="page" id="pageBG" data-lang="bg">
-        <div class="kpi-row">
-          <div class="kpi-card" id="cardTotal_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="kpiTotalTitle_bg">Общо производство спрямо цел</div>
-                <div class="kpi-main" id="totalProd_bg">-</div>
-                <div class="kpi-sub" id="totalTarget_bg">Цел: -</div>
-              </div>
-              <div class="big-face" id="faceTotal_bg"></div>
-            </div>
+    <div class="kpi-card-wrapper">
+      <div class="kpi-card" id="cardLine3_Shift">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 3</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL3_Shift">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL3_Shift">-</div></div>
           </div>
-
-          <div class="kpi-card" id="cardLine1_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line1Title_bg">Линия 1</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel_bg">Последен период</div>
-                  <div class="metric-value" id="lastL1_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel_bg">Натрупано</div>
-                  <div class="metric-value" id="accL1_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL1_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine2_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line2Title_bg">Линия 2</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel2_bg">Последен период</div>
-                  <div class="metric-value" id="lastL2_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel2_bg">Натрупано</div>
-                  <div class="metric-value" id="accL2_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL2_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine3_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line3Title_bg">Линия 3</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel3_bg">Последен период</div>
-                  <div class="metric-value" id="lastL3_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel3_bg">Натрупано</div>
-                  <div class="metric-value" id="accL3_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL3_bg"></div>
-            </div>
-          </div>
-
-          <div class="kpi-card" id="cardLine4_bg">
-            <div class="card-grid">
-              <div>
-                <div class="kpi-title" id="line4Title_bg">Линия 4</div>
-                <div class="metric">
-                  <div class="metric-label" id="lastLabel4_bg">Последен период</div>
-                  <div class="metric-value" id="lastL4_bg">-</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label" id="accLabel4_bg">Натрупано</div>
-                  <div class="metric-value" id="accL4_bg">-</div>
-                </div>
-              </div>
-              <div class="big-face" id="faceL4_bg"></div>
-            </div>
-          </div>
+          <div class="right-col"><div class="big-face" id="faceL3_Shift"></div><div class="face-pct" id="pctL3_Shift"></div></div>
         </div>
+      </div>
+    </div>
 
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:16%;" id="thShift_bg">Смяна</th>
-                <th style="width:28%;" id="thTime_bg">Период</th>
-                <th style="width:10%;" id="thTarget_bg">Цел</th>
-                <th style="width:11%;" id="thL1_bg">Линия 1</th>
-                <th style="width:11%;" id="thL2_bg">Линия 2</th>
-                <th style="width:11%;" id="thL3_bg">Линия 3</th>
-                <th style="width:13%;" id="thL4_bg">Линия 4</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody_bg"></tbody>
-          </table>
-          <div class="footer-status" id="lastUpdate_bg">Обновено: --</div>
+    <div class="kpi-card-wrapper">
+      <div class="kpi-card" id="cardLine4_Shift">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">Line 4</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="valL4_Shift">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="tgtL4_Shift">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceL4_Shift"></div><div class="face-pct" id="pctL4_Shift"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card-wrapper">
+      <div class="kpi-card" id="cardTotal_Shift">
+        <div class="card-grid">
+          <div>
+            <div class="kpi-title">SHIFT TOTAL</div>
+            <div class="metric"><div class="metric-label">Acc</div><div class="metric-value" id="totalProd_Shift">-</div></div>
+            <div class="metric"><div class="metric-label">Tgt</div><div class="metric-value" id="totalTarget_Shift">-</div></div>
+          </div>
+          <div class="right-col"><div class="big-face" id="faceTotal_Shift"></div><div class="face-pct" id="pctTotal_Shift"></div></div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // === CONFIG ===
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
-    const ROTATE_MS = 30000;
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-shift">Shift</th>
+          <th class="th-time">Time</th>
+          <th class="th-target">Target</th>
+          <th class="th-line">Line 1</th>
+          <th class="th-line">Line 2</th>
+          <th class="th-line">Line 3</th>
+          <th class="th-line">Line 4</th>
+          <th class="th-total">TOTAL</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 
-    // === Utils ===
-    function qs(name){
-      const u = new URL(window.location.href);
-      return (u.searchParams.get(name) || "").trim().toLowerCase();
+  <div class="bottom-section">
+    <div class="section-label-btm">GLOBAL (ACCUMULATED)</div>
+    <div class="global-row">
+      <div class="global-card" id="gCardL1">
+        <div><div class="g-title">L1 Global</div><div class="g-val" id="accL1">-</div></div>
+        <div class="g-pct" id="pctL1">-</div>
+      </div>
+      <div class="global-card" id="gCardL2">
+        <div><div class="g-title">L2 Global</div><div class="g-val" id="accL2">-</div></div>
+        <div class="g-pct" id="pctL2">-</div>
+      </div>
+      <div class="global-card" id="gCardL3">
+        <div><div class="g-title">L3 Global</div><div class="g-val" id="accL3">-</div></div>
+        <div class="g-pct" id="pctL3">-</div>
+      </div>
+      <div class="global-card" id="gCardL4">
+        <div><div class="g-title">L4 Global</div><div class="g-val" id="accL4">-</div></div>
+        <div class="g-pct" id="pctL4">-</div>
+      </div>
+      <div class="global-card" id="gCardTotal" style="border-color:#555; background:#151515;">
+        <div><div class="g-title">TOTAL GLOBAL</div><div class="g-val" id="totalProd">-</div></div>
+        <div class="g-pct" id="pctTotal">-</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxugNG9AE1dpoobCrOYFaTzbH3EUVkd1SbbASSdcaG3eZBLuoePB5F0bolIgiCiqqIT/exec";
+
+  function getTodayISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function startDateTime() {
+    const el = document.getElementById("dateTime");
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    function tick() {
+      const now = new Date();
+      const d = String(now.getDate()).padStart(2, "0");
+      const m = monthNames[now.getMonth()];
+      const y = String(now.getFullYear()).slice(-2);
+      const hh = String(now.getHours()).padStart(2,"0");
+      const mm = String(now.getMinutes()).padStart(2,"0");
+      el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  function faceSVG(type) {
+    const common = `class="face-stroke"`;
+    const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
+    const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
+    let mouth = "";
+    if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
+    else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
+    else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
+    return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
+  }
+
+  function perfStatus(pct) {
+    if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy", color:"#00b050" };
+    if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral", color:"#FFFF00" };
+    return { status:"NOK", cls:"cell-nok", face:"sad", color:"#c00000" };
+  }
+
+  function statusClass(kind) {
+    if (kind === "STOP_MAINT") return "cell-mnt";
+    if (kind === "STOP_MAT") return "cell-mat";
+    if (kind === "STOP_PEO") return "cell-peo";
+    if (kind === "STOP_QUAL") return "cell-qual";
+    if (kind === "NO_SCHEDULE") return "cell-nosched";
+    return "";
+  }
+
+  // Verifica se é um código que zera o target (.5, 5., ,5, 5,)
+  function isNoSchedule(val) {
+    if (!val) return false;
+    const s = String(val).trim();
+    return (s === ".5" || s === "5." || s === ",5" || s === "5,");
+  }
+
+  function updateCardUI(cardId, faceId, pctId, statusObj, percentage) {
+    const card = document.getElementById(cardId);
+    const face = document.getElementById(faceId);
+    const pct  = document.getElementById(pctId);
+    if(!card || !face || !pct) return;
+
+    if (!statusObj) {
+      card.style.borderColor = "#444";
+      face.innerHTML = "";
+      pct.textContent = "";
+      return;
     }
 
-    function getTodayISO() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
+    if (statusObj.status === "OK") card.style.borderColor = "#00b050";
+    else if (statusObj.status === "MID") card.style.borderColor = "#FFFF00";
+    else card.style.borderColor = "#c00000";
+
+    face.style.color = (statusObj.status === "NOK") ? "#c00000" : (statusObj.status === "MID" ? "#FFFF00" : "#00b050");
+    face.innerHTML = faceSVG(statusObj.face);
+    pct.textContent = Math.round(percentage) + "%";
+  }
+
+  function updateGlobalCard(cardId, valId, pctId, val, target) {
+    const card = document.getElementById(cardId);
+    const elVal = document.getElementById(valId);
+    const elPct = document.getElementById(pctId);
+    
+    if (target <= 0) {
+      elVal.textContent = "-"; elPct.textContent = ""; card.style.borderColor = "#333"; return;
+    }
+    
+    const p = val/target;
+    const st = perfStatus(p);
+    
+    elVal.textContent = val;
+    elPct.textContent = Math.round(p*100) + "%";
+    elPct.style.color = st.color;
+    card.style.borderColor = st.color;
+  }
+
+  function hasAnyLaunchInSlot(slot) { return slot && slot.has_launch === true; }
+  
+  // Função auxiliar para calcular target individual da linha
+  function getLineTarget(slot, lineStatusKey) {
+    const st = slot[lineStatusKey];
+    if (isNoSchedule(st)) return 0;
+    return Number(slot.target_effective || slot.target || 0);
+  }
+
+  function calcUpToUltimo(slots, ultimo) {
+    if (!ultimo) return slots; 
+    const out = [];
+    for (const s of slots) {
+      out.push(s);
+      if (s.id_slot === ultimo.id_slot) break;
+    }
+    return out;
+  }
+
+  /* ---------------- LOGIC ---------------- */
+  function updateAllKPIs(json, activeShift) {
+    const allSlots = json.slots || [];
+    const ultimo = json.ultimo_slot || null;
+    const anyLaunchDay = allSlots.some(s => hasAnyLaunchInSlot(s));
+
+    // --- GLOBAL (BOTTOM) ---
+    const globalConsidered = calcUpToUltimo(allSlots, ultimo);
+    
+    // Calculo refinado global
+    let gProd = { l1:0, l2:0, l3:0, l4:0 };
+    let gTgt  = { l1:0, l2:0, l3:0, l4:0 };
+
+    globalConsidered.forEach(s => {
+      // Prod
+      gProd.l1 += Number(s.line1||0);
+      gProd.l2 += Number(s.line2||0);
+      gProd.l3 += Number(s.line3||0);
+      gProd.l4 += Number(s.line4||0);
+      // Target (Considering No Schedule)
+      gTgt.l1 += getLineTarget(s, "st1");
+      gTgt.l2 += getLineTarget(s, "st2");
+      gTgt.l3 += getLineTarget(s, "st3");
+      gTgt.l4 += getLineTarget(s, "st4");
+    });
+
+    const gTotalProd = gProd.l1 + gProd.l2 + gProd.l3 + gProd.l4;
+    const gTotalTgt  = gTgt.l1 + gTgt.l2 + gTgt.l3 + gTgt.l4;
+
+    if (anyLaunchDay) {
+      updateGlobalCard("gCardL1", "accL1", "pctL1", gProd.l1, gTgt.l1);
+      updateGlobalCard("gCardL2", "accL2", "pctL2", gProd.l2, gTgt.l2);
+      updateGlobalCard("gCardL3", "accL3", "pctL3", gProd.l3, gTgt.l3);
+      updateGlobalCard("gCardL4", "accL4", "pctL4", gProd.l4, gTgt.l4);
+      updateGlobalCard("gCardTotal", "totalProd", "pctTotal", gTotalProd, gTotalTgt);
     }
 
-    function startDateTime() {
-      const el = document.getElementById("dateTime");
-      const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      function tick() {
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2, "0");
-        const m = monthNames[now.getMonth()];
-        const y = String(now.getFullYear()).slice(-2);
-        const hh = String(now.getHours()).padStart(2,"0");
-        const mm = String(now.getMinutes()).padStart(2,"0");
-        el.textContent = `${d}-${m}-${y}  ${hh}:${mm}`;
-      }
-      tick();
-      setInterval(tick, 1000);
-    }
+    // --- SHIFT (TOP) ---
+    const shiftSlotsAll = allSlots.filter(s => Number(s.shift) === activeShift);
+    const shiftConsidered = calcUpToUltimo(shiftSlotsAll, ultimo);
+    const anyLaunchShift = shiftConsidered.some(s => hasAnyLaunchInSlot(s));
 
-    function setCardBorder(id, status) {
-      const card = document.getElementById(id);
-      if (!card) return;
-      if (status === "OK") card.style.borderColor = "#00b050";
-      else if (status === "MID") card.style.borderColor = "#FFFF00";
-      else if (status === "NOK") card.style.borderColor = "#c00000";
-      else card.style.borderColor = "#666";
-    }
+    let sProd = { l1:0, l2:0, l3:0, l4:0 };
+    let sTgt  = { l1:0, l2:0, l3:0, l4:0 };
 
-    function statusClass(kind) {
-      if (kind === "STOP_MAINT") return "cell-mnt";
-      if (kind === "STOP_MAT") return "cell-mat";
-      if (kind === "STOP_PEO") return "cell-peo";
-      if (kind === "STOP_QUAL") return "cell-qual";
-      if (kind === "NO_SCHEDULE") return "cell-nosched";
-      return "";
-    }
+    shiftConsidered.forEach(s => {
+      sProd.l1 += Number(s.line1||0);
+      sProd.l2 += Number(s.line2||0);
+      sProd.l3 += Number(s.line3||0);
+      sProd.l4 += Number(s.line4||0);
 
-    function faceSVG(type) {
-      const common = `class="face-stroke"`;
-      const head = `<circle cx="32" cy="32" r="22" ${common}></circle>`;
-      const eyes = `<circle cx="24" cy="28" r="2" ${common}></circle><circle cx="40" cy="28" r="2" ${common}></circle>`;
-      let mouth = "";
-      if (type === "happy") mouth = `<path d="M22 38 Q32 46 42 38" ${common}></path>`;
-      else if (type === "neutral") mouth = `<path d="M22 40 L42 40" ${common}></path>`;
-      else mouth = `<path d="M22 44 Q32 36 42 44" ${common}></path>`;
-      return `<svg viewBox="0 0 64 64" aria-hidden="true">${head}${eyes}${mouth}</svg>`;
-    }
+      sTgt.l1 += getLineTarget(s, "st1");
+      sTgt.l2 += getLineTarget(s, "st2");
+      sTgt.l3 += getLineTarget(s, "st3");
+      sTgt.l4 += getLineTarget(s, "st4");
+    });
 
-    function perfStatus(pct) {
-      if (pct >= 1) return { status:"OK", cls:"cell-ok", face:"happy" };
-      if (pct >= 0.95) return { status:"MID", cls:"cell-mid", face:"neutral" };
-      return { status:"NOK", cls:"cell-nok", face:"sad" };
-    }
+    const sTotalProd = sProd.l1 + sProd.l2 + sProd.l3 + sProd.l4;
+    const sTotalTgt  = sTgt.l1 + sTgt.l2 + sTgt.l3 + sTgt.l4;
 
-    function applyShiftDensity(slots){
-      const used = [1,2,3].filter(s => (slots || []).some(x => Number(x.shift) === s)).length || 1;
-      document.body.dataset.shifts = String(used);
-    }
+    // Update Top Cards
+    const shiftLines = [
+      { key:"l1", valId:"valL1_Shift", tgtId:"tgtL1_Shift", card:"cardLine1_Shift", face:"faceL1_Shift", pct:"pctL1_Shift" },
+      { key:"l2", valId:"valL2_Shift", tgtId:"tgtL2_Shift", card:"cardLine2_Shift", face:"faceL2_Shift", pct:"pctL2_Shift" },
+      { key:"l3", valId:"valL3_Shift", tgtId:"tgtL3_Shift", card:"cardLine3_Shift", face:"faceL3_Shift", pct:"pctL3_Shift" },
+      { key:"l4", valId:"valL4_Shift", tgtId:"tgtL4_Shift", card:"cardLine4_Shift", face:"faceL4_Shift", pct:"pctL4_Shift" }
+    ];
 
-    // backend flag
-    function hasAnyLaunchInSlot(slot) {
-      return slot && slot.has_launch === true;
-    }
-
-    function calcUpToUltimo(slots, ultimo) {
-      if (!ultimo) return slots;
-      const out = [];
-      for (const s of slots) { out.push(s); if (s.id_slot === ultimo.id_slot) break; }
-      return out;
-    }
-
-    function setBigFace(elId, state) {
-      const el = document.getElementById(elId);
-      if (!el) return;
-      if (!state) { el.innerHTML = ""; el.style.color = "#fff"; return; }
-
-      if (state.status === "OK") el.style.color = "#00b050";
-      else if (state.status === "MID") el.style.color = "#FFFF00";
-      else el.style.color = "#c00000";
-
-      el.innerHTML = faceSVG(state.face);
-    }
-
-    function tdWithPerf(value, targetEff, hasLaunch) {
-      const td = document.createElement("td");
-      if (!hasLaunch) { td.textContent = ""; return td; }
-
-      if (targetEff > 0) {
-        const st = perfStatus(value / targetEff);
-        td.classList.add(st.cls);
-        td.textContent = value;
+    shiftLines.forEach(m => {
+      document.getElementById(m.tgtId).textContent = anyLaunchShift ? sTgt[m.key] : "-";
+      document.getElementById(m.valId).textContent = anyLaunchShift ? sProd[m.key] : "-";
+      
+      if (!anyLaunchShift || sTgt[m.key] <= 0) {
+        updateCardUI(m.card, m.face, m.pct, null, null);
       } else {
-        td.textContent = String(value ?? "");
+        const p = sProd[m.key] / sTgt[m.key];
+        updateCardUI(m.card, m.face, m.pct, perfStatus(p), p*100);
       }
-      return td;
+    });
+
+    // Total Shift Card
+    document.getElementById("totalProd_Shift").textContent = anyLaunchShift ? sTotalProd : "-";
+    document.getElementById("totalTarget_Shift").textContent = anyLaunchShift ? sTotalTgt : "-";
+    
+    if (!anyLaunchShift || sTotalTgt <= 0) {
+      updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
+    } else {
+      const p = sTotalProd / sTotalTgt;
+      updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", perfStatus(p), p*100);
     }
+  }
 
-    function updateTopKPIsFor(lang, json){
-      const slots = json.slots || [];
-      const ultimo = json.ultimo_slot || null;
-      const anyLaunchDay = slots.some(s => hasAnyLaunchInSlot(s));
-
-      const considered = calcUpToUltimo(slots, ultimo);
-      const targetPerLine = considered.reduce((acc, s) => acc + (Number(s.target_counted ?? 0)), 0); // <<<<<< key (counts only launched)
-      const acc = {
-        line1: considered.reduce((a,s)=>a + Number(s.line1||0),0),
-        line2: considered.reduce((a,s)=>a + Number(s.line2||0),0),
-        line3: considered.reduce((a,s)=>a + Number(s.line3||0),0),
-        line4: considered.reduce((a,s)=>a + Number(s.line4||0),0)
-      };
-
-      const totalProd = acc.line1 + acc.line2 + acc.line3 + acc.line4;
-      const totalTarget = targetPerLine * 4;
-
-      const id = (x)=>`${x}_${lang}`;
-
-      document.getElementById(id("totalProd")).textContent = anyLaunchDay ? totalProd : "-";
-      const targetPrefix = (lang === "bg") ? "Цел: " : "Target: ";
-      document.getElementById(id("totalTarget")).textContent = targetPrefix + (totalTarget > 0 ? totalTarget : "-");
-
-      if (!anyLaunchDay || !ultimo || totalTarget <= 0) {
-        setCardBorder(id("cardTotal"), "IDLE");
-        setBigFace(id("faceTotal"), null);
-      } else {
-        const st = perfStatus(totalProd / totalTarget);
-        setCardBorder(id("cardTotal"), st.status);
-        setBigFace(id("faceTotal"), st);
-      }
-
-      const lastSlot = ultimo ? slots.find(s => s.id_slot === ultimo.id_slot) : null;
-
-      const lines = [
-        { key:"line1", last:id("lastL1"), acc:id("accL1"), card:id("cardLine1"), face:id("faceL1") },
-        { key:"line2", last:id("lastL2"), acc:id("accL2"), card:id("cardLine2"), face:id("faceL2") },
-        { key:"line3", last:id("lastL3"), acc:id("accL3"), card:id("cardLine3"), face:id("faceL3") },
-        { key:"line4", last:id("lastL4"), acc:id("accL4"), card:id("cardLine4"), face:id("faceL4") }
-      ];
-
-      lines.forEach(m => {
-        const lastEl = document.getElementById(m.last);
-        const accEl  = document.getElementById(m.acc);
-
-        if (!anyLaunchDay || !ultimo || targetPerLine <= 0) {
-          lastEl.textContent = "-";
-          accEl.textContent = "-";
-          setCardBorder(m.card, "IDLE");
-          setBigFace(m.face, null);
-          return;
-        }
-
-        const lastVal = lastSlot ? Number(lastSlot[m.key] || 0) : 0;
-        const lastTarget = lastSlot ? Number(lastSlot.target_effective || lastSlot.target || 0) : 0;
-        lastEl.textContent = `${lastVal} / ${lastTarget}`;
-
-        const accVal = acc[m.key];
-        accEl.textContent = `${accVal} / ${targetPerLine}`;
-
-        const st = perfStatus(accVal / targetPerLine);
-        setCardBorder(m.card, st.status);
-        setBigFace(m.face, st);
-      });
+  function tdWithPerf(value, targetEff, hasLaunch) {
+    const td = document.createElement("td");
+    if (!hasLaunch || targetEff <= 0) { 
+      td.textContent = (value > 0 || hasLaunch) ? value : ""; 
+      return td; 
     }
+    const st = perfStatus(value / targetEff);
+    td.classList.add(st.cls);
+    td.textContent = value;
+    return td;
+  }
 
-    function buildTableFor(lang, json){
-      const tbody = document.getElementById(`tableBody_${lang}`);
-      tbody.innerHTML = "";
-
-      const slots = json.slots || [];
-      const ultimo = json.ultimo_slot || null;
-
-      const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
-
-      shifts.forEach(group => {
-        group.slots.forEach(slot => {
-          const tr = document.createElement("tr");
-          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
-
-          const tdShift = document.createElement("td");
-          tdShift.textContent = (lang === "bg") ? ("Смяна " + slot.shift) : ("Shift " + slot.shift);
-          tr.appendChild(tdShift);
-
-          const tdTime = document.createElement("td");
-          tdTime.textContent = slot.label;
-          tr.appendChild(tdTime);
-
-          const targetEff = Number(slot.target_effective || 0);
-
-          const tdTarget = document.createElement("td");
-          tdTarget.textContent = targetEff > 0 ? targetEff : "";
-          tr.appendChild(tdTarget);
-
-          const defs = [
-            { key:"line1", disp:"disp1", st:"st1" },
-            { key:"line2", disp:"disp2", st:"st2" },
-            { key:"line3", disp:"disp3", st:"st3" },
-            { key:"line4", disp:"disp4", st:"st4" }
-          ];
-
-          defs.forEach(d => {
-            const stKind = slot[d.st] || "RUN";
-
-            if (stKind !== "RUN") {
-              const td = document.createElement("td");
-              td.textContent = slot[d.disp] || "";
-              td.classList.add(statusClass(stKind));
-              tr.appendChild(td);
-              return;
-            }
-
-            const hasLaunch = (slot && slot.has_launch === true);
-            if (!hasLaunch) {
-              const td = document.createElement("td");
-              td.textContent = "";
-              tr.appendChild(td);
-              return;
-            }
-
-            const raw = slot[d.key];
-            const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
-            tr.appendChild(tdWithPerf(v, targetEff, true));
-          });
-
-          tbody.appendChild(tr);
-        });
-
-        if (group.slots.length > 0) {
-          const hasAnyLaunchShift = group.slots.some(s => hasAnyLaunchInSlot(s));
-
-          const sum = {
-            target: group.slots.reduce((a,s)=>a + Number(s.target_counted ?? 0),0), // counts only launched
-            line1: group.slots.reduce((a,s)=>a + Number(s.line1||0),0),
-            line2: group.slots.reduce((a,s)=>a + Number(s.line2||0),0),
-            line3: group.slots.reduce((a,s)=>a + Number(s.line3||0),0),
-            line4: group.slots.reduce((a,s)=>a + Number(s.line4||0),0)
-          };
-
-          const trSum = document.createElement("tr");
-          trSum.classList.add("shift-sum");
-
-          const td1 = document.createElement("td");
-          td1.colSpan = 2;
-          td1.textContent = (lang === "bg")
-            ? `НАТРУПАНО – СМЯНА ${group.shift}`
-            : `CUMULATIVE RESULT – SHIFT ${group.shift}`;
-          td1.classList.add("shift-sum-label");
-          trSum.appendChild(td1);
-
-          const tdT = document.createElement("td");
-          tdT.textContent = sum.target > 0 ? sum.target : "";
-          tdT.classList.add("shift-sum-target");
-          trSum.appendChild(tdT);
-
-          ["line1","line2","line3","line4"].forEach(k => {
-            if (!hasAnyLaunchShift) {
-              const td = document.createElement("td");
-              td.textContent = "";
-              trSum.appendChild(td);
-              return;
-            }
-            trSum.appendChild(tdWithPerf(sum[k], sum.target, true));
-          });
-
-          tbody.appendChild(trSum);
-        }
-      });
-
-      const lu = document.getElementById(`lastUpdate_${lang}`);
-      lu.textContent = (lang === "bg")
-        ? ("Обновено: " + new Date().toLocaleTimeString())
-        : ("Last update: " + new Date().toLocaleTimeString());
-    }
-
-    async function refresh(){
-      const today = getTodayISO();
-      const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
-      const json = await res.json();
-      if (json.status !== "success") return;
-
-      applyShiftDensity(json.slots || []);
-      updateTopKPIsFor("en", json);
-      updateTopKPIsFor("bg", json);
-      buildTableFor("en", json);
-      buildTableFor("bg", json);
-    }
-
-    // === Rotation ===
-    const pageEN = document.getElementById("pageEN");
-    const pageBG = document.getElementById("pageBG");
-    const langLabel = document.getElementById("langLabel");
-
-    function show(lang){
-      const isEN = (lang === "en");
-      pageEN.classList.toggle("active", isEN);
-      pageBG.classList.toggle("active", !isEN);
-      langLabel.textContent = isEN ? "LANG: ENGLISH" : "ЕЗИК: БЪЛГАРСКИ";
-    }
-
-    function startRotation(){
-      const forced = qs("lang"); // en | bg | auto
-      if (forced === "en") { show("en"); return; }
-      if (forced === "bg") { show("bg"); return; }
-
-      // default: rotate
-      let cur = "en";
-      show(cur);
-      setInterval(() => {
-        cur = (cur === "en") ? "bg" : "en";
-        show(cur);
-      }, ROTATE_MS);
-    }
-
-    startDateTime();
-    refresh();
-    setInterval(refresh, 30000);
-    startRotation();
-  </script>
-</body>
-</html>
+  function tdSummaryWithPerf(value, targetEff) {
+    const td = document.createElement("td");
+    if (targetEff <= 0) { td.textContent = (value > 0) ? value : ""; return td; }
+    const ratio = value / targetEff;
+    const st = perfStatus(ratio);
+    td.classList.add(st.cls);
+    const pct = Math.round(ratio * 100);
+    td.innerHTML = `${value
