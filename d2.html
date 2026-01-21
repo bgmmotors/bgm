@@ -28,22 +28,22 @@
     .header-date { font-size: 22px; font-weight: 900; color: #ddd; }
 
     /* --- ALINHAMENTO ESTRUTURAL (CSS VARIABLES) --- */
-    /* Spacer = Shift(5%) + Time(10%) + Target(5%) = 20% 
-       Columns = 16% cada (L1, L2, L3, L4, Total) = 80%
+    /* Spacer = Shift(7%) + Time(12%) + Target(6%) = 25% 
+       Columns = 15% cada (L1, L2, L3, L4, Total) = 75%
     */
     :root {
-      --w-shift: 5%;
-      --w-time: 10%;
-      --w-target: 5%;
-      --w-col: 20%;
-      --w-spacer: 20%; /* Soma das 3 primeiras */
+      --w-shift: 7%;
+      --w-time: 12%;
+      --w-target: 6%;
+      --w-col: 15%;
+      --w-spacer: 25%; /* Soma das 3 primeiras */
     }
 
     /* CARDS ROW */
     .kpi-row { 
       flex: 0 0 auto; 
       display: flex; 
-      width: 130%;
+      width: 100%;
       margin-bottom: 5px;
       /* Padding right compensa a barra de rolagem da tabela se houver */
       padding-right: 1px; 
