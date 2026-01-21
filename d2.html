@@ -569,4 +569,152 @@
     const st = perfStatus(ratio);
     td.classList.add(st.cls);
     const pct = Math.round(ratio * 100);
-    td.innerHTML = `${value
+    td.innerHTML = `${value} <span style="font-size:0.9em">(${pct}%)</span>`;
+    return td;
+  }
+
+  function applyShiftDensity(json){
+    const used = [1,2,3].filter(s => (json.slots || []).some(x => Number(x.shift) === s)).length || 1;
+    document.body.dataset.shifts = String(used);
+  }
+
+  function buildTable(json, activeShift) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+    const slots = json.slots || [];
+    const ultimo = json.ultimo_slot || null;
+    const shifts = [1,2,3].map(s => ({ shift:s, slots: slots.filter(x => Number(x.shift) === s) }));
+
+    shifts.forEach(group => {
+      if (group.shift > activeShift) return; 
+      const isCurrentShift = (group.shift === activeShift);
+
+      if (isCurrentShift) {
+        group.slots.forEach(slot => {
+          const tr = document.createElement("tr");
+          if (ultimo && slot.id_slot === ultimo.id_slot) tr.classList.add("row-current");
+          
+          const tdShift = document.createElement("td"); tdShift.textContent = slot.shift; tr.appendChild(tdShift);
+          const tdTime = document.createElement("td"); tdTime.textContent = slot.label; tr.appendChild(tdTime);
+          
+          const targetSlot = Number(slot.target_effective || 0);
+          const tdTarget = document.createElement("td"); tdTarget.textContent = targetSlot > 0 ? targetSlot : ""; tr.appendChild(tdTarget);
+
+          // Lines
+          let rowProd = 0;
+          let rowTgt = 0;
+          const defs = [
+            { key:"line1", disp:"disp1", st:"st1" },
+            { key:"line2", disp:"disp2", st:"st2" },
+            { key:"line3", disp:"disp3", st:"st3" },
+            { key:"line4", disp:"disp4", st:"st4" }
+          ];
+
+          defs.forEach(d => {
+            // Check status
+            const stKind = slot[d.st] || "RUN";
+            const isStop = (stKind !== "RUN");
+            
+            // Calc Target contribution
+            const lineTgt = isNoSchedule(stKind) ? 0 : targetSlot;
+            rowTgt += lineTgt;
+
+            if (isStop) {
+              const td = document.createElement("td"); 
+              td.textContent = slot[d.disp] || ""; 
+              td.classList.add(statusClass(stKind)); 
+              tr.appendChild(td);
+              return;
+            }
+            if (!hasAnyLaunchInSlot(slot)) {
+              const td = document.createElement("td"); td.textContent = ""; tr.appendChild(td); return;
+            }
+            
+            const raw = slot[d.key];
+            const v = (raw === "" || raw === null || raw === undefined) ? 0 : Number(raw);
+            rowProd += v;
+            tr.appendChild(tdWithPerf(v, lineTgt, true));
+          });
+
+          // NEW TOTAL COLUMN
+          if (hasAnyLaunchInSlot(slot)) {
+            tr.appendChild(tdWithPerf(rowProd, rowTgt, true));
+          } else {
+            const td = document.createElement("td"); td.textContent = ""; tr.appendChild(td);
+          }
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      // SHIFT SUMMARY ROW
+      if (group.slots.length > 0) {
+        let sumProd = { l1:0, l2:0, l3:0, l4:0 };
+        let sumTgt = { l1:0, l2:0, l3:0, l4:0 };
+        let hasData = false;
+
+        group.slots.forEach(s => {
+          if (hasAnyLaunchInSlot(s)) hasData = true;
+          sumProd.l1 += Number(s.line1||0);
+          sumProd.l2 += Number(s.line2||0);
+          sumProd.l3 += Number(s.line3||0);
+          sumProd.l4 += Number(s.line4||0);
+          
+          sumTgt.l1 += getLineTarget(s, "st1");
+          sumTgt.l2 += getLineTarget(s, "st2");
+          sumTgt.l3 += getLineTarget(s, "st3");
+          sumTgt.l4 += getLineTarget(s, "st4");
+        });
+
+        const sumTotalProd = sumProd.l1 + sumProd.l2 + sumProd.l3 + sumProd.l4;
+        const sumTotalTgt = sumTgt.l1 + sumTgt.l2 + sumTgt.l3 + sumTgt.l4;
+
+        const trSum = document.createElement("tr"); trSum.classList.add("shift-sum");
+        
+        const td1 = document.createElement("td"); td1.colSpan = 2; td1.innerHTML = `SHIFT ${group.shift}`; trSum.appendChild(td1);
+        
+        // Target Sum (Não exibe no summary, deixa vazio ou soma simples? Deixarei vazio para focar no atingimento)
+        const tdT = document.createElement("td"); tdT.textContent = ""; trSum.appendChild(tdT);
+
+        ["l1","l2","l3","l4"].forEach(k => {
+          if (!hasData || sumTgt[k] <= 0) {
+             const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td);
+          } else {
+             trSum.appendChild(tdSummaryWithPerf(sumProd[k], sumTgt[k]));
+          }
+        });
+
+        // Total Column Summary
+        if (!hasData || sumTotalTgt <= 0) {
+           const td = document.createElement("td"); td.textContent = ""; trSum.appendChild(td);
+        } else {
+           trSum.appendChild(tdSummaryWithPerf(sumTotalProd, sumTotalTgt));
+        }
+
+        tbody.appendChild(trSum);
+      }
+    });
+  }
+
+  async function refreshDashboard() {
+    try {
+      const today = getTodayISO();
+      const res = await fetch(`${SCRIPT_URL}?action=dailyProduction&data=${today}`);
+      const json = await res.json();
+      if (json.status !== "success") return;
+      
+      let activeShift = 1;
+      if (json.ultimo_slot) activeShift = Number(json.ultimo_slot.shift);
+
+      applyShiftDensity(json);
+      buildTable(json, activeShift);
+      updateAllKPIs(json, activeShift);
+    } catch (err) { console.error(err); }
+  }
+
+  startDateTime();
+  refreshDashboard();
+  setInterval(refreshDashboard, 30000);
+</script>
+</body>
+</html>
