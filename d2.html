@@ -394,6 +394,7 @@
   function isNoSchedule(val) {
     if (!val) return false;
     const s = String(val).trim();
+    // Verifica códigos fornecidos pelo usuário
     return (s === ".5" || s === "5." || s === ",5" || s === "5,");
   }
 
