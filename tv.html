@@ -488,7 +488,7 @@
     });
 
     document.getElementById("totalProd").textContent = anyLaunchDay ? gTotalProd : "-";
-    document.getElementById("totalTarget").textContent = "Tgt: " + (anyLaunchDay ? gTotalTgt : "-");
+    document.getElementById("totalTarget").textContent = (anyLaunchDay ? gTotalTgt : "-");
     if (!anyLaunchDay || gTotalTgt <= 0) updateCardUI("cardTotal", "faceTotal", "pctTotal", null, null);
     else {
       const p = gTotalProd / gTotalTgt;
@@ -538,7 +538,7 @@
     });
 
     document.getElementById("totalProd_Shift").textContent = anyLaunchShift ? sTotalProd : "-";
-    document.getElementById("totalTarget_Shift").textContent = "Tgt: " + (anyLaunchShift ? sTotalTgt : "-");
+    document.getElementById("totalTarget_Shift").textContent =  (anyLaunchShift ? sTotalTgt : "-");
     
     if (!anyLaunchShift || sTotalTgt <= 0) updateCardUI("cardTotal_Shift", "faceTotal_Shift", "pctTotal_Shift", null, null);
     else {
